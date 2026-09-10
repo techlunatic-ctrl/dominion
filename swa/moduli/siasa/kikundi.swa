@@ -1,0 +1,137 @@
+// kikundi.swa — tafsiri ya src/core/politics/faction_system.c
+// (na faction_system.h) kwenda Swa.
+//
+// Kiambishi: siasa_kikundi_ (kikundi = faction/group). Muundo huu
+// ni sehemu ya moduli ya siasa — angalia ../../KANUNI-MAJINA.md.
+//
+// Tofauti za kimakusudi kutoka kwa chanzo cha C:
+//   - id/name (char[N] ndani ya struct) zimekuwa N8* — hazihifadhi
+//     nakala ya ndani, zinashikilia kielekezi tu (kama mfuatano wa
+//     kudumu au uliotengwa na mwitaji).
+//   - creation_time (time_t) imeachwa — haitumiki popote kwenye
+//     mantiki ya moduli hii (imewekwa mara moja tu, haisomwi
+//     kamwe), na kuiongeza ingehitaji syscall ya saa ambayo si
+//     sehemu ya wigo huu.
+//   - civ_faction_system_create() (inayotenga muundo wa mfumo
+//     kwenye rundo) na civ_faction_system_init() zimeunganishwa
+//     kuwa siasa_kikundi_mfumo_unda() moja inayorudisha muundo kwa
+//     thamani — sawa na muundo wa teknolojia.swa. Safu ya vikundi
+//     bado inatengwa kwenye rundo (tenga), kwa sababu ukubwa wake
+//     hubadilika.
+//   - civ_faction_destroy() haikuletwa — chanzo chake ni "Nothing
+//     to free for now" (hakuna la kufanya).
+
+husisha { msingi/msingi_civ.swa }
+husisha { msingi/maktaba/mfuatano.swa }
+
+// ---------- Itikadi (badala ya civ_faction_ideology_t) ----------
+N32 SIASA_ITIKADI_HURU = 0;
+N32 SIASA_ITIKADI_MHAFIDHINA = 1;
+N32 SIASA_ITIKADI_MKALI = 2;
+N32 SIASA_ITIKADI_WASTANI = 3;
+N32 SIASA_ITIKADI_NYINGINE = 4;
+
+muundo SiasaKikundi {
+    N8* kitambulisho;
+    N8* jina;
+    N32 itikadi;
+    D64 uungwaji_mkono;  // 0.0 hadi 1.0 — asilimia ya wananchi
+    D64 ushawishi;        // 0.0 hadi 1.0
+    D64 nguvu;            // 0.0 hadi 1.0
+    D64 uaminifu;         // 0.0 hadi 1.0
+    D64 tamaa;            // 0.0 hadi 1.0
+};
+
+muundo SiasaKikundiMfumo {
+    SiasaKikundi* vikundi;
+    N32 idadi;
+    N32 uwezo;
+};
+
+SiasaKikundi siasa_kikundi_unda(N8* kitambulisho, N8* jina, N32 itikadi) {
+    SiasaKikundi k;
+    k.kitambulisho = kitambulisho;
+    k.jina = jina;
+    k.itikadi = itikadi;
+    k.uungwaji_mkono = 0.1;
+    k.ushawishi = 0.1;
+    k.nguvu = 0.1;
+    k.uaminifu = 0.5;
+    k.tamaa = 0.5;
+    rudisha k;
+}
+
+SiasaKikundiMfumo siasa_kikundi_mfumo_unda() {
+    // MUHIMU: kigezo cha kielekezi (vikundi = tenga(...)) LAZIMA
+    // kiwekwe KWANZA, kabla ya idadi/uwezo. Kuvibadilisha huvunja
+    // idadi/uwezo (huwa takataka) — lugha-swa/swa#182. Usibadilishe
+    // mpangilio huu bila kuangalia kama #182 imefungwa.
+    SiasaKikundiMfumo m;
+    m.vikundi = tenga(ukubwa(SiasaKikundi) * 16);
+    m.idadi = 0;
+    m.uwezo = 16;
+    rudisha m;
+}
+
+W0 siasa_kikundi_mfumo_uharibu(SiasaKikundiMfumo* m) {
+    achilia m->vikundi;
+}
+
+N32 siasa_kikundi_mfumo_ongeza(SiasaKikundiMfumo* m, SiasaKikundi* kikundi) {
+    kama (m->idadi >= m->uwezo) {
+        m->uwezo = m->uwezo * 2;
+        m->vikundi = badili(m->vikundi, ukubwa(SiasaKikundi) * m->uwezo);
+    }
+    kama (m->vikundi == 0) { rudisha CIV_HITILAFU_KUMBUKUMBU_IMEISHA; }
+
+    m->vikundi[m->idadi] = *kikundi;
+    m->idadi = m->idadi + 1;
+    rudisha CIV_SAWA;
+}
+
+SiasaKikundi* siasa_kikundi_mfumo_tafuta(SiasaKikundiMfumo* m, N8* kitambulisho) {
+    N32 i = 0;
+    wakati (i < m->idadi) {
+        kama (linganisha_mfuatano(m->vikundi[i].kitambulisho, kitambulisho) == 0) {
+            rudisha &m->vikundi[i];
+        }
+        i = i + 1;
+    }
+    rudisha 0;
+}
+
+N32 siasa_kikundi_mfumo_sasisha(SiasaKikundiMfumo* m, D64 muda) {
+    N32 i = 0;
+    wakati (i < m->idadi) {
+        SiasaKikundi* k = &m->vikundi[i];
+
+        D64 mabadiliko_ya_nguvu = (k->uungwaji_mkono * k->ushawishi - k->nguvu) * muda * 0.1;
+        k->nguvu = finya_d64(k->nguvu + mabadiliko_ya_nguvu, 0.0, 1.0);
+
+        D64 mabadiliko_ya_ushawishi = (k->nguvu - k->ushawishi) * muda * 0.05;
+        k->ushawishi = finya_d64(k->ushawishi + mabadiliko_ya_ushawishi, 0.0, 1.0);
+
+        i = i + 1;
+    }
+    rudisha CIV_SAWA;
+}
+
+D64 siasa_kikundi_mfumo_utulivu(SiasaKikundiMfumo* m) {
+    kama (m->idadi == 0) { rudisha 1.0; }
+
+    D64 nguvu_jumla = 0.0;
+    D64 nguvu_kubwa = 0.0;
+    N32 i = 0;
+    wakati (i < m->idadi) {
+        nguvu_jumla = nguvu_jumla + m->vikundi[i].nguvu;
+        kama (m->vikundi[i].nguvu > nguvu_kubwa) {
+            nguvu_kubwa = m->vikundi[i].nguvu;
+        }
+        i = i + 1;
+    }
+
+    kama (nguvu_jumla == 0.0) { rudisha 1.0; }
+
+    D64 uwiano = 1.0 - (nguvu_kubwa / nguvu_jumla);
+    rudisha finya_d64(uwiano, 0.0, 1.0);
+}
