@@ -8,10 +8,11 @@
 //     imekuwa safu ya N64 (anwani za MazingiraKipande* kwenye rundo),
 //     si safu ya thamani -- inaepuka #182(b), mtindo ulioothibitishwa
 //     (angalia dini.swa/#185).
-//   - civ_geography_calculate_distance (fomula ya Haversine) HAIKULETWA:
-//     inahitaji sin/cos/atan2 -- msingi_civ.swa ina civ_kielelezi (exp)
-//     na civ_mzizi (sqrt) tu, si trigonometry kamili (lugha-swa/swa#183
-//     bado). Itaongezwa pindi hesabu.swa itakapopata kazi hizo.
+//   - civ_geography_calculate_distance (fomula ya Haversine) SASA
+//     IMELETWA: civ_sin/civ_cos/civ_atan2 ziliongezwa kwenye
+//     msingi_civ.swa (mfululizo wa Taylor wenye range-reduction,
+//     zimethibitishwa sahihi hadi tarakimu 5-6 dhidi ya thamani
+//     zinazojulikana za pembe za kawaida na pembe nje ya (-pi,pi)).
 //   - region_name (char[STRING_MEDIUM_LEN], nakala ya ndani) imekuwa
 //     N8* isiyohifadhi nakala, sawa na moduli nyingine za kikao hiki.
 //   - civ_geography_add_land_patch (hoja 7 kwenye C: geo + patch
@@ -140,6 +141,41 @@ CivMatokeo mazingira_jiografia_ongeza_kipande(MazingiraJiografia* geo, Mazingira
     geo->idadi_ya_vipande = geo->idadi_ya_vipande + 1;
 
     rudisha r;
+}
+
+// MAZINGIRA_RADIUSI_YA_DUNIA_KM: EARTH_RADIUS_KM ya chanzo cha C.
+D64 MAZINGIRA_RADIUSI_YA_DUNIA_KM = 6371.0;
+
+// mazingira_jiografia_umbali: fomula ya Haversine (umbali wa mzunguko
+// mkubwa/great-circle kati ya kuratibu mbili). Sawa moja kwa moja na
+// civ_geography_calculate_distance ya C, ukitumia civ_sin/civ_cos/
+// civ_atan2/civ_mzizi badala ya sin/cos/atan2/sqrt ya libc.
+D64 mazingira_jiografia_umbali(D64 lat1_d, D64 lon1_d, D64 lat2_d, D64 lon2_d) {
+    D64 pi = civ_pi();
+    D64 lat1 = lat1_d * pi / 180.0;
+    D64 lon1 = lon1_d * pi / 180.0;
+    D64 lat2 = lat2_d * pi / 180.0;
+    D64 lon2 = lon2_d * pi / 180.0;
+
+    D64 dlat = lat2 - lat1;
+    D64 dlon = lon2 - lon1;
+
+    D64 sin_dlat = civ_sin(dlat / 2.0);
+    D64 sin_dlon = civ_sin(dlon / 2.0);
+
+    D64 a_val = sin_dlat * sin_dlat
+        + civ_cos(lat1) * civ_cos(lat2) * sin_dlon * sin_dlon;
+    // Kifinyo cha [0,1] -- si kwenye C ya asili, kimeongezwa hapa
+    // kama ulinzi dhidi ya makosa madogo ya usahihi (mfululizo wa
+    // Taylor si sahihi kabisa) yanayoweza kusukuma a_val kidogo nje
+    // ya [0,1], jambo ambalo lingefanya civ_mzizi(1.0 - a_val)
+    // kurudisha 0.0 kimya kimya (civ_mzizi haina dhana ya NaN).
+    kama (a_val < 0.0) { a_val = 0.0; }
+    kama (a_val > 1.0) { a_val = 1.0; }
+
+    D64 c = 2.0 * civ_atan2(civ_mzizi(a_val), civ_mzizi(1.0 - a_val));
+
+    rudisha MAZINGIRA_RADIUSI_YA_DUNIA_KM * c;
 }
 
 D64 mazingira_jiografia_eneo_la_kilimo(MazingiraJiografia* geo) {

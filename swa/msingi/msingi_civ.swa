@@ -228,6 +228,121 @@ D64 civ_kuinua(D64 x, D64 y) {
     rudisha civ_kielelezi(y * civ_logasili(x));
 }
 
+// ---------- Trigonometry (sin/cos/atan2, lugha-swa/swa#183) ----------
+// civ_pi: kazi (si kigezo cha ulimwengu cha D64 -- hakijawahi
+// kujaribiwa kwenye kikao hiki, kwa hiyo tunaepuka hatari
+// isiyojulikana). 3.1415926536 ni herufi 12 jumla, sawa na muundo wa
+// LN2 kwenye civ_logasili -- ndani ya kikomo salama cha #188.
+D64 civ_pi() {
+    rudisha 3.1415926536;
+}
+
+// civ_sin/civ_cos: hupunguza masafa (range reduction) kwenda (-pi,pi]
+// kwa kutoa/kuongeza 2*pi mara kwa mara, kisha mfululizo wa Taylor wa
+// moja kwa moja (maneno 20) -- HAKUNA upunguzaji zaidi kwenda
+// robo-mzunguko (hauhitajiki: mfululizo unasambamka vizuri ndani ya
+// (-pi,pi] kwa maneno 20, imethibitishwa kwa majaribio ya moja kwa
+// moja dhidi ya thamani zinazojulikana, angalia jaribio la kikao hiki).
+D64 civ_sin(D64 x) {
+    D64 pi = civ_pi();
+    D64 pi2 = pi + pi;
+    wakati (x > pi) { x = x - pi2; }
+    wakati (x <= (0.0 - pi)) { x = x + pi2; }
+
+    D64 x2 = x * x;
+    D64 jumla = x;
+    D64 neno = x;
+    N32 n = 1;
+    wakati (n <= 20) {
+        D64 n_d = n;
+        D64 chini1 = 2.0 * n_d;
+        D64 chini2 = chini1 + 1.0;
+        neno = neno * (0.0 - x2) / (chini1 * chini2);
+        jumla = jumla + neno;
+        n = n + 1;
+    }
+    rudisha jumla;
+}
+
+D64 civ_cos(D64 x) {
+    D64 pi = civ_pi();
+    D64 pi2 = pi + pi;
+    wakati (x > pi) { x = x - pi2; }
+    wakati (x <= (0.0 - pi)) { x = x + pi2; }
+
+    D64 x2 = x * x;
+    D64 jumla = 1.0;
+    D64 neno = 1.0;
+    N32 n = 1;
+    wakati (n <= 20) {
+        D64 n_d = n;
+        D64 chini1 = 2.0 * n_d - 1.0;
+        D64 chini2 = 2.0 * n_d;
+        neno = neno * (0.0 - x2) / (chini1 * chini2);
+        jumla = jumla + neno;
+        n = n + 1;
+    }
+    rudisha jumla;
+}
+
+// civ_atan_ndogo: atan(t) kwa t ndani ya [0.0, 1.0] pekee. Mfululizo
+// wa Gregory (t - t^3/3 + t^5/5 - ...) unasambamka POLEPOLE SANA
+// karibu na t=1.0 (kosa la O(1/N)) -- kwa hiyo tunapunguza t mara
+// tatu kwa kigezo cha "nusu-pembe" (half-angle: atan(t) =
+// 2*atan(t/(1+sqrt(1+t^2)))) KABLA ya mfululizo, sawa na mbinu ya
+// range-reduction ya civ_logasili. Kwa t=1.0, punguzo tatu
+// hufikisha hoja ya mfululizo chini ya ~0.1 -- muunganiko wa haraka.
+D64 civ_atan_ndogo(D64 t) {
+    D64 u1 = t / (1.0 + civ_mzizi(1.0 + t * t));
+    D64 u2 = u1 / (1.0 + civ_mzizi(1.0 + u1 * u1));
+    D64 u3 = u2 / (1.0 + civ_mzizi(1.0 + u2 * u2));
+
+    D64 u2sq = u3 * u3;
+    D64 jumla = u3;
+    D64 neno = u3;
+    N32 n = 1;
+    wakati (n <= 20) {
+        D64 n_d = n;
+        D64 juu = 2.0 * n_d - 1.0;
+        D64 chini = 2.0 * n_d + 1.0;
+        neno = neno * (0.0 - u2sq) * juu / chini;
+        jumla = jumla + neno;
+        n = n + 1;
+    }
+    rudisha jumla * 8.0;
+}
+
+// civ_atan: atan(t) kwa t YOYOTE halisi. t hasi hushughulikiwa kwa
+// ulinganifu (atan ni kazi isiyo ya kawaida/odd function); |t| > 1.0
+// hushughulikiwa kwa kitambulisho atan(t) = pi/2 - atan(1/t).
+D64 civ_atan(D64 t) {
+    N32 hasi = 0;
+    D64 tt = t;
+    kama (tt < 0.0) { hasi = 1; tt = 0.0 - tt; }
+
+    D64 matokeo = civ_atan_ndogo(tt);
+    kama (tt > 1.0) {
+        matokeo = (civ_pi() / 2.0) - civ_atan_ndogo(1.0 / tt);
+    }
+
+    kama (hasi == 1) { matokeo = 0.0 - matokeo; }
+    rudisha matokeo;
+}
+
+// civ_atan2: pembe kamili (mzunguko mzima, -pi hadi pi) ya (y, x),
+// kwa mantiki ya robo (quadrant) ya kawaida ya atan2. x==0.0 na
+// y==0.0 (isiyofafanuliwa kihisabati) hurudisha 0.0.
+D64 civ_atan2(D64 y, D64 x) {
+    kama (x > 0.0) { rudisha civ_atan(y / x); }
+    kama (x < 0.0) {
+        kama (y >= 0.0) { rudisha civ_atan(y / x) + civ_pi(); }
+        rudisha civ_atan(y / x) - civ_pi();
+    }
+    kama (y > 0.0) { rudisha civ_pi() / 2.0; }
+    kama (y < 0.0) { rudisha 0.0 - (civ_pi() / 2.0); }
+    rudisha 0.0;
+}
+
 // civ_muda_sasa: sekunde tangu 1970-01-01 (Unix epoch), kwa
 // clock_gettime(CLOCK_REALTIME=0, ...) moja kwa moja (syscall 228 kwenye
 // x86-64 Linux) badala ya time() ya libc -- inaendana na msururu wa
