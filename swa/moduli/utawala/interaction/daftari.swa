@@ -56,8 +56,21 @@ CivMatokeo utawala_daftari_ongeza_kidokezo(UtawalaDaftari* d, N8* kichwa, N8* ma
         rudisha m;
     }
     kama (d->idadi >= d->uwezo) {
-        d->uwezo = d->uwezo * 2;
-        d->vidokezo = badili(d->vidokezo, ukubwa(N64) * d->uwezo);
+        // MUHIMU: `badili` imeepukwa kwa makusudi -- ikitumika ndani
+        // ya graph kubwa za husisha (struct 30+), ukaguzi wa aina wa
+        // hoja yake huvunjika kwa uwongo (lugha-swa/swa#189, muundo
+        // huu unatumika sasa kwenye utawala/serikali.swa yenye struct
+        // 40+). Ukuzi wa mkono kupitia tenga + kunakili unaepuka njia
+        // ya msimbo iliyoathirika bila kubadilisha tabia.
+        N32 uwezo_mpya = d->uwezo * 2;
+        N64* vidokezo_mpya = tenga(ukubwa(N64) * uwezo_mpya);
+        N32 vi = 0;
+        wakati (vi < d->idadi) {
+            vidokezo_mpya[vi] = d->vidokezo[vi];
+            vi = vi + 1;
+        }
+        d->vidokezo = vidokezo_mpya;
+        d->uwezo = uwezo_mpya;
     }
     UtawalaKidokezo* n = tenga(ukubwa(UtawalaKidokezo));
     d->kaunta_ya_kitambulisho = d->kaunta_ya_kitambulisho + 1;
