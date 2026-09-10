@@ -5,19 +5,29 @@
 // Kiambishi: ushindi_ — angalia ../../KANUNI-MAJINA.md (angalia pia
 // maelezo ya viambishi vidogo vya military/ kwenye mapigano.swa).
 //
-// TOFAUTI YA KIMAKUSUDI: civ_conquest_transfer_territory (uhamishaji
-// wa ardhi kwenye ramani baada ya ushindi) HAIKULETWA -- inahitaji
-// civ_map_t (ramani ya vigae), moduli ya world/ ambayo bado
-// haijaandikwa kwa Swa. Kazi zote nyingine 8 za conquest.c
-// zimeletwa kikamilifu. plunder_rng ya ndani ya C (LCG tofauti)
-// imeondolewa kwa niaba ya civ_nasibu iliyopo tayari.
+// civ_conquest_transfer_territory (uhamishaji wa ardhi kwenye ramani
+// baada ya ushindi) sasa IMELETWA kama ushindi_hamisha_eneo hapa
+// chini -- ilikuwa imeahirishwa kwa sababu ilihitaji civ_map_t
+// (ramani.swa) na civ_nation_manager_t (taifa.swa), zote mbili
+// hazikuwepo wakati huo; zote mbili zimekamilika sasa. Kazi zote
+// nyingine 8 za conquest.c zimeletwa kikamilifu. plunder_rng ya
+// ndani ya C (LCG tofauti) imeondolewa kwa niaba ya civ_nasibu
+// iliyopo tayari.
 //
 // conquests[] (safu inayokua ya civ_conquest_event_t KWA THAMANI
 // kwenye C) imekuwa safu ya N64* ya anwani (mtindo uleule wa
 // kitengo.swa/dini.swa, lugha-swa/swa#185).
+//
+// ushindi_hamisha_eneo: badala ya kutumia `endelea` (kinaweza
+// kusahaulisha hatua ya kuongeza kaunta kwenye vitanzi vya
+// `wakati` vyenye ongezeko la mkono, tofauti na `kwa`), mantiki
+// nzima imefungwa kwenye kama/sivyo za ndani ili ongezeko la
+// kaunta (x=x+1, y=y+1, i=i+1) litekelezwe KILA WAKATI bila
+// masharti.
 
 husisha { msingi/msingi_civ.swa }
 husisha { msingi/maktaba/mfuatano.swa }
+husisha { moduli/dunia/taifa.swa }
 husisha { moduli/utamaduni/uigaji.swa }
 
 N32 USHINDI_UVAMIZI = 0;
@@ -236,4 +246,91 @@ UshindiTukio* ushindi_tafuta(UshindiMfumo* s, N8* mshambuliaji_id, N8* mtetezi_i
     }
 
     rudisha 0;
+}
+
+// ushindi_hamisha_eneo: tafsiri ya civ_conquest_transfer_territory.
+// Kwa kila tukio lililokamilika lakini bado halijatumia eneo lake,
+// pitia vigae vyote vya ramani (isipokuwa safu ya kwanza/ya mwisho
+// ya y, kama C ya asili), tafuta vigae vya mtetezi vinavyopakana na
+// kigae cha mshambuliaji, kisha vihamishe kwa mshambuliaji.
+N32 ushindi_hamisha_eneo(UshindiMfumo* s, DuniaRamani* ramani, TaifaMfumo* tm) {
+    kama (s == 0 || ramani == 0) { rudisha 0; }
+    N32 jumla_yaliyohamishwa = 0;
+
+    N32 i = 0;
+    wakati (i < s->idadi_ya_matukio) {
+        UshindiTukio* tukio = ushindi_pata_tukio_kwa_idx(s, i);
+
+        kama (tukio->imekamilika != 0 && tukio->eneo_limetumika == 0) {
+            TaifaNchi* mshambuliaji = 0;
+            kama (tm != 0) {
+                mshambuliaji = dunia_taifa_tafuta_kwa_kitambulisho(tm, tukio->mshambuliaji_id);
+            }
+            N32 rangi_ya_mshambuliaji = 13382656;
+            kama (mshambuliaji != 0) { rangi_ya_mshambuliaji = mshambuliaji->rangi; }
+
+            N32 yaliyohamishwa = 0;
+            N32 y = 1;
+            wakati (y < ramani->urefu - 1) {
+                N32 x = 0;
+                wakati (x < ramani->upana) {
+                    DuniaRamaniKipande* kipande = dunia_ramani_pata_kipande(ramani, x, y);
+                    N32 ni_lengwa = 0;
+                    kama (kipande != 0 && kipande->matumizi_ya_ardhi != MAZINGIRA_MATUMIZI_MAJI
+                          && kipande->mmiliki_id != 0) {
+                        kama (linganisha_mfuatano(kipande->mmiliki_id, tukio->mtetezi_id) == 0) {
+                            ni_lengwa = 1;
+                        }
+                    }
+
+                    kama (ni_lengwa != 0) {
+                        N32 inapakana = 0;
+                        DuniaRamaniKipande* j1 = dunia_ramani_pata_kipande_kilicho_karibu(ramani, kipande, 1, 0);
+                        DuniaRamaniKipande* j2 = dunia_ramani_pata_kipande_kilicho_karibu(ramani, kipande, 0 - 1, 0);
+                        DuniaRamaniKipande* j3 = dunia_ramani_pata_kipande_kilicho_karibu(ramani, kipande, 0, 0 - 1);
+                        DuniaRamaniKipande* j4 = dunia_ramani_pata_kipande_kilicho_karibu(ramani, kipande, 0, 1);
+                        kama (j1 != 0 && j1->mmiliki_id != 0
+                              && linganisha_mfuatano(j1->mmiliki_id, tukio->mshambuliaji_id) == 0) { inapakana = 1; }
+                        kama (j2 != 0 && j2->mmiliki_id != 0
+                              && linganisha_mfuatano(j2->mmiliki_id, tukio->mshambuliaji_id) == 0) { inapakana = 1; }
+                        kama (j3 != 0 && j3->mmiliki_id != 0
+                              && linganisha_mfuatano(j3->mmiliki_id, tukio->mshambuliaji_id) == 0) { inapakana = 1; }
+                        kama (j4 != 0 && j4->mmiliki_id != 0
+                              && linganisha_mfuatano(j4->mmiliki_id, tukio->mshambuliaji_id) == 0) { inapakana = 1; }
+
+                        kama (inapakana != 0) {
+                            kipande->mmiliki_id = tukio->mshambuliaji_id;
+                            kipande->rangi_ya_kisiasa = rangi_ya_mshambuliaji;
+                            yaliyohamishwa = yaliyohamishwa + 1;
+                        }
+                    }
+
+                    x = x + 1;
+                }
+                y = y + 1;
+            }
+
+            tukio->eneo_limetumika = 1;
+            jumla_yaliyohamishwa = jumla_yaliyohamishwa + yaliyohamishwa;
+        }
+
+        i = i + 1;
+    }
+
+    // Safisha matukio yaliyokwisha kutumia eneo lao (sawa na memmove
+    // ya C ya asili, lakini rahisi zaidi kwa sababu safu yetu ni ya
+    // anwani (N64*) si ya thamani kamili).
+    N32 chanzo = 0;
+    N32 lengwa = 0;
+    wakati (chanzo < s->idadi_ya_matukio) {
+        UshindiTukio* t = ushindi_pata_tukio_kwa_idx(s, chanzo);
+        kama (t->eneo_limetumika == 0) {
+            s->matukio[lengwa] = s->matukio[chanzo];
+            lengwa = lengwa + 1;
+        }
+        chanzo = chanzo + 1;
+    }
+    s->idadi_ya_matukio = lengwa;
+
+    rudisha jumla_yaliyohamishwa;
 }
