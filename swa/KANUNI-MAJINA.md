@@ -65,10 +65,14 @@ ramani ya juu (ambayo ni kwa saraka ndogo pekee):
 | `territorial/subdivision.c` | `territorial/mgawanyo.swa` | `utawala_mgawanyo_` |
 | `custom_governance.c` | `desturi.swa` | `utawala_desturi_` |
 | `evolution/governance_evolution.c` | `maendeleo.swa` | `utawala_` (kazi za jumla) |
+| `political/elections.c` | `political/uchaguzi.swa` | `utawala_uchaguzi_` |
+| `interaction/notebook.c` | `interaction/daftari.swa` | `utawala_daftari_` |
+| `interaction/interaction.c` | `interaction/mwingiliano.swa` | `utawala_mwingiliano_` |
+| `interaction/conversation.c` | `interaction/mazungumzo.swa` | `utawala_mazungumzo_` |
+| `metrics/societal_metrics.c` | `metrics/vipimo.swa` | `utawala_vipimo_` |
 
-Bado hazijaandikwa: `government.c` (hub kuu, inahitaji mifumo 6
-mipya — elections, interaction/conversation/notebook, metrics — kazi
-kubwa tofauti, si tafsiri ya haraka).
+Bado hazijaandikwa: `government.c` (hub kuu — sasa mifumo YOTE 6
+inayohitajika ipo, ubaki kazi ya kuunganisha, si kazi mpya).
 
 Msingi wa pamoja (`include/common.h`) hauna kiambishi cha moduli —
 unatumia `civ_` (kutoka jina la asili la mradi, "Civilization
