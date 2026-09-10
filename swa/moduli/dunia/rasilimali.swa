@@ -5,11 +5,10 @@
 // Kiambishi: dunia_rasilimali_ — angalia ../../KANUNI-MAJINA.md.
 //
 // Tofauti za kimakusudi kutoka kwa chanzo cha C:
-//   - civ_resource_map_load() (kisomaji cha data/resources.bin)
-//     HAIJALETWA — angalia maelezo yaleyale kwenye mataifa_data.swa
-//     kuhusu kwa nini kisomaji cha faili la binary kimeachwa kwa
-//     wimbi lijalo. dunia_rasilimali_ongeza_amana() inatumika
-//     badala yake kuongeza amana moja moja.
+//   - civ_resource_map_load() SASA IMELETWA kama
+//     dunia_rasilimali_pakia (angalia chini), ikitumia
+//     msingi/maktaba/bin_soma.swa. dunia_rasilimali_ongeza_amana()
+//     bado inapatikana kwa kuongeza amana moja moja kwa mkono.
 //   - deposits[CIV_RESOURCE_COUNT] (safu ya vielekezi 20, kila
 //     kimoja kikielekeza safu ya ndani inayokua ya amana) imekuwa
 //     SAFU MOJA TU BAPA (flat) ya amana zote, kila moja ikiwa na
@@ -25,6 +24,8 @@
 //     #186 -- kazi ya moja kwa moja inaepuka kabisa).
 
 husisha { msingi/msingi_civ.swa }
+husisha { msingi/maktaba/faili.swa }
+husisha { msingi/maktaba/bin_soma.swa }
 
 N32 DUNIA_RASILIMALI_MAFUTA = 0;
 N32 DUNIA_RASILIMALI_GESI_ASILIA = 1;
@@ -172,4 +173,69 @@ N8* dunia_rasilimali_jina_la_aina(N32 aina) {
     kama (aina == DUNIA_RASILIMALI_CHROMITE) { rudisha "Chromite"; }
     kama (aina == DUNIA_RASILIMALI_MANGANESE) { rudisha "Manganese"; }
     rudisha "Haijulikani";
+}
+
+// RESOURCE_MAGIC ("RSOR" endian ndogo) = 0x52534F52
+N32 DUNIA_RASILIMALI_MAGIC = 1381191506;
+
+// dunia_rasilimali_pakia: soma data/resources.bin halisi. Muundo wa
+// faili (endian ndogo): magic(u32) version(u32) upana(u32) urefu(u32)
+// idadi_ya_aina(u32) kisha kwa kila aina: idadi(u16), kisha kwa kila
+// amana: x(u16) y(u16) kiasi(u16) ubora(u8).
+CivMatokeo dunia_rasilimali_pakia(DuniaRasilimaliRamani* rm, N8* njia) {
+    CivMatokeo r;
+    r.hitilafu = CIV_SAWA;
+    r.ujumbe = 0;
+
+    // Bafa dogo kimakusudi -- angalia lugha-swa/swa#190 (tenga() ina
+    // kikomo cha JUMLA cha baiti milioni 1 kwa maisha yote ya
+    // programu, si kwa mgao mmoja).
+    N32 uwezo_bafa = 65536;
+    N8* buf = tenga(uwezo_bafa);
+    N64 urefu64 = faili_soma_yote(njia, buf, uwezo_bafa);
+    kama (urefu64 < 20) {
+        r.hitilafu = CIV_HITILAFU_HAIJAPATIKANA;
+        r.ujumbe = "faili halifunguki au ni fupi mno";
+        rudisha r;
+    }
+
+    N32 magic = civ_bin_u32le(buf, 0);
+    kama (magic != DUNIA_RASILIMALI_MAGIC) {
+        r.hitilafu = CIV_HITILAFU_HOJA_MBAYA;
+        r.ujumbe = "magic si sahihi";
+        rudisha r;
+    }
+    N32 idadi_ya_aina = civ_bin_u32le(buf, 16);
+    kama (idadi_ya_aina > DUNIA_RASILIMALI_IDADI_YA_AINA) {
+        r.hitilafu = CIV_HITILAFU_HOJA_MBAYA;
+        r.ujumbe = "aina nyingi mno za rasilimali";
+        rudisha r;
+    }
+
+    N32 off = 20;
+    N32 t = 0;
+    wakati (t < idadi_ya_aina) {
+        N32 idadi = civ_bin_u16le(buf, off);
+        off = off + 2;
+
+        N32 i = 0;
+        wakati (i < idadi) {
+            N32 x = civ_bin_u16le(buf, off);
+            off = off + 2;
+            N32 y = civ_bin_u16le(buf, off);
+            off = off + 2;
+            N32 kiasi = civ_bin_u16le(buf, off);
+            off = off + 2;
+            N32 ubora = civ_bin_u8(buf, off);
+            off = off + 1;
+
+            dunia_rasilimali_ongeza_amana(rm, x, y, t, kiasi, ubora);
+            i = i + 1;
+        }
+        t = t + 1;
+    }
+
+    achilia buf;
+    r.ujumbe = "rasilimali zimepakiwa";
+    rudisha r;
 }

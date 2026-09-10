@@ -5,9 +5,9 @@
 // Kiambishi: dunia_miji_ — angalia ../../KANUNI-MAJINA.md.
 //
 // Tofauti za kimakusudi kutoka kwa chanzo cha C:
-//   - civ_cities_data_load() (kisomaji cha data/cities.bin) HAIJALETWA
-//     -- angalia maelezo yaleyale kwenye mataifa_data.swa.
-//     dunia_miji_ongeza() inatumika badala yake.
+//   - civ_cities_data_load() SASA IMELETWA kama dunia_miji_pakia
+//     (angalia chini), ikitumia msingi/maktaba/bin_soma.swa.
+//     dunia_miji_ongeza() bado inapatikana kwa mkono.
 //   - grid[32][32] (faharisi ya kiwango cha anga, safu ya safu
 //     zinazokua) HAIJALETWA -- ni uboreshaji wa KASI tu (spatial
 //     index), si tabia ya lazima: matokeo ya utafutaji ni sawa kabisa
@@ -21,6 +21,8 @@
 
 husisha { msingi/msingi_civ.swa }
 husisha { msingi/maktaba/mfuatano.swa }
+husisha { msingi/maktaba/faili.swa }
+husisha { msingi/maktaba/bin_soma.swa }
 
 N32 DUNIA_MJI_NGAZI_MKUBWA_SANA = 0;   // pop > 10M
 N32 DUNIA_MJI_NGAZI_MKUBWA = 1;        // pop 1M-10M
@@ -151,4 +153,72 @@ DuniaMijiMatokeo* dunia_miji_kwa_nchi(DuniaMijiData* cd, N8* iso_a2) {
 W0 dunia_miji_matokeo_uharibu(DuniaMijiMatokeo* matokeo) {
     kama (matokeo->miji != 0) { achilia matokeo->miji; }
     achilia matokeo;
+}
+
+// CITIES_MAGIC ("CITI" endian ndogo) = 0x54494349
+N32 DUNIA_MIJI_MAGIC = 1414087497;
+
+// dunia_miji_pakia: soma data/cities.bin halisi. Muundo wa faili
+// (endian ndogo): magic(u32) version(u32) upana(u32) urefu(u32)
+// idadi(u32) kisha kwa kila mji: jina_urefu(u16)+mfuatano
+// iso_urefu(u8)+mfuatano kipande_x(u16) kipande_y(u16)
+// idadi_ya_watu(u32) ni_mji_mkuu(u8) ngazi(u8).
+CivMatokeo dunia_miji_pakia(DuniaMijiData* cd, N8* njia) {
+    CivMatokeo r;
+    r.hitilafu = CIV_SAWA;
+    r.ujumbe = 0;
+
+    // Bafa dogo kimakusudi -- lugha-swa/swa#190 (tenga() ina kikomo
+    // cha JUMLA cha baiti milioni 1 kwa maisha yote ya programu).
+    N32 uwezo_bafa = 65536;
+    N8* buf = tenga(uwezo_bafa);
+    N64 urefu64 = faili_soma_yote(njia, buf, uwezo_bafa);
+    kama (urefu64 < 20) {
+        r.hitilafu = CIV_HITILAFU_HAIJAPATIKANA;
+        r.ujumbe = "faili halifunguki au ni fupi mno";
+        rudisha r;
+    }
+
+    N32 magic = civ_bin_u32le(buf, 0);
+    kama (magic != DUNIA_MIJI_MAGIC) {
+        r.hitilafu = CIV_HITILAFU_HOJA_MBAYA;
+        r.ujumbe = "magic si sahihi";
+        rudisha r;
+    }
+    N32 idadi = civ_bin_u32le(buf, 16);
+
+    N32 off = 20;
+    N32 i = 0;
+    wakati (i < idadi) {
+        N32 jina_urefu = civ_bin_u16le(buf, off);
+        off = off + 2;
+        N32 jina_urefu_kikomo = jina_urefu;
+        kama (jina_urefu_kikomo > 255) { jina_urefu_kikomo = 255; }
+        N8* jina = civ_bin_mfuatano(buf, off, jina_urefu_kikomo);
+        off = off + jina_urefu_kikomo;
+
+        N32 iso_urefu = civ_bin_u8(buf, off);
+        off = off + 1;
+        N8* iso_a2 = civ_bin_mfuatano(buf, off, iso_urefu);
+        off = off + iso_urefu;
+
+        N32 kipande_x = civ_bin_u16le(buf, off);
+        off = off + 2;
+        N32 kipande_y = civ_bin_u16le(buf, off);
+        off = off + 2;
+        N32 idadi_ya_watu = civ_bin_u32le(buf, off);
+        off = off + 4;
+        N32 ni_mji_mkuu = civ_bin_u8(buf, off);
+        off = off + 1;
+        N32 ngazi = civ_bin_u8(buf, off);
+        off = off + 1;
+
+        dunia_miji_ongeza(cd, jina, iso_a2, kipande_x, kipande_y,
+            idadi_ya_watu, ni_mji_mkuu, ngazi);
+        i = i + 1;
+    }
+
+    achilia buf;
+    r.ujumbe = "miji zimepakiwa";
+    rudisha r;
 }
