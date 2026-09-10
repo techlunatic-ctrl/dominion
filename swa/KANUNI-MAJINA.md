@@ -41,6 +41,35 @@ ramani ya juu (ambayo ni kwa saraka ndogo pekee):
 | `time_engine.c` | `injini_saa_` | Sehemu YA SAA KUU pekee imetafsiriwa (mwaka/siku/zamu) -- mfumo wa kalenda nyingi/enzi umeachwa, angalia maelezo kwenye `swa/moduli/injini/saa_kuu.swa` |
 | `profile.c` | `wasifu_` | Ilitumia SDL3 moja kwa moja kwa faili (SDL_CreateDirectory/SDL_IOFromFile/SDL_EnumerateDirectory) -- imeandikwa upya kwa syscalls ghafi (mkdir=83, getdents64=217) badala ya kutumia SDL3 au faili.swa pekee (ambayo haina uundaji/uorodheshaji wa saraka) -- angalia `swa/moduli/wasifu/wasifu.swa` |
 
+## Viambishi vidogo vya `governance/` (saraka ndogo nyingi, kila moja `utawala_<kiambishi_kidogo>_`)
+
+`governance/` ina saraka ndogo nyingi zenye faili nyingi za kibinafsi
+— kila faili ina kiambishi kidogo chake chini ya `utawala_` (si
+`utawala_` peke yake, ambayo ingegongana kila mahali):
+
+| Faili ya C | Faili ya Swa | Kiambishi kidogo |
+|---|---|---|
+| `branches/council.c` | `branches/baraza.swa` | `utawala_baraza_` |
+| `branches/executive.c` | `branches/mtendaji.swa` | `utawala_mtendaji_` |
+| `branches/judiciary.c` | `branches/mahakama.swa` | `utawala_mahakama_` |
+| `branches/religious_body.c` | `branches/kidini.swa` | `utawala_kidini_` |
+| `branches/legislative.c` | `branches/bunge.swa` | `utawala_bunge_` |
+| `institutions/civil_service.c` | `institutions/utumishi.swa` | `utawala_utumishi_` |
+| `institutions/ministry.c` | `institutions/wizara.swa` | `utawala_wizara_` |
+| `institutions/institution.c` | `institutions/taasisi.swa` | `utawala_taasisi_` |
+| `legal/constitution.c` | `legal/katiba.swa` | `utawala_katiba_` |
+| `legal/legal_status.c` | `legal/hadhi_kisheria.swa` | `utawala_hadhi_kisheria_` |
+| `legal/rights.c` | `legal/haki.swa` | `utawala_haki_` |
+| `political/corruption.c` | `political/rushwa.swa` | `utawala_rushwa_` |
+| `political/political_violence.c` | `political/vurugu.swa` | `utawala_vurugu_` |
+| `territorial/subdivision.c` | `territorial/mgawanyo.swa` | `utawala_mgawanyo_` |
+| `custom_governance.c` | `desturi.swa` | `utawala_desturi_` |
+| `evolution/governance_evolution.c` | `maendeleo.swa` | `utawala_` (kazi za jumla) |
+
+Bado hazijaandikwa: `government.c` (hub kuu, inahitaji mifumo 6
+mipya — elections, interaction/conversation/notebook, metrics — kazi
+kubwa tofauti, si tafsiri ya haraka).
+
 Msingi wa pamoja (`include/common.h`) hauna kiambishi cha moduli —
 unatumia `civ_` (kutoka jina la asili la mradi, "Civilization
 simulation") kwa sababu kila faili litahusisha hili, na hakuna hatari
