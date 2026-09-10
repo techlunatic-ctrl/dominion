@@ -1,0 +1,295 @@
+// mchezo.swa — tafsiri ya src/core/game.c (na game.h) kwenda Swa.
+// Mratibu mkuu (top-level orchestrator) wa mchezo.
+//
+// Kiambishi: mchezo_ — angalia ../KANUNI-MAJINA.md.
+//
+// MUHIMU — WIGO WA TAFSIRI HII (SI TAFSIRI KAMILI):
+// civ_game_t ya asili ina zaidi ya viashiria 45 vya mifumo midogo
+// (economy 18, governance, world, culture, diplomacy, military, AI,
+// n.k.) na civ_game_update ina mistari 400+ inayounganisha karibu
+// mifumo YOTE hiyo kwa mpangilio maalum wa "awamu" (phases). Kuunganisha
+// YOTE kwa usahihi kamili katika kikao kimoja ni hatari kubwa ya
+// makosa ya majina/saini (kila mfumo una jina lake la Kiswahili
+// lililoamuliwa kivyake wakati wa tafsiri yake) — badala yake,
+// tafsiri hii inatoa MFUPA MKUU (skeleton) uliojaribiwa kikamilifu:
+// muundo wa Mchezo wenye mzunguko wa maisha (unda/anzisha/sasisha/
+// maliza_zamu/pumzisha/endelea/uharibu) ukiwa umeunganishwa na
+// mifumo SABA ya msingi inayowakilisha kila tabaka kuu la mchezo
+// (wakati, idadi ya watu, utawala, dunia, makazi, akili bandia,
+// diplomasia) badala ya mifumo yote 45+.
+//
+// VILIVYOACHWA KWA MAKUSUDI (si mdudu, ni uamuzi wa wigo):
+//   - Mifumo ya uchumi (economy, moduli 18) — civ_game_initialize
+//     halisi inaunda yote 18 na civ_game_update inayapitisha kwa
+//     mpangilio maalum (macro -> labor -> policy -> tax -> budget ->
+//     ...) ukitumia matokeo ya kila moja kulisha lile linalofuata.
+//     Kuunganisha hii kwa usahihi ni kazi yake yenyewe ya baadaye.
+//   - Upakiaji wa data halisi (earth_2048x1024.earth, nations.bin,
+//     resources.bin, cities.bin, flags/index.bin) — visomaji vya
+//     data hizi vipo (bin_soma.swa + mataifa_data/rasilimali/
+//     miji_data.swa) lakini kuunganisha kwenye mzunguko wa
+//     kuanzisha mchezo halisi ni hatua tofauti.
+//   - civ_game_save_state/load_state (uhifadhi wa faili ya .save
+//     kamili, muundo wa header + ramani) — inahitaji muundo kamili
+//     wa Mchezo (mifumo yote) kabla ya kuwa na maana.
+//   - AI/conquest/territory (civ_strategic_ai_process_expansion,
+//     civ_conquest_transfer_territory) — tayari vimeachwa katika
+//     vikao vilivyopita (vinahitaji nation_manager/game_ptr kamili).
+//   - map_view.c/flag_system.c (SDL/picha) — nje ya wigo wa mradi
+//     mzima kwa sasa.
+//
+// Mifumo iliyounganishwa (7): muda (time_manager), idadi_ya_watu
+// (population_manager), serikali (government hub), ramani
+// (world_map), makazi (settlement_manager), akili (ai_system),
+// diplomasia (diplomacy_system).
+
+husisha { msingi/msingi_civ.swa }
+husisha { moduli/injini/muda.swa }
+husisha { moduli/idadi_ya_watu/idadi_ya_watu.swa }
+husisha { moduli/utawala/serikali.swa }
+husisha { moduli/dunia/ramani.swa }
+husisha { moduli/dunia/makazi.swa }
+husisha { moduli/akili/mfumo.swa }
+husisha { moduli/diplomasia/diplomasia.swa }
+
+N32 MCHEZO_HALI_KUANDAA = 0;
+N32 MCHEZO_HALI_INAENDESHA = 1;
+N32 MCHEZO_HALI_IMESIMAMA = 2;
+N32 MCHEZO_HALI_INAHIFADHI = 3;
+N32 MCHEZO_HALI_INAPAKIA = 4;
+N32 MCHEZO_HALI_INAZIMWA = 5;
+
+muundo MchezoUsanidi {
+    N8* jina;
+    N8* toleo;
+    N32 mwaka_wa_kuanza;
+    N32 ugumu;
+    N32 washa_mantiki_isiyo_wazi;
+    N32 washa_ufuatiliaji_wa_utegemezi;
+    N32 muda_wa_hifadhi_otomatiki;
+    N32 kiwango_cha_juu_cha_kumbukumbu_matukio;
+};
+
+muundo MchezoUtendaji {
+    N64 idadi_ya_sasisho;
+    D64 muda_wa_wastani_wa_sasisho;
+    D64 muda_wa_mwisho_wa_sasisho;
+};
+
+muundo Mchezo {
+    N32 hali_ya_mchezo;
+    MchezoUsanidi usanidi;
+    MchezoUtendaji utendaji;
+
+    N32 zamu_ya_sasa;
+    N32 inafanya_kazi;
+    N32 imesimamishwa;
+
+    // Anwani za mifumo midogo (N64, si vielekezi vya moja kwa moja) —
+    // lugha-swa/swa#186: field ya muundo yenye aina ya kielekezi
+    // kwenda muundo mwingine haihifadhi thamani sahihi. Suluhisho
+    // lililothibitishwa mara nyingi kikao hiki: hifadhi anwani kama
+    // N64, tumia kazi ya "pata"/"weka" inayofanya ubadilishaji wa
+    // aina (type coercion) kupitia aina ya kurudisha.
+    N64 muda_addr;
+    N64 idadi_ya_watu_addr;
+    N64 serikali_addr;
+    N64 ramani_addr;
+    N64 makazi_addr;
+    N64 akili_addr;
+    N64 diplomasia_addr;
+};
+
+InjiniMudaMfumo* mchezo_pata_muda(Mchezo* g) { rudisha g->muda_addr; }
+W0 mchezo_weka_muda(Mchezo* g, InjiniMudaMfumo* v) { g->muda_addr = v; }
+
+IdadiYaWatuMsimamizi* mchezo_pata_idadi_ya_watu(Mchezo* g) { rudisha g->idadi_ya_watu_addr; }
+W0 mchezo_weka_idadi_ya_watu(Mchezo* g, IdadiYaWatuMsimamizi* v) { g->idadi_ya_watu_addr = v; }
+
+UtawalaSerikali* mchezo_pata_serikali(Mchezo* g) { rudisha g->serikali_addr; }
+W0 mchezo_weka_serikali(Mchezo* g, UtawalaSerikali* v) { g->serikali_addr = v; }
+
+DuniaRamani* mchezo_pata_ramani(Mchezo* g) { rudisha g->ramani_addr; }
+W0 mchezo_weka_ramani(Mchezo* g, DuniaRamani* v) { g->ramani_addr = v; }
+
+DuniaMakaziMsimamizi* mchezo_pata_makazi(Mchezo* g) { rudisha g->makazi_addr; }
+W0 mchezo_weka_makazi(Mchezo* g, DuniaMakaziMsimamizi* v) { g->makazi_addr = v; }
+
+AkiliMfumo* mchezo_pata_akili(Mchezo* g) { rudisha g->akili_addr; }
+W0 mchezo_weka_akili(Mchezo* g, AkiliMfumo* v) { g->akili_addr = v; }
+
+DiplomasiaMfumo* mchezo_pata_diplomasia(Mchezo* g) { rudisha g->diplomasia_addr; }
+W0 mchezo_weka_diplomasia(Mchezo* g, DiplomasiaMfumo* v) { g->diplomasia_addr = v; }
+
+W0 mchezo_usanidi_chaguomsingi(MchezoUsanidi* u) {
+    kama (u == 0) { rudisha; }
+    u->jina = "Ustaarabu Mpya";
+    u->toleo = "0.1.0";
+    u->mwaka_wa_kuanza = 0 - 4000;
+    u->ugumu = 1;
+    u->washa_mantiki_isiyo_wazi = 1;
+    u->washa_ufuatiliaji_wa_utegemezi = 1;
+    u->muda_wa_hifadhi_otomatiki = 10;
+    u->kiwango_cha_juu_cha_kumbukumbu_matukio = 500;
+}
+
+Mchezo* mchezo_unda() {
+    Mchezo* g = tenga(ukubwa(Mchezo));
+    g->hali_ya_mchezo = MCHEZO_HALI_KUANDAA;
+    g->zamu_ya_sasa = 0;
+    g->inafanya_kazi = 0;
+    g->imesimamishwa = 0;
+    g->muda_addr = 0;
+    g->idadi_ya_watu_addr = 0;
+    g->serikali_addr = 0;
+    g->ramani_addr = 0;
+    g->makazi_addr = 0;
+    g->akili_addr = 0;
+    g->diplomasia_addr = 0;
+    g->utendaji.idadi_ya_sasisho = 0;
+    g->utendaji.muda_wa_wastani_wa_sasisho = 0.0;
+    g->utendaji.muda_wa_mwisho_wa_sasisho = 0.0;
+    rudisha g;
+}
+
+// mchezo_anzisha: uanzishaji ULIOPUNGUZWA (simplified) — huunda
+// mifumo saba ya msingi tu (angalia maelezo ya wigo juu ya faili),
+// SI mzunguko kamili wa civ_game_initialize (hauna upakiaji wa data
+// ya nje, hauna mifumo 18 ya uchumi, hauna NPC engine seeding).
+CivMatokeo mchezo_anzisha(Mchezo* g, MchezoUsanidi* usanidi) {
+    CivMatokeo r;
+    kama (g == 0 || usanidi == 0) {
+        r.hitilafu = CIV_HITILAFU_KIELEKEZI_TUPU;
+        r.ujumbe = "Mchezo au usanidi ni tupu";
+        rudisha r;
+    }
+
+    g->usanidi.jina = usanidi->jina;
+    g->usanidi.toleo = usanidi->toleo;
+    g->usanidi.mwaka_wa_kuanza = usanidi->mwaka_wa_kuanza;
+    g->usanidi.ugumu = usanidi->ugumu;
+    g->usanidi.washa_mantiki_isiyo_wazi = usanidi->washa_mantiki_isiyo_wazi;
+    g->usanidi.washa_ufuatiliaji_wa_utegemezi = usanidi->washa_ufuatiliaji_wa_utegemezi;
+    g->usanidi.muda_wa_hifadhi_otomatiki = usanidi->muda_wa_hifadhi_otomatiki;
+    g->usanidi.kiwango_cha_juu_cha_kumbukumbu_matukio = usanidi->kiwango_cha_juu_cha_kumbukumbu_matukio;
+
+    mchezo_weka_muda(g, injini_muda_unda());
+    mchezo_weka_idadi_ya_watu(g, idadi_ya_watu_unda());
+    mchezo_weka_serikali(g, utawala_serikali_unda(usanidi->jina));
+    // Ukubwa wa ramani: mfano wa 360x180 (shahada moja kwa kila
+    // kipande) — angalia maelezo ya wigo juu ya faili kuhusu
+    // earth_2048x1024.earth halisi ambayo bado haijaunganishwa hapa.
+    mchezo_weka_ramani(g, dunia_ramani_unda(360, 180, 12345));
+    mchezo_weka_makazi(g, dunia_makazi_msimamizi_unda());
+    mchezo_weka_akili(g, akili_mfumo_unda());
+    mchezo_weka_diplomasia(g, diplomasia_unda());
+
+    g->hali_ya_mchezo = MCHEZO_HALI_INAENDESHA;
+    g->inafanya_kazi = 1;
+    g->imesimamishwa = 0;
+    g->zamu_ya_sasa = 1;
+
+    andika("[MCHEZO] Umeanzishwa kwenye zamu %d\n", g->zamu_ya_sasa, 0,0,0,0,0);
+
+    r.hitilafu = CIV_SAWA;
+    r.ujumbe = 0;
+    rudisha r;
+}
+
+// mchezo_sasisha: mzunguko mmoja wa sasisha ULIOPUNGUZWA — hupitisha
+// mifumo saba iliyounganishwa tu, kwa mpangilio wa kimantiki
+// (wakati -> idadi ya watu -> utawala -> makazi -> akili -> diplomasia).
+// SI civ_game_update kamili (haina uchumi, hauna mizunguko ya
+// mfululizo ya awamu 10 za asili).
+W0 mchezo_sasisha(Mchezo* g) {
+    kama (g == 0 || g->inafanya_kazi == 0 || g->imesimamishwa != 0) { rudisha; }
+
+    D64 dt = 1.0;
+    InjiniMudaMfumo* muda = mchezo_pata_muda(g);
+    kama (muda != 0) {
+        dt = injini_muda_sasisha(muda, 1.0);
+        kama (dt <= 0.0) { dt = 1.0; }
+    }
+
+    IdadiYaWatuMsimamizi* pm = mchezo_pata_idadi_ya_watu(g);
+    N32 idadi_ya_watu_n = 100;
+    kama (pm != 0) {
+        idadi_ya_watu_sasisha(pm, dt, 0.5);
+        N64 idadi_jumla = pm->demografia.idadi_jumla;
+        idadi_ya_watu_n = idadi_jumla;
+        kama (idadi_ya_watu_n < 100) { idadi_ya_watu_n = 100; }
+    }
+
+    UtawalaSerikali* serikali = mchezo_pata_serikali(g);
+    kama (serikali != 0) {
+        utawala_serikali_sasisha(serikali, dt, idadi_ya_watu_n, 0.5, 100000.0);
+    }
+
+    DuniaRamani* ramani = mchezo_pata_ramani(g);
+    DuniaMakaziMsimamizi* makazi = mchezo_pata_makazi(g);
+    kama (makazi != 0 && ramani != 0) {
+        dunia_makazi_msimamizi_sasisha(makazi, ramani, dt);
+    }
+
+    AkiliMfumo* akili = mchezo_pata_akili(g);
+    kama (akili != 0) {
+        akili_mfumo_sasisha(akili, dt);
+    }
+
+    DiplomasiaMfumo* diplomasia = mchezo_pata_diplomasia(g);
+    kama (diplomasia != 0) {
+        N64 zamu_d = g->zamu_ya_sasa;
+        diplomasia_sasisha_mahusiano(diplomasia, zamu_d);
+    }
+
+    g->utendaji.idadi_ya_sasisho = g->utendaji.idadi_ya_sasisho + 1;
+}
+
+CivMatokeo mchezo_maliza_zamu(Mchezo* g) {
+    CivMatokeo r;
+    kama (g == 0) {
+        r.hitilafu = CIV_HITILAFU_KIELEKEZI_TUPU;
+        r.ujumbe = "Mchezo ni tupu";
+        rudisha r;
+    }
+    g->zamu_ya_sasa = g->zamu_ya_sasa + 1;
+    andika("[MCHEZO] Zamu imekamilika, zamu mpya: %d\n", g->zamu_ya_sasa, 0,0,0,0,0);
+    r.hitilafu = CIV_SAWA;
+    r.ujumbe = 0;
+    rudisha r;
+}
+
+W0 mchezo_pumzisha(Mchezo* g) {
+    kama (g != 0) { g->imesimamishwa = 1; }
+}
+
+W0 mchezo_endelea(Mchezo* g) {
+    kama (g != 0) { g->imesimamishwa = 0; }
+}
+
+W0 mchezo_zima(Mchezo* g) {
+    kama (g == 0) { rudisha; }
+    g->inafanya_kazi = 0;
+    g->hali_ya_mchezo = MCHEZO_HALI_INAZIMWA;
+
+    InjiniMudaMfumo* muda = mchezo_pata_muda(g);
+    kama (muda != 0) { injini_muda_uharibu(muda); }
+    IdadiYaWatuMsimamizi* pm = mchezo_pata_idadi_ya_watu(g);
+    kama (pm != 0) { idadi_ya_watu_uharibu(pm); }
+    UtawalaSerikali* serikali = mchezo_pata_serikali(g);
+    kama (serikali != 0) { utawala_serikali_uharibu(serikali); }
+    DuniaMakaziMsimamizi* makazi = mchezo_pata_makazi(g);
+    kama (makazi != 0) { dunia_makazi_msimamizi_uharibu(makazi); }
+    DuniaRamani* ramani = mchezo_pata_ramani(g);
+    kama (ramani != 0) { dunia_ramani_uharibu(ramani); }
+    AkiliMfumo* akili = mchezo_pata_akili(g);
+    kama (akili != 0) { akili_mfumo_uharibu(akili); }
+    DiplomasiaMfumo* diplomasia = mchezo_pata_diplomasia(g);
+    kama (diplomasia != 0) { diplomasia_uharibu(diplomasia); }
+}
+
+W0 mchezo_uharibu(Mchezo* g) {
+    kama (g == 0) { rudisha; }
+    mchezo_zima(g);
+    achilia g;
+}
