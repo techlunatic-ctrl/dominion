@@ -3,45 +3,50 @@
 //
 // Kiambishi: mchezo_ — angalia ../KANUNI-MAJINA.md.
 //
-// MUHIMU — WIGO WA TAFSIRI HII (SI TAFSIRI KAMILI):
-// civ_game_t ya asili ina zaidi ya viashiria 45 vya mifumo midogo
-// (economy 18, governance, world, culture, diplomacy, military, AI,
-// n.k.) na civ_game_update ina mistari 400+ inayounganisha karibu
-// mifumo YOTE hiyo kwa mpangilio maalum wa "awamu" (phases). Kuunganisha
-// YOTE kwa usahihi kamili katika kikao kimoja ni hatari kubwa ya
-// makosa ya majina/saini (kila mfumo una jina lake la Kiswahili
-// lililoamuliwa kivyake wakati wa tafsiri yake) — badala yake,
-// tafsiri hii inatoa MFUPA MKUU (skeleton) uliojaribiwa kikamilifu:
-// muundo wa Mchezo wenye mzunguko wa maisha (unda/anzisha/sasisha/
-// maliza_zamu/pumzisha/endelea/uharibu) ukiwa umeunganishwa na
-// mifumo SABA ya msingi inayowakilisha kila tabaka kuu la mchezo
-// (wakati, idadi ya watu, utawala, dunia, makazi, akili bandia,
-// diplomasia) badala ya mifumo yote 45+.
+// MUHIMU — WIGO WA TAFSIRI HII (SI TAFSIRI KAMILI, LAKINI SASA
+// PANA ZAIDI KULIKO TOLEO LA KWANZA LA MFUPA MKUU):
+// civ_game_t ya asili ina zaidi ya viashiria 45 vya mifumo midogo.
+// Toleo hili linaunganisha mifumo 28 kati ya hizo (badala ya 7 za
+// awali): tabaka saba za msingi (wakati, idadi ya watu, utawala,
+// dunia, makazi/settlement, akili bandia, diplomasia) NA nguzo
+// nzima ya uchumi (moduli 20 — macro, nguvukazi, sera, kodi,
+// bajeti, bidhaa, benki, kilimo, uchimbaji, miundombinu, viwanda,
+// nishati, makazi/housing, ardhi, mtaji, biashara_ndani,
+// biashara_nje, uvumbuzi, soko_haramu, vita) NA taifa (nation.c).
+// mchezo_sasisha inapitisha nguzo ya uchumi kwa mpangilio wa awamu
+// unaolingana na civ_game_update ya asili (macro -> nguvukazi ->
+// sera -> kodi -> bajeti -> bidhaa -> benki -> kilimo -> uchimbaji
+// -> miundombinu -> viwanda -> nishati -> makazi -> ardhi -> mtaji
+// -> biashara_ndani -> biashara_nje -> uvumbuzi -> soko_haramu ->
+// vita), ikilisha kila moja na matokeo HALISI ya kile
+// kilichotangulia (GDP, mfumuko, ukosefu wa kazi, rushwa, riba,
+// ubora wa miundombinu, mshahara wa wastani) badala ya thamani za
+// bandia isipokuwa pale ambapo utegemezi (mfano jiografia halisi
+// ya ardhi) bado haujaunganishwa — hizo zinatumia thamani za
+// kawaida (placeholder) zilizoelezwa moja kwa moja karibu na wito
+// husika.
 //
 // VILIVYOACHWA KWA MAKUSUDI (si mdudu, ni uamuzi wa wigo):
-//   - Mifumo ya uchumi (economy, moduli 18) — civ_game_initialize
-//     halisi inaunda yote 18 na civ_game_update inayapitisha kwa
-//     mpangilio maalum (macro -> labor -> policy -> tax -> budget ->
-//     ...) ukitumia matokeo ya kila moja kulisha lile linalofuata.
-//     Kuunganisha hii kwa usahihi ni kazi yake yenyewe ya baadaye.
 //   - Upakiaji wa data halisi (earth_2048x1024.earth, nations.bin,
 //     resources.bin, cities.bin, flags/index.bin) — visomaji vya
 //     data hizi vipo (bin_soma.swa + mataifa_data/rasilimali/
 //     miji_data.swa) lakini kuunganisha kwenye mzunguko wa
-//     kuanzisha mchezo halisi ni hatua tofauti.
-//   - civ_game_save_state/load_state (uhifadhi wa faili ya .save
-//     kamili, muundo wa header + ramani) — inahitaji muundo kamili
-//     wa Mchezo (mifumo yote) kabla ya kuwa na maana.
+//     kuanzisha mchezo halisi ni hatua tofauti; taifa hutumia
+//     mataifa 8 ya "procedural fallback" badala yake.
+//   - civ_game_save_state/load_state — inahitaji uamuzi wa muundo
+//     wa faili tofauti.
 //   - AI/conquest/territory (civ_strategic_ai_process_expansion,
 //     civ_conquest_transfer_territory) — tayari vimeachwa katika
-//     vikao vilivyopita (vinahitaji nation_manager/game_ptr kamili).
+//     vikao vilivyopita (vinahitaji nation_manager/game_ptr kamili,
+//     ambayo sasa ipo kwa sehemu — kazi ya baadaye kuunganisha).
 //   - map_view.c/flag_system.c (SDL/picha) — nje ya wigo wa mradi
 //     mzima kwa sasa.
 //
-// Mifumo iliyounganishwa (7): muda (time_manager), idadi_ya_watu
-// (population_manager), serikali (government hub), ramani
-// (world_map), makazi (settlement_manager), akili (ai_system),
-// diplomasia (diplomacy_system).
+// Mifumo iliyounganishwa (28): muda, idadi_ya_watu, serikali,
+// ramani, makazi (settlement), akili, diplomasia, taifa, uchumi_mkuu,
+// nguvukazi, sera, kodi, bajeti, bidhaa, benki, kilimo, uchimbaji,
+// miundombinu, viwanda, nishati, uchumi_makazi (housing), ardhi,
+// mtaji, biashara_ndani, biashara_nje, uvumbuzi, soko_haramu, vita.
 
 husisha { msingi/msingi_civ.swa }
 husisha { moduli/injini/muda.swa }
@@ -51,6 +56,27 @@ husisha { moduli/dunia/ramani.swa }
 husisha { moduli/dunia/makazi.swa }
 husisha { moduli/akili/mfumo.swa }
 husisha { moduli/diplomasia/diplomasia.swa }
+husisha { moduli/dunia/taifa.swa }
+husisha { moduli/uchumi/uchumi_mkuu.swa }
+husisha { moduli/uchumi/nguvukazi.swa }
+husisha { moduli/uchumi/sera.swa }
+husisha { moduli/uchumi/kodi.swa }
+husisha { moduli/uchumi/bajeti.swa }
+husisha { moduli/uchumi/bidhaa.swa }
+husisha { moduli/uchumi/benki.swa }
+husisha { moduli/uchumi/kilimo.swa }
+husisha { moduli/uchumi/uchimbaji.swa }
+husisha { moduli/uchumi/miundombinu.swa }
+husisha { moduli/uchumi/viwanda.swa }
+husisha { moduli/uchumi/nishati.swa }
+husisha { moduli/uchumi/makazi.swa }
+husisha { moduli/uchumi/ardhi.swa }
+husisha { moduli/uchumi/mtaji.swa }
+husisha { moduli/uchumi/biashara_ndani.swa }
+husisha { moduli/uchumi/biashara_nje.swa }
+husisha { moduli/uchumi/uvumbuzi.swa }
+husisha { moduli/uchumi/soko_haramu.swa }
+husisha { moduli/uchumi/vita.swa }
 
 N32 MCHEZO_HALI_KUANDAA = 0;
 N32 MCHEZO_HALI_INAENDESHA = 1;
@@ -98,6 +124,31 @@ muundo Mchezo {
     N64 makazi_addr;
     N64 akili_addr;
     N64 diplomasia_addr;
+
+    // Taifa (nation.c) na nguzo ya uchumi (moduli 20) — kiambishi
+    // "uchumi_makazi" kwa nyumba (housing) ili kuepuka mgongano na
+    // "makazi_addr" ya juu (settlement_manager) ndani ya muundo huu.
+    N64 taifa_addr;
+    N64 uchumi_mkuu_addr;
+    N64 nguvukazi_addr;
+    N64 sera_addr;
+    N64 kodi_addr;
+    N64 bajeti_addr;
+    N64 bidhaa_addr;
+    N64 benki_addr;
+    N64 kilimo_addr;
+    N64 uchimbaji_addr;
+    N64 miundombinu_addr;
+    N64 viwanda_addr;
+    N64 nishati_addr;
+    N64 uchumi_makazi_addr;
+    N64 ardhi_addr;
+    N64 mtaji_addr;
+    N64 biashara_ndani_addr;
+    N64 biashara_nje_addr;
+    N64 uvumbuzi_addr;
+    N64 soko_haramu_addr;
+    N64 vita_addr;
 };
 
 InjiniMudaMfumo* mchezo_pata_muda(Mchezo* g) { rudisha g->muda_addr; }
@@ -120,6 +171,69 @@ W0 mchezo_weka_akili(Mchezo* g, AkiliMfumo* v) { g->akili_addr = v; }
 
 DiplomasiaMfumo* mchezo_pata_diplomasia(Mchezo* g) { rudisha g->diplomasia_addr; }
 W0 mchezo_weka_diplomasia(Mchezo* g, DiplomasiaMfumo* v) { g->diplomasia_addr = v; }
+
+TaifaMfumo* mchezo_pata_taifa(Mchezo* g) { rudisha g->taifa_addr; }
+W0 mchezo_weka_taifa(Mchezo* g, TaifaMfumo* v) { g->taifa_addr = v; }
+
+UchumiMkuuMfumo* mchezo_pata_uchumi_mkuu(Mchezo* g) { rudisha g->uchumi_mkuu_addr; }
+W0 mchezo_weka_uchumi_mkuu(Mchezo* g, UchumiMkuuMfumo* v) { g->uchumi_mkuu_addr = v; }
+
+NguvukaziMfumo* mchezo_pata_nguvukazi(Mchezo* g) { rudisha g->nguvukazi_addr; }
+W0 mchezo_weka_nguvukazi(Mchezo* g, NguvukaziMfumo* v) { g->nguvukazi_addr = v; }
+
+SeraMfumo* mchezo_pata_sera(Mchezo* g) { rudisha g->sera_addr; }
+W0 mchezo_weka_sera(Mchezo* g, SeraMfumo* v) { g->sera_addr = v; }
+
+KodiMfumo* mchezo_pata_kodi(Mchezo* g) { rudisha g->kodi_addr; }
+W0 mchezo_weka_kodi(Mchezo* g, KodiMfumo* v) { g->kodi_addr = v; }
+
+BajetiMfumo* mchezo_pata_bajeti(Mchezo* g) { rudisha g->bajeti_addr; }
+W0 mchezo_weka_bajeti(Mchezo* g, BajetiMfumo* v) { g->bajeti_addr = v; }
+
+BidhaaSoko* mchezo_pata_bidhaa(Mchezo* g) { rudisha g->bidhaa_addr; }
+W0 mchezo_weka_bidhaa(Mchezo* g, BidhaaSoko* v) { g->bidhaa_addr = v; }
+
+BenkiMfumo* mchezo_pata_benki(Mchezo* g) { rudisha g->benki_addr; }
+W0 mchezo_weka_benki(Mchezo* g, BenkiMfumo* v) { g->benki_addr = v; }
+
+KilimoMfumo* mchezo_pata_kilimo(Mchezo* g) { rudisha g->kilimo_addr; }
+W0 mchezo_weka_kilimo(Mchezo* g, KilimoMfumo* v) { g->kilimo_addr = v; }
+
+UchimbajiMfumo* mchezo_pata_uchimbaji(Mchezo* g) { rudisha g->uchimbaji_addr; }
+W0 mchezo_weka_uchimbaji(Mchezo* g, UchimbajiMfumo* v) { g->uchimbaji_addr = v; }
+
+MiundombinuMfumo* mchezo_pata_miundombinu(Mchezo* g) { rudisha g->miundombinu_addr; }
+W0 mchezo_weka_miundombinu(Mchezo* g, MiundombinuMfumo* v) { g->miundombinu_addr = v; }
+
+ViwandaMfumo* mchezo_pata_viwanda(Mchezo* g) { rudisha g->viwanda_addr; }
+W0 mchezo_weka_viwanda(Mchezo* g, ViwandaMfumo* v) { g->viwanda_addr = v; }
+
+NishatiMfumo* mchezo_pata_nishati(Mchezo* g) { rudisha g->nishati_addr; }
+W0 mchezo_weka_nishati(Mchezo* g, NishatiMfumo* v) { g->nishati_addr = v; }
+
+MakaziMfumo* mchezo_pata_uchumi_makazi(Mchezo* g) { rudisha g->uchumi_makazi_addr; }
+W0 mchezo_weka_uchumi_makazi(Mchezo* g, MakaziMfumo* v) { g->uchumi_makazi_addr = v; }
+
+ArdhiMfumo* mchezo_pata_ardhi(Mchezo* g) { rudisha g->ardhi_addr; }
+W0 mchezo_weka_ardhi(Mchezo* g, ArdhiMfumo* v) { g->ardhi_addr = v; }
+
+MtajiMfumo* mchezo_pata_mtaji(Mchezo* g) { rudisha g->mtaji_addr; }
+W0 mchezo_weka_mtaji(Mchezo* g, MtajiMfumo* v) { g->mtaji_addr = v; }
+
+BiasharaNdaniMfumo* mchezo_pata_biashara_ndani(Mchezo* g) { rudisha g->biashara_ndani_addr; }
+W0 mchezo_weka_biashara_ndani(Mchezo* g, BiasharaNdaniMfumo* v) { g->biashara_ndani_addr = v; }
+
+BiasharaNjeMfumo* mchezo_pata_biashara_nje(Mchezo* g) { rudisha g->biashara_nje_addr; }
+W0 mchezo_weka_biashara_nje(Mchezo* g, BiasharaNjeMfumo* v) { g->biashara_nje_addr = v; }
+
+UvumbuziMfumo* mchezo_pata_uvumbuzi(Mchezo* g) { rudisha g->uvumbuzi_addr; }
+W0 mchezo_weka_uvumbuzi(Mchezo* g, UvumbuziMfumo* v) { g->uvumbuzi_addr = v; }
+
+SokoHaramuMfumo* mchezo_pata_soko_haramu(Mchezo* g) { rudisha g->soko_haramu_addr; }
+W0 mchezo_weka_soko_haramu(Mchezo* g, SokoHaramuMfumo* v) { g->soko_haramu_addr = v; }
+
+VitaMfumo* mchezo_pata_vita(Mchezo* g) { rudisha g->vita_addr; }
+W0 mchezo_weka_vita(Mchezo* g, VitaMfumo* v) { g->vita_addr = v; }
 
 W0 mchezo_usanidi_chaguomsingi(MchezoUsanidi* u) {
     kama (u == 0) { rudisha; }
@@ -146,6 +260,27 @@ Mchezo* mchezo_unda() {
     g->makazi_addr = 0;
     g->akili_addr = 0;
     g->diplomasia_addr = 0;
+    g->taifa_addr = 0;
+    g->uchumi_mkuu_addr = 0;
+    g->nguvukazi_addr = 0;
+    g->sera_addr = 0;
+    g->kodi_addr = 0;
+    g->bajeti_addr = 0;
+    g->bidhaa_addr = 0;
+    g->benki_addr = 0;
+    g->kilimo_addr = 0;
+    g->uchimbaji_addr = 0;
+    g->miundombinu_addr = 0;
+    g->viwanda_addr = 0;
+    g->nishati_addr = 0;
+    g->uchumi_makazi_addr = 0;
+    g->ardhi_addr = 0;
+    g->mtaji_addr = 0;
+    g->biashara_ndani_addr = 0;
+    g->biashara_nje_addr = 0;
+    g->uvumbuzi_addr = 0;
+    g->soko_haramu_addr = 0;
+    g->vita_addr = 0;
     g->utendaji.idadi_ya_sasisho = 0;
     g->utendaji.muda_wa_wastani_wa_sasisho = 0.0;
     g->utendaji.muda_wa_mwisho_wa_sasisho = 0.0;
@@ -184,6 +319,46 @@ CivMatokeo mchezo_anzisha(Mchezo* g, MchezoUsanidi* usanidi) {
     mchezo_weka_akili(g, akili_mfumo_unda());
     mchezo_weka_diplomasia(g, diplomasia_unda());
 
+    // Taifa (nation.c): mfumo + mataifa 8 ya awali (procedural
+    // fallback, hakuna upakiaji wa data ya nje bado), yakidai eneo
+    // kutoka ramani iliyokwisha undwa juu.
+    TaifaMfumo* taifa = dunia_taifa_mfumo_unda();
+    dunia_taifa_mfumo_anzisha_chaguo_msingi(taifa);
+    mchezo_weka_taifa(g, taifa);
+    DuniaRamani* ramani_kwa_taifa = mchezo_pata_ramani(g);
+    kama (ramani_kwa_taifa != 0) {
+        dunia_taifa_mfumo_dai_maeneo_yote(taifa, ramani_kwa_taifa);
+    }
+
+    // Nguzo ya uchumi (moduli 20) — hakuna upakiaji wa data ya
+    // jiografia halisi bado, hivyo baadhi ya hoja za "jiografia"
+    // (eneo la ardhi, utajiri wa madini, n.k.) zinatumia thamani za
+    // kawaida (placeholder) zilizoelezwa hapa chini badala ya
+    // kusomwa kutoka ramani halisi.
+    mchezo_weka_uchumi_mkuu(g, uchumi_mkuu_unda());
+    mchezo_weka_nguvukazi(g, nguvukazi_unda());
+    mchezo_weka_sera(g, sera_unda());
+    mchezo_weka_kodi(g, kodi_unda());
+    mchezo_weka_bajeti(g, bajeti_unda());
+    mchezo_weka_bidhaa(g, bidhaa_soko_unda());
+    mchezo_weka_benki(g, benki_unda());
+    mchezo_weka_kilimo(g, kilimo_unda());
+    mchezo_weka_uchimbaji(g, uchimbaji_unda());
+    mchezo_weka_miundombinu(g, miundombinu_unda());
+    mchezo_weka_viwanda(g, viwanda_unda());
+    mchezo_weka_nishati(g, nishati_unda());
+    mchezo_weka_uchumi_makazi(g, makazi_unda());
+    // ardhi_unda inahitaji eneo la jumla la taifa (km2) — thamani ya
+    // kawaida ya 500,000 km2 (takriban ukubwa wa taifa la kati)
+    // hutumika hadi upakiaji wa data halisi ya jiografia uunganishwe.
+    mchezo_weka_ardhi(g, ardhi_unda(500000.0));
+    mchezo_weka_mtaji(g, mtaji_unda());
+    mchezo_weka_biashara_ndani(g, biashara_ndani_unda());
+    mchezo_weka_biashara_nje(g, biashara_nje_unda());
+    mchezo_weka_uvumbuzi(g, uvumbuzi_unda());
+    mchezo_weka_soko_haramu(g, soko_haramu_unda());
+    mchezo_weka_vita(g, vita_unda());
+
     g->hali_ya_mchezo = MCHEZO_HALI_INAENDESHA;
     g->inafanya_kazi = 1;
     g->imesimamishwa = 0;
@@ -220,9 +395,175 @@ W0 mchezo_sasisha(Mchezo* g) {
         kama (idadi_ya_watu_n < 100) { idadi_ya_watu_n = 100; }
     }
 
+    // Nguzo ya uchumi (moduli 20) — mpangilio wa awamu unafuata
+    // civ_game_update ya asili (Awamu 1a-1s): macro -> nguvukazi ->
+    // sera -> kodi -> bajeti -> bidhaa -> benki -> kilimo ->
+    // uchimbaji -> miundombinu -> viwanda -> nishati -> makazi ->
+    // ardhi -> mtaji -> biashara_ndani -> biashara_nje -> uvumbuzi ->
+    // soko_haramu -> vita. Kila kimoja hulishwa na matokeo halisi ya
+    // kile kilichotangulia pale inapowezekana (GDP, mfumuko, rushwa,
+    // riba, ubora wa miundombinu, n.k.) badala ya thamani za bandia.
+    D64 pato = 0.0;
+    D64 mfumuko = 0.02;
+    D64 ukuaji = 0.0;
+    D64 ukosefu_wa_kazi = 0.05;
+    D64 rushwa_jumla = 0.0;
+    D64 ufanisi_wa_utawala = 0.5;
+
+    UtawalaSerikali* serikali_kwa_uchumi = mchezo_pata_serikali(g);
+    kama (serikali_kwa_uchumi != 0) {
+        rushwa_jumla = utawala_serikali_pata_rushwa_jumla(serikali_kwa_uchumi);
+        ufanisi_wa_utawala = serikali_kwa_uchumi->ufanisi;
+    }
+
+    UchumiMkuuMfumo* mkuu = mchezo_pata_uchumi_mkuu(g);
+    kama (mkuu != 0) {
+        UchumiMkuuRipoti ripoti = uchumi_mkuu_sasisha(mkuu, dt, idadi_ya_watu_n, 5000.0, 0.5);
+        pato = ripoti.pato_la_taifa;
+        mfumuko = ripoti.kiwango_cha_mfumuko;
+        ukuaji = ripoti.kiwango_cha_ukuaji;
+        ukosefu_wa_kazi = ripoti.kiwango_cha_ukosefu_wa_kazi;
+    }
+
+    NguvukaziMfumo* nguvukazi = mchezo_pata_nguvukazi(g);
+    D64 mshahara_wa_wastani = 30000.0;
+    kama (nguvukazi != 0) {
+        NguvukaziMazingira* nm = tenga(ukubwa(NguvukaziMazingira));
+        nm->kiwango_cha_teknolojia = 0.5;
+        nm->kiwango_cha_elimu = 0.5;
+        nm->imani_ya_biashara = 0.6;
+        nguvukazi_sasisha(nguvukazi, dt, idadi_ya_watu_n, pato, nm);
+        achilia nm;
+        mshahara_wa_wastani = nguvukazi->mshahara_wa_wastani_wa_taifa;
+    }
+
+    SeraMfumo* sera = mchezo_pata_sera(g);
+    kama (sera != 0) {
+        sera_sasisha(sera, dt, mfumuko, ukosefu_wa_kazi, ukuaji, rushwa_jumla);
+    }
+
+    KodiMfumo* kodi = mchezo_pata_kodi(g);
+    D64 mapato_ya_kodi = 0.0;
+    kama (kodi != 0) {
+        kodi_sasisha(kodi, dt, pato, idadi_ya_watu_n, ufanisi_wa_utawala, rushwa_jumla);
+        mapato_ya_kodi = kodi->mapato_jumla;
+    }
+
+    BajetiMfumo* bajeti = mchezo_pata_bajeti(g);
+    D64 mgao_wa_miundombinu = 1000.0;
+    kama (bajeti != 0) {
+        bajeti_sasisha(bajeti, dt, mapato_ya_kodi, pato);
+        mgao_wa_miundombinu = bajeti_pata_mgao(bajeti, 0);
+    }
+
+    BidhaaSoko* bidhaa = mchezo_pata_bidhaa(g);
+    kama (bidhaa != 0) {
+        bidhaa_soko_sasisha_zote(bidhaa);
+    }
+
+    BenkiMfumo* benki = mchezo_pata_benki(g);
+    D64 kiwango_cha_riba = 0.04;
+    kama (benki != 0) {
+        benki_sasisha(benki, dt, mfumuko, ukuaji, ukosefu_wa_kazi, 0.3);
+        kiwango_cha_riba = benki->kiwango_cha_msingi_cha_riba;
+    }
+
+    KilimoMfumo* kilimo = mchezo_pata_kilimo(g);
+    kama (kilimo != 0) {
+        kilimo_sasisha(kilimo, dt, idadi_ya_watu_n, 5000.0, 0.5, 1.0);
+    }
+
+    UchimbajiMfumo* uchimbaji = mchezo_pata_uchimbaji(g);
+    kama (uchimbaji != 0) {
+        uchimbaji_sasisha(uchimbaji, dt, 0.5, mshahara_wa_wastani, 0.5);
+    }
+
+    MiundombinuMfumo* miundombinu = mchezo_pata_miundombinu(g);
+    D64 ubora_wa_miundombinu = 0.5;
+    kama (miundombinu != 0) {
+        miundombinu_sasisha(miundombinu, dt, mgao_wa_miundombinu, idadi_ya_watu_n, 1.0);
+        ubora_wa_miundombinu = miundombinu->ubora_wa_jumla;
+    }
+
+    ViwandaMfumo* viwanda = mchezo_pata_viwanda(g);
+    D64 pato_la_viwanda = 0.0;
+    kama (viwanda != 0) {
+        viwanda_sasisha(viwanda, dt, 0.5, mshahara_wa_wastani, 0.5, ubora_wa_miundombinu);
+        pato_la_viwanda = viwanda->pato_jumla_la_viwanda;
+    }
+
+    NishatiMfumo* nishati = mchezo_pata_nishati(g);
+    kama (nishati != 0) {
+        nishati_sasisha(nishati, dt, idadi_ya_watu_n, pato_la_viwanda, 0.5, 0.7);
+    }
+
+    MakaziMfumo* uchumi_makazi = mchezo_pata_uchumi_makazi(g);
+    kama (uchumi_makazi != 0) {
+        makazi_sasisha(uchumi_makazi, dt, idadi_ya_watu_n, mshahara_wa_wastani, kiwango_cha_riba, 1.0);
+    }
+
+    ArdhiMfumo* ardhi = mchezo_pata_ardhi(g);
+    D64 pato_kwa_mtu = 0.0;
+    kama (ardhi != 0) {
+        N32 idadi_ya_watu_p1 = idadi_ya_watu_n + 1;
+        D64 idadi_ya_watu_p1_d = idadi_ya_watu_p1;
+        pato_kwa_mtu = pato / idadi_ya_watu_p1_d;
+        ardhi_sasisha(ardhi, dt, idadi_ya_watu_n, pato_kwa_mtu, 0.02);
+    }
+
+    MtajiMfumo* mtaji = mchezo_pata_mtaji(g);
+    kama (mtaji != 0) {
+        mtaji_sasisha(mtaji, dt, pato, 0.2, kiwango_cha_riba, 0.6);
+    }
+
+    BiasharaNdaniMfumo* biashara_ndani = mchezo_pata_biashara_ndani(g);
+    kama (biashara_ndani != 0) {
+        biashara_ndani_sasisha(biashara_ndani, dt, ubora_wa_miundombinu, idadi_ya_watu_n, 1.0);
+    }
+
+    BiasharaNjeMfumo* biashara_nje = mchezo_pata_biashara_nje(g);
+    kama (biashara_nje != 0) {
+        biashara_nje_sasisha(biashara_nje, dt);
+    }
+
+    UvumbuziMfumo* uvumbuzi = mchezo_pata_uvumbuzi(g);
+    kama (uvumbuzi != 0) {
+        UvumbuziMazingira* um = tenga(ukubwa(UvumbuziMazingira));
+        um->elimu = 0.5;
+        um->imani_ya_biashara = 0.6;
+        um->kiwango_cha_kanuni = 0.4;
+        um->upatikanaji_wa_mtaji = 0.5;
+        uvumbuzi_sasisha(uvumbuzi, dt, pato, um);
+        achilia um;
+    }
+
+    SokoHaramuMfumo* soko_haramu = mchezo_pata_soko_haramu(g);
+    kama (soko_haramu != 0) {
+        SokoHaramuMazingira* sm = tenga(ukubwa(SokoHaramuMazingira));
+        sm->kiwango_cha_rushwa = rushwa_jumla;
+        sm->kiwango_cha_ukosefu_wa_kazi = ukosefu_wa_kazi;
+        sm->kiwango_cha_kanuni = 0.4;
+        sm->bajeti_ya_udhibiti = mgao_wa_miundombinu;
+        soko_haramu_sasisha(soko_haramu, dt, pato, sm);
+        achilia sm;
+    }
+
+    VitaMfumo* vita = mchezo_pata_vita(g);
+    kama (vita != 0) {
+        vita_sasisha(vita, dt, pato, pato_la_viwanda, idadi_ya_watu_n, 0);
+    }
+
+    TaifaMfumo* taifa = mchezo_pata_taifa(g);
+    DuniaRamani* ramani_kwa_uchumi = mchezo_pata_ramani(g);
+    kama (taifa != 0 && ramani_kwa_uchumi != 0) {
+        DuniaRasilimaliRamani* rm_tupu = 0;
+        TaifaUchumi* jumla_tupu = 0;
+        dunia_taifa_hesabu_uchumi_wote(taifa, ramani_kwa_uchumi, rm_tupu, jumla_tupu);
+    }
+
     UtawalaSerikali* serikali = mchezo_pata_serikali(g);
     kama (serikali != 0) {
-        utawala_serikali_sasisha(serikali, dt, idadi_ya_watu_n, 0.5, 100000.0);
+        utawala_serikali_sasisha(serikali, dt, idadi_ya_watu_n, 0.5, pato);
     }
 
     DuniaRamani* ramani = mchezo_pata_ramani(g);
@@ -286,6 +627,49 @@ W0 mchezo_zima(Mchezo* g) {
     kama (akili != 0) { akili_mfumo_uharibu(akili); }
     DiplomasiaMfumo* diplomasia = mchezo_pata_diplomasia(g);
     kama (diplomasia != 0) { diplomasia_uharibu(diplomasia); }
+
+    TaifaMfumo* taifa = mchezo_pata_taifa(g);
+    kama (taifa != 0) { dunia_taifa_mfumo_uharibu(taifa); }
+    UchumiMkuuMfumo* mkuu = mchezo_pata_uchumi_mkuu(g);
+    kama (mkuu != 0) { uchumi_mkuu_uharibu(mkuu); }
+    NguvukaziMfumo* nguvukazi = mchezo_pata_nguvukazi(g);
+    kama (nguvukazi != 0) { nguvukazi_uharibu(nguvukazi); }
+    SeraMfumo* sera = mchezo_pata_sera(g);
+    kama (sera != 0) { sera_uharibu(sera); }
+    KodiMfumo* kodi = mchezo_pata_kodi(g);
+    kama (kodi != 0) { kodi_uharibu(kodi); }
+    BajetiMfumo* bajeti = mchezo_pata_bajeti(g);
+    kama (bajeti != 0) { bajeti_uharibu(bajeti); }
+    BidhaaSoko* bidhaa = mchezo_pata_bidhaa(g);
+    kama (bidhaa != 0) { bidhaa_soko_uharibu(bidhaa); }
+    BenkiMfumo* benki = mchezo_pata_benki(g);
+    kama (benki != 0) { benki_uharibu(benki); }
+    KilimoMfumo* kilimo = mchezo_pata_kilimo(g);
+    kama (kilimo != 0) { kilimo_uharibu(kilimo); }
+    UchimbajiMfumo* uchimbaji = mchezo_pata_uchimbaji(g);
+    kama (uchimbaji != 0) { uchimbaji_uharibu(uchimbaji); }
+    MiundombinuMfumo* miundombinu = mchezo_pata_miundombinu(g);
+    kama (miundombinu != 0) { miundombinu_uharibu(miundombinu); }
+    ViwandaMfumo* viwanda = mchezo_pata_viwanda(g);
+    kama (viwanda != 0) { viwanda_uharibu(viwanda); }
+    NishatiMfumo* nishati = mchezo_pata_nishati(g);
+    kama (nishati != 0) { nishati_uharibu(nishati); }
+    MakaziMfumo* uchumi_makazi = mchezo_pata_uchumi_makazi(g);
+    kama (uchumi_makazi != 0) { makazi_uharibu(uchumi_makazi); }
+    ArdhiMfumo* ardhi = mchezo_pata_ardhi(g);
+    kama (ardhi != 0) { ardhi_uharibu(ardhi); }
+    MtajiMfumo* mtaji = mchezo_pata_mtaji(g);
+    kama (mtaji != 0) { mtaji_uharibu(mtaji); }
+    BiasharaNdaniMfumo* biashara_ndani = mchezo_pata_biashara_ndani(g);
+    kama (biashara_ndani != 0) { biashara_ndani_uharibu(biashara_ndani); }
+    BiasharaNjeMfumo* biashara_nje = mchezo_pata_biashara_nje(g);
+    kama (biashara_nje != 0) { biashara_nje_uharibu(biashara_nje); }
+    UvumbuziMfumo* uvumbuzi = mchezo_pata_uvumbuzi(g);
+    kama (uvumbuzi != 0) { uvumbuzi_uharibu(uvumbuzi); }
+    SokoHaramuMfumo* soko_haramu = mchezo_pata_soko_haramu(g);
+    kama (soko_haramu != 0) { soko_haramu_uharibu(soko_haramu); }
+    VitaMfumo* vita = mchezo_pata_vita(g);
+    kama (vita != 0) { vita_uharibu(vita); }
 }
 
 W0 mchezo_uharibu(Mchezo* g) {
