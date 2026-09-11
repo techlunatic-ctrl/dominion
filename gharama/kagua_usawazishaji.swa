@@ -14,18 +14,22 @@ husisha { msingi/maktaba/mfuatano.swa }
 // kinasoma orodha ya gharama/vendored-manifest.txt na kulinganisha kila
 // nakala BAITI KWA BAITI dhidi ya chanzo chake halisi.
 //
-// MUHIMU KUHUSU HALI YA SASA (baada ya uhamiaji wa herufi ndogo za
-// aina za msingi, kikao hiki): ulinganisho hapa ni WA BAITI TU, si wa
-// kimantiki. Nakala za Dominion sasa ni herufi ndogo (n32/d64/n.k.)
-// lakini chanzo cha lugha-swa/swa (msingi/maktaba/*.swa yenyewe)
-// BADO ni herufi kubwa -- uhamiaji ulishughulikia msingi/mkusanyaji/*
-// (chanzo cha mkusanyaji mwenyewe) TU, si stdlib ya lugha. Kwa hiyo
-// TOFAUTI itaripotiwa kwa KILA faili la manifest kwa sasa, hata bila
-// upitwaji halisi wa rekebisho -- ni tofauti ya HERUFI TU. Hii ni
-// ugunduzi halisi uliobainika wakati wa kujenga chombo hiki (SI dhana),
-// na unahitaji uamuzi tofauti (kubadilisha stdlib ya lugha kwenda
-// herufi ndogo pia, au kuvumilia tofauti hii kama inayotarajiwa) --
-// angalia ripoti iliyoambatana na chombo hiki.
+// MUHIMU KUHUSU HERUFI KUBWA/NDOGO: nakala za Dominion ni herufi
+// ndogo (n32/d64/n.k., baada ya uhamiaji wa kikao hiki) lakini chanzo
+// cha lugha-swa/swa (msingi/maktaba/*.swa yenyewe) BADO ni herufi
+// kubwa KWA MAKUSUDI -- faili hizi zinakusanywa MOJA KWA MOJA na
+// mbegu.bin (mzizi wa bootstrap uliogandishwa, angalia jinsi
+// gharama/jaribu-mnyororo.sh inavyounganisha kumbukumbu.swa/
+// mfuatano.swa moja kwa moja kwenye ujenzi wa msuluhishi), na mbegu.bin
+// haifahamu herufi ndogo za aina za msingi (upanuzi wa lugha-swa/swa#225
+// ulihusu TU mchanganuzi wa stage1 uliojiandika mwenyewe, si mbegu.bin
+// iliyogandishwa) -- kwa hiyo msingi/maktaba/*.swa LAZIMA ibaki herufi
+// kubwa milele, isipokuwa mbegu.bin yenyewe itakapofanywa upya siku
+// moja. Hii ni tofauti ya KUDUMU, si mdudu wa muda -- ulinganisho hapa
+// chini UNAPUUZA herufi kubwa/ndogo kwa makusudi (ASCII A-Z <-> a-z
+// tu, sio Unicode) ili TOFAUTI iendelee kumaanisha "yaliyomo
+// yamebadilika" (rekebisho lililokosekana, kipengele kipya), si "jina
+// la aina limeandikwa tofauti".
 //
 // Matumizi (LAZIMA kutoka saraka ya swa/, kwa sababu husisha
 // linatatuliwa kwa njia ya jamaa na saraka hiyo -- angalia jinsi
@@ -46,6 +50,13 @@ n8 mstari[512];
 n8 dominion_njia[256];
 n8 upstream_rel[256];
 n8 upstream_kamili[512];
+
+// Geuza baiti moja A-Z (65-90) kwenda a-z (97-122) -- ASCII tu, si
+// Unicode. Baiti nyingine yoyote inarudishwa bila kubadilika.
+n32 herufi_ndogo(n32 c) {
+    kama (c >= 65 && c <= 90) { rudisha c + 32; }
+    rudisha c;
+}
 
 // Gawanya mstari (kutoka faili_soma_mstari, unaoweza kuwa na '\n'
 // mwishoni) kwa tabo (baiti 9) kuwa sehemu mbili: a (kabla ya tabo)
@@ -121,12 +132,16 @@ n32 main(n32 argc, n8** argv) {
             endelea;
         }
 
+        // Ulinganisho unapuuza herufi kubwa/ndogo (angalia maelezo
+        // juu ya faili hili) -- urefu bado lazima ufanane KAMILI
+        // (kubadilisha herufi hakubadilishi idadi ya baiti kamwe kwa
+        // ASCII), tofauti ni kwenye ulinganisho wa baiti moja moja tu.
         n32 sawa = 1;
         kama (na != nb) { sawa = 0; }
         sivyo {
             n64 i = 0;
             wakati (i < na) {
-                kama (bafa_a[i] != bafa_b[i]) { sawa = 0; vunja; }
+                kama (herufi_ndogo(bafa_a[i]) != herufi_ndogo(bafa_b[i])) { sawa = 0; vunja; }
                 i = i + 1;
             }
         }
