@@ -6,19 +6,19 @@
 // resources[] (safu inayokua ya C) imekuwa BIDHAA_RASILIMALI_IDADI=16
 // vigezo vyenye majina + kazi ya kupata. jina (name, STRING_MEDIUM_LEN)
 // halikutumika kwenye mantiki ya bei — halikuletwa; resource_id (kama
-// N8*) limebaki.
+// n8*) limebaki.
 
 husisha { msingi/msingi_civ.swa }
 
-N32 BIDHAA_RASILIMALI_IDADI = 16;
+n32 BIDHAA_RASILIMALI_IDADI = 16;
 
 muundo BidhaaRasilimali {
-    N8* kitambulisho;
-    D64 ugavi_wa_ndani;
-    D64 mahitaji_ya_ndani;
-    D64 bei_ya_sasa;
-    D64 akiba;
-    N32 imesajiliwa;
+    n8* kitambulisho;
+    d64 ugavi_wa_ndani;
+    d64 mahitaji_ya_ndani;
+    d64 bei_ya_sasa;
+    d64 akiba;
+    n32 imesajiliwa;
 };
 
 muundo BidhaaSoko {
@@ -29,12 +29,12 @@ muundo BidhaaSoko {
     BidhaaRasilimali r_12; BidhaaRasilimali r_13; BidhaaRasilimali r_14;
     BidhaaRasilimali r_15;
 
-    N32 idadi_ya_rasilimali;
-    D64 ujazo_jumla_wa_biashara;
-    D64 kiashiria_cha_bei_cha_dunia;
+    n32 idadi_ya_rasilimali;
+    d64 ujazo_jumla_wa_biashara;
+    d64 kiashiria_cha_bei_cha_dunia;
 };
 
-BidhaaRasilimali* bidhaa_pata_rasilimali(BidhaaSoko* soko, N32 idx) {
+BidhaaRasilimali* bidhaa_pata_rasilimali(BidhaaSoko* soko, n32 idx) {
     kama (idx == 0) { rudisha &soko->r_0; }
     kama (idx == 1) { rudisha &soko->r_1; }
     kama (idx == 2) { rudisha &soko->r_2; }
@@ -61,11 +61,11 @@ BidhaaSoko* bidhaa_soko_unda() {
     rudisha soko;
 }
 
-W0 bidhaa_soko_uharibu(BidhaaSoko* soko) {
+w0 bidhaa_soko_uharibu(BidhaaSoko* soko) {
     achilia soko;
 }
 
-CivMatokeo bidhaa_sajili(BidhaaSoko* soko, N8* kitambulisho) {
+CivMatokeo bidhaa_sajili(BidhaaSoko* soko, n8* kitambulisho) {
     CivMatokeo r;
     r.hitilafu = CIV_SAWA;
     r.ujumbe = 0;
@@ -85,18 +85,18 @@ CivMatokeo bidhaa_sajili(BidhaaSoko* soko, N8* kitambulisho) {
     rudisha r;
 }
 
-W0 bidhaa_sasisha_bei(BidhaaRasilimali* res, D64 kiashiria_cha_dunia) {
-    D64 ugavi_salama = res->ugavi_wa_ndani;
+w0 bidhaa_sasisha_bei(BidhaaRasilimali* res, d64 kiashiria_cha_dunia) {
+    d64 ugavi_salama = res->ugavi_wa_ndani;
     kama (ugavi_salama < 1.0) { ugavi_salama = 1.0; }
-    D64 uhaba = res->mahitaji_ya_ndani / ugavi_salama;
+    d64 uhaba = res->mahitaji_ya_ndani / ugavi_salama;
     res->bei_ya_sasa = uhaba * kiashiria_cha_dunia;
 }
 
-W0 bidhaa_soko_sasisha_zote(BidhaaSoko* soko) {
-    N32 i = 0;
+w0 bidhaa_soko_sasisha_zote(BidhaaSoko* soko) {
+    n32 i = 0;
     wakati (i < soko->idadi_ya_rasilimali) {
         BidhaaRasilimali* res = bidhaa_pata_rasilimali(soko, i);
-        D64 kupinda = (civ_nasibu_chini_ya(100) - 50) / 100.0 * 0.05;
+        d64 kupinda = (civ_nasibu_chini_ya(100) - 50) / 100.0 * 0.05;
         res->ugavi_wa_ndani = res->ugavi_wa_ndani + kupinda * 10.0;
         kama (res->ugavi_wa_ndani < 1.0) { res->ugavi_wa_ndani = 1.0; }
         res->mahitaji_ya_ndani = res->mahitaji_ya_ndani + kupinda * 10.0;

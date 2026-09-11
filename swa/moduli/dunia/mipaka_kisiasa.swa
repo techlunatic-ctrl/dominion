@@ -16,9 +16,9 @@
 //     kazi badala ya kutegemea hali ya kimataifa isiyoonekana.
 //   - names[]/colors[] (safu mbili tofauti zinazokua) zimeunganishwa
 //     kuwa muundo mmoja DuniaTaifaMpaka (jina+rangi) ndani ya safu
-//     MOJA ya N64* ya vielekezi (#185).
+//     MOJA ya n64* ya vielekezi (#185).
 //   - tile_country[] (safu ya int16_t yenye ukubwa width*height)
-//     imekuwa N32* ya kudumu (si D64*, kwa hiyo #181 haihusiki) --
+//     imekuwa n32* ya kudumu (si d64*, kwa hiyo #181 haihusiki) --
 //     salama kufahirishwa moja kwa moja.
 //   - civ_political_borders_apply() sasa inachukua DuniaRamani*
 //     (kutoka ramani.swa) kama parameter badala ya kutegemea aina
@@ -29,34 +29,34 @@ husisha { msingi/maktaba/mfuatano.swa }
 husisha { moduli/dunia/ramani.swa }
 
 muundo DuniaTaifaMpaka {
-    N8* jina;
-    N32 rangi;
+    n8* jina;
+    n32 rangi;
 };
 
 muundo DuniaMipakaKisiasa {
-    N64* mataifa;
-    N32 idadi;
-    N32 uwezo;
-    N32* taifa_la_kipande;
-    N32 upana_wa_ramani;
-    N32 urefu_wa_ramani;
+    n64* mataifa;
+    n32 idadi;
+    n32 uwezo;
+    n32* taifa_la_kipande;
+    n32 upana_wa_ramani;
+    n32 urefu_wa_ramani;
 };
 
-DuniaTaifaMpaka* dunia_mipaka_kisiasa_pata_taifa(DuniaMipakaKisiasa* b, N32 faharisi) {
+DuniaTaifaMpaka* dunia_mipaka_kisiasa_pata_taifa(DuniaMipakaKisiasa* b, n32 faharisi) {
     rudisha b->mataifa[faharisi];
 }
 
-DuniaMipakaKisiasa* dunia_mipaka_kisiasa_unda(N32 upana_wa_ramani, N32 urefu_wa_ramani) {
+DuniaMipakaKisiasa* dunia_mipaka_kisiasa_unda(n32 upana_wa_ramani, n32 urefu_wa_ramani) {
     DuniaMipakaKisiasa* b = tenga(ukubwa(DuniaMipakaKisiasa));
     b->idadi = 0;
     b->uwezo = 32;
-    b->mataifa = tenga(ukubwa(N64) * b->uwezo);
+    b->mataifa = tenga(ukubwa(n64) * b->uwezo);
     b->upana_wa_ramani = upana_wa_ramani;
     b->urefu_wa_ramani = urefu_wa_ramani;
 
-    N32 jumla_ya_vipande = upana_wa_ramani * urefu_wa_ramani;
-    b->taifa_la_kipande = tenga(ukubwa(N32) * jumla_ya_vipande);
-    N32 i = 0;
+    n32 jumla_ya_vipande = upana_wa_ramani * urefu_wa_ramani;
+    b->taifa_la_kipande = tenga(ukubwa(n32) * jumla_ya_vipande);
+    n32 i = 0;
     wakati (i < jumla_ya_vipande) {
         b->taifa_la_kipande[i] = 0 - 1;
         i = i + 1;
@@ -64,40 +64,40 @@ DuniaMipakaKisiasa* dunia_mipaka_kisiasa_unda(N32 upana_wa_ramani, N32 urefu_wa_
     rudisha b;
 }
 
-W0 dunia_mipaka_kisiasa_uharibu(DuniaMipakaKisiasa* b) {
+w0 dunia_mipaka_kisiasa_uharibu(DuniaMipakaKisiasa* b) {
     achilia b->mataifa;
     achilia b->taifa_la_kipande;
     achilia b;
 }
 
-N32 dunia_mipaka_kisiasa_ongeza_taifa(DuniaMipakaKisiasa* b, N8* jina, N32 rangi) {
+n32 dunia_mipaka_kisiasa_ongeza_taifa(DuniaMipakaKisiasa* b, n8* jina, n32 rangi) {
     kama (b->idadi >= b->uwezo) {
         b->uwezo = b->uwezo * 2;
-        b->mataifa = badili(b->mataifa, ukubwa(N64) * b->uwezo);
+        b->mataifa = badili(b->mataifa, ukubwa(n64) * b->uwezo);
     }
     DuniaTaifaMpaka* t = tenga(ukubwa(DuniaTaifaMpaka));
     t->jina = jina;
     t->rangi = rangi;
-    N32 kitambulisho = b->idadi;
+    n32 kitambulisho = b->idadi;
     b->mataifa[b->idadi] = t;
     b->idadi = b->idadi + 1;
     rudisha kitambulisho;
 }
 
-W0 dunia_mipaka_kisiasa_weka_kipande(DuniaMipakaKisiasa* b, N32 x, N32 y, N32 taifa_cid) {
+w0 dunia_mipaka_kisiasa_weka_kipande(DuniaMipakaKisiasa* b, n32 x, n32 y, n32 taifa_cid) {
     kama (x < 0 || x >= b->upana_wa_ramani || y < 0 || y >= b->urefu_wa_ramani) { rudisha; }
-    N32 faharisi = y * b->upana_wa_ramani + x;
+    n32 faharisi = y * b->upana_wa_ramani + x;
     b->taifa_la_kipande[faharisi] = taifa_cid;
 }
 
-W0 dunia_mipaka_kisiasa_tumia_kwenye_ramani(DuniaMipakaKisiasa* b, DuniaRamani* ramani) {
+w0 dunia_mipaka_kisiasa_tumia_kwenye_ramani(DuniaMipakaKisiasa* b, DuniaRamani* ramani) {
     kama (b == 0 || ramani == 0) { rudisha; }
-    N32 y = 0;
+    n32 y = 0;
     wakati (y < ramani->urefu) {
-        N32 x = 0;
+        n32 x = 0;
         wakati (x < ramani->upana) {
-            N32 faharisi = y * b->upana_wa_ramani + x;
-            N32 cid = b->taifa_la_kipande[faharisi];
+            n32 faharisi = y * b->upana_wa_ramani + x;
+            n32 cid = b->taifa_la_kipande[faharisi];
             kama (cid >= 0 && cid < b->idadi) {
                 DuniaTaifaMpaka* t = dunia_mipaka_kisiasa_pata_taifa(b, cid);
                 DuniaRamaniKipande* kipande = dunia_ramani_pata_kipande(ramani, x, y);
@@ -112,22 +112,22 @@ W0 dunia_mipaka_kisiasa_tumia_kwenye_ramani(DuniaMipakaKisiasa* b, DuniaRamani* 
     }
 }
 
-N8* dunia_mipaka_kisiasa_jina_la_taifa(DuniaMipakaKisiasa* b, N32 cid) {
+n8* dunia_mipaka_kisiasa_jina_la_taifa(DuniaMipakaKisiasa* b, n32 cid) {
     kama (b == 0 || cid < 0 || cid >= b->idadi) { rudisha 0; }
     rudisha dunia_mipaka_kisiasa_pata_taifa(b, cid)->jina;
 }
 
-N32 dunia_mipaka_kisiasa_rangi_ya_taifa(DuniaMipakaKisiasa* b, N32 cid) {
+n32 dunia_mipaka_kisiasa_rangi_ya_taifa(DuniaMipakaKisiasa* b, n32 cid) {
     kama (b == 0 || cid < 0 || cid >= b->idadi) { rudisha 16776960; }
     rudisha dunia_mipaka_kisiasa_pata_taifa(b, cid)->rangi;
 }
 
-N32 dunia_mipaka_kisiasa_taifa_la_kipande(DuniaMipakaKisiasa* b, N32 x, N32 y) {
+n32 dunia_mipaka_kisiasa_taifa_la_kipande(DuniaMipakaKisiasa* b, n32 x, n32 y) {
     kama (b == 0 || x < 0 || y < 0 || x >= b->upana_wa_ramani) { rudisha 0 - 1; }
-    N32 faharisi = y * b->upana_wa_ramani + x;
+    n32 faharisi = y * b->upana_wa_ramani + x;
     rudisha b->taifa_la_kipande[faharisi];
 }
 
-N32 dunia_mipaka_kisiasa_idadi_ya_mataifa(DuniaMipakaKisiasa* b) {
+n32 dunia_mipaka_kisiasa_idadi_ya_mataifa(DuniaMipakaKisiasa* b) {
     rudisha b->idadi;
 }

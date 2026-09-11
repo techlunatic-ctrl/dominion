@@ -8,30 +8,30 @@
 // cha marejeo, hakiitwi kokote ndani ya faili hili la C) na
 // established_date (time_t, haihitajiki kwa mantiki) HAVIKULETWA.
 // id ya njia (iliyoundwa na snprintf + time() kwenye C) imekuwa
-// nafasi/index ya njia (N32) badala ya mfuatano.
+// nafasi/index ya njia (n32) badala ya mfuatano.
 
 husisha { msingi/msingi_civ.swa }
 
-N32 BIASHARA_NJE_NJIA_IDADI = 8;
+n32 BIASHARA_NJE_NJIA_IDADI = 8;
 
 muundo BiasharaNjeNjia {
-    N8* taifa_chanzo;
-    N8* taifa_lengwa;
-    N8* aina_ya_rasilimali;
-    D64 kiasi;
-    D64 thamani_kwa_kipimo;
-    D64 kiwango_cha_ushuru;
-    N32 inafanya_kazi;
+    n8* taifa_chanzo;
+    n8* taifa_lengwa;
+    n8* aina_ya_rasilimali;
+    d64 kiasi;
+    d64 thamani_kwa_kipimo;
+    d64 kiwango_cha_ushuru;
+    n32 inafanya_kazi;
 };
 
 muundo BiasharaNjeMfumo {
     BiasharaNjeNjia n_0; BiasharaNjeNjia n_1; BiasharaNjeNjia n_2; BiasharaNjeNjia n_3;
     BiasharaNjeNjia n_4; BiasharaNjeNjia n_5; BiasharaNjeNjia n_6; BiasharaNjeNjia n_7;
 
-    N32 idadi_ya_njia;
+    n32 idadi_ya_njia;
 };
 
-BiasharaNjeNjia* biashara_nje_pata_njia(BiasharaNjeMfumo* m, N32 idx) {
+BiasharaNjeNjia* biashara_nje_pata_njia(BiasharaNjeMfumo* m, n32 idx) {
     kama (idx == 0) { rudisha &m->n_0; }
     kama (idx == 1) { rudisha &m->n_1; }
     kama (idx == 2) { rudisha &m->n_2; }
@@ -48,12 +48,12 @@ BiasharaNjeMfumo* biashara_nje_unda() {
     rudisha m;
 }
 
-W0 biashara_nje_uharibu(BiasharaNjeMfumo* m) {
+w0 biashara_nje_uharibu(BiasharaNjeMfumo* m) {
     achilia m;
 }
 
-CivMatokeo biashara_nje_anzisha_njia(BiasharaNjeMfumo* m, N8* chanzo, N8* lengwa,
-                                       N8* rasilimali, D64 kiasi) {
+CivMatokeo biashara_nje_anzisha_njia(BiasharaNjeMfumo* m, n8* chanzo, n8* lengwa,
+                                       n8* rasilimali, d64 kiasi) {
     CivMatokeo r;
     r.hitilafu = CIV_SAWA;
     r.ujumbe = 0;
@@ -82,7 +82,7 @@ CivMatokeo biashara_nje_anzisha_njia(BiasharaNjeMfumo* m, N8* chanzo, N8* lengwa
     rudisha r;
 }
 
-CivMatokeo biashara_nje_ghairi_njia(BiasharaNjeMfumo* m, N32 nafasi_ya_njia) {
+CivMatokeo biashara_nje_ghairi_njia(BiasharaNjeMfumo* m, n32 nafasi_ya_njia) {
     CivMatokeo r;
     r.hitilafu = CIV_SAWA;
     r.ujumbe = 0;
@@ -97,15 +97,15 @@ CivMatokeo biashara_nje_ghairi_njia(BiasharaNjeMfumo* m, N32 nafasi_ya_njia) {
     rudisha r;
 }
 
-W0 biashara_nje_sasisha(BiasharaNjeMfumo* m, D64 muda) {
-    N32 i = 0;
+w0 biashara_nje_sasisha(BiasharaNjeMfumo* m, d64 muda) {
+    n32 i = 0;
     wakati (i < m->idadi_ya_njia) {
         BiasharaNjeNjia* njia = biashara_nje_pata_njia(m, i);
         kama (njia->inafanya_kazi != 0) {
-            N32 kura = civ_nasibu_chini_ya(100);
-            N32 kura_hasi = kura - 50;
-            D64 kura_hasi_d = kura_hasi;
-            D64 mtikisiko = kura_hasi_d / 1000.0;
+            n32 kura = civ_nasibu_chini_ya(100);
+            n32 kura_hasi = kura - 50;
+            d64 kura_hasi_d = kura_hasi;
+            d64 mtikisiko = kura_hasi_d / 1000.0;
             njia->thamani_kwa_kipimo = njia->thamani_kwa_kipimo * (1.0 + mtikisiko);
             kama (njia->thamani_kwa_kipimo < 1.0) { njia->thamani_kwa_kipimo = 1.0; }
         }
@@ -113,7 +113,7 @@ W0 biashara_nje_sasisha(BiasharaNjeMfumo* m, D64 muda) {
     }
 }
 
-D64 biashara_nje_hesabu_mapato(BiasharaNjeNjia* njia) {
+d64 biashara_nje_hesabu_mapato(BiasharaNjeNjia* njia) {
     kama (njia->inafanya_kazi == 0) { rudisha 0.0; }
     rudisha njia->kiasi * njia->thamani_kwa_kipimo * (1.0 - njia->kiwango_cha_ushuru);
 }

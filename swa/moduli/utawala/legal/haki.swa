@@ -9,42 +9,42 @@
 
 husisha { msingi/msingi_civ.swa }
 
-N32 UTAWALA_HAKI_HOTUBA = 0;
-N32 UTAWALA_HAKI_MKUTANO = 1;
-N32 UTAWALA_HAKI_DINI = 2;
-N32 UTAWALA_HAKI_TARATIBU_ZINAZOSTAHILI = 3;
-N32 UTAWALA_HAKI_MALI = 4;
-N32 UTAWALA_HAKI_SILAHA = 5;
-N32 UTAWALA_HAKI_FARAGHA = 6;
-N32 UTAWALA_HAKI_KUPIGA_KURA = 7;
-N32 UTAWALA_HAKI_USAWA = 8;
-N32 UTAWALA_HAKI_KUHAMA = 9;
-N32 UTAWALA_HAKI_IDADI = 10;
+n32 UTAWALA_HAKI_HOTUBA = 0;
+n32 UTAWALA_HAKI_MKUTANO = 1;
+n32 UTAWALA_HAKI_DINI = 2;
+n32 UTAWALA_HAKI_TARATIBU_ZINAZOSTAHILI = 3;
+n32 UTAWALA_HAKI_MALI = 4;
+n32 UTAWALA_HAKI_SILAHA = 5;
+n32 UTAWALA_HAKI_FARAGHA = 6;
+n32 UTAWALA_HAKI_KUPIGA_KURA = 7;
+n32 UTAWALA_HAKI_USAWA = 8;
+n32 UTAWALA_HAKI_KUHAMA = 9;
+n32 UTAWALA_HAKI_IDADI = 10;
 
-N32 UTAWALA_ULINZI_HAKUNA = 0;
-N32 UTAWALA_ULINZI_KISHERIA = 1;
-N32 UTAWALA_ULINZI_KIKATIBA = 2;
-N32 UTAWALA_ULINZI_KAMILI = 3;
+n32 UTAWALA_ULINZI_HAKUNA = 0;
+n32 UTAWALA_ULINZI_KISHERIA = 1;
+n32 UTAWALA_ULINZI_KIKATIBA = 2;
+n32 UTAWALA_ULINZI_KAMILI = 3;
 
 muundo UtawalaHaki {
-    N32 aina;
-    N32 ngazi_ya_ulinzi;
-    D64 utekelezaji;
-    D64 shinikizo_la_kizuizi;
-    N32 ukiukwaji_wa_mzunguko_huu;
-    N32 imesimamishwa_kwa_dharura;
+    n32 aina;
+    n32 ngazi_ya_ulinzi;
+    d64 utekelezaji;
+    d64 shinikizo_la_kizuizi;
+    n32 ukiukwaji_wa_mzunguko_huu;
+    n32 imesimamishwa_kwa_dharura;
 };
 
 muundo UtawalaHakiTamko {
     UtawalaHaki haki_0; UtawalaHaki haki_1; UtawalaHaki haki_2; UtawalaHaki haki_3;
     UtawalaHaki haki_4; UtawalaHaki haki_5; UtawalaHaki haki_6; UtawalaHaki haki_7;
     UtawalaHaki haki_8; UtawalaHaki haki_9;
-    D64 kielezo_cha_uhuru_wa_kiraia;
-    D64 uelewa_wa_haki;
-    N32 mashtaka_ya_kikatiba;
+    d64 kielezo_cha_uhuru_wa_kiraia;
+    d64 uelewa_wa_haki;
+    n32 mashtaka_ya_kikatiba;
 };
 
-UtawalaHaki* utawala_haki_pata(UtawalaHakiTamko* r, N32 idx) {
+UtawalaHaki* utawala_haki_pata(UtawalaHakiTamko* r, n32 idx) {
     kama (idx == 0) { rudisha &r->haki_0; }
     kama (idx == 1) { rudisha &r->haki_1; }
     kama (idx == 2) { rudisha &r->haki_2; }
@@ -59,7 +59,7 @@ UtawalaHaki* utawala_haki_pata(UtawalaHakiTamko* r, N32 idx) {
 
 UtawalaHakiTamko* utawala_haki_unda() {
     UtawalaHakiTamko* r = tenga(ukubwa(UtawalaHakiTamko));
-    N32 i = 0;
+    n32 i = 0;
     wakati (i < UTAWALA_HAKI_IDADI) {
         UtawalaHaki* rt = utawala_haki_pata(r, i);
         rt->aina = i;
@@ -76,24 +76,24 @@ UtawalaHakiTamko* utawala_haki_unda() {
     rudisha r;
 }
 
-W0 utawala_haki_uharibu(UtawalaHakiTamko* r) {
+w0 utawala_haki_uharibu(UtawalaHakiTamko* r) {
     achilia r;
 }
 
-W0 utawala_haki_sasisha(UtawalaHakiTamko* r, D64 muda, D64 utawala_wa_sheria,
-                          D64 uwakilishi, D64 uwiano_wa_udhibiti_mkuu, D64 dharura_inaendelea) {
-    N32 i = 0;
+w0 utawala_haki_sasisha(UtawalaHakiTamko* r, d64 muda, d64 utawala_wa_sheria,
+                          d64 uwakilishi, d64 uwiano_wa_udhibiti_mkuu, d64 dharura_inaendelea) {
+    n32 i = 0;
     wakati (i < UTAWALA_HAKI_IDADI) {
         UtawalaHaki* rt = utawala_haki_pata(r, i);
 
         kama (rt->ngazi_ya_ulinzi == UTAWALA_ULINZI_HAKUNA) {
             rt->utekelezaji = 0.05;
         } sivyo {
-            D64 nyongeza_kikatiba = 0.0;
+            d64 nyongeza_kikatiba = 0.0;
             kama (rt->ngazi_ya_ulinzi == UTAWALA_ULINZI_KIKATIBA) { nyongeza_kikatiba = 0.25; }
-            D64 nyongeza_kamili = 0.0;
+            d64 nyongeza_kamili = 0.0;
             kama (rt->ngazi_ya_ulinzi == UTAWALA_ULINZI_KAMILI) { nyongeza_kamili = 0.35; }
-            D64 utekelezaji_lengwa = utawala_wa_sheria * 0.5 + nyongeza_kikatiba + nyongeza_kamili
+            d64 utekelezaji_lengwa = utawala_wa_sheria * 0.5 + nyongeza_kikatiba + nyongeza_kamili
                 + (1.0 - 0.0) * 0.15;
             rt->utekelezaji = rt->utekelezaji + (utekelezaji_lengwa - rt->utekelezaji) * 0.05 * muda;
         }
@@ -109,10 +109,10 @@ W0 utawala_haki_sasisha(UtawalaHakiTamko* r, D64 muda, D64 utawala_wa_sheria,
         kama (rt->shinikizo_la_kizuizi > 1.0) { rt->shinikizo_la_kizuizi = 1.0; }
 
         kama (rt->utekelezaji < 0.30 && rt->shinikizo_la_kizuizi > 0.50) {
-            D64 nafasi_ya_ukiukwaji = (rt->shinikizo_la_kizuizi - rt->utekelezaji) * 0.05;
-            N32 kura = civ_nasibu_chini_ya(1000);
-            D64 kura_d = kura;
-            D64 uwezekano = kura_d / 1000.0;
+            d64 nafasi_ya_ukiukwaji = (rt->shinikizo_la_kizuizi - rt->utekelezaji) * 0.05;
+            n32 kura = civ_nasibu_chini_ya(1000);
+            d64 kura_d = kura;
+            d64 uwezekano = kura_d / 1000.0;
             kama (uwezekano < nafasi_ya_ukiukwaji) {
                 rt->ukiukwaji_wa_mzunguko_huu = rt->ukiukwaji_wa_mzunguko_huu + 1;
             }
@@ -121,15 +121,15 @@ W0 utawala_haki_sasisha(UtawalaHakiTamko* r, D64 muda, D64 utawala_wa_sheria,
         i = i + 1;
     }
 
-    D64 jumla = 0.0;
+    d64 jumla = 0.0;
     i = 0;
     wakati (i < UTAWALA_HAKI_IDADI) {
         UtawalaHaki* rt = utawala_haki_pata(r, i);
         jumla = jumla + rt->utekelezaji;
         i = i + 1;
     }
-    N32 idadi_n = UTAWALA_HAKI_IDADI;
-    D64 idadi_d = idadi_n;
+    n32 idadi_n = UTAWALA_HAKI_IDADI;
+    d64 idadi_d = idadi_n;
     r->kielezo_cha_uhuru_wa_kiraia = jumla / idadi_d;
 
     r->uelewa_wa_haki = r->uelewa_wa_haki
@@ -139,9 +139,9 @@ W0 utawala_haki_sasisha(UtawalaHakiTamko* r, D64 muda, D64 utawala_wa_sheria,
     wakati (i < UTAWALA_HAKI_IDADI) {
         UtawalaHaki* rt = utawala_haki_pata(r, i);
         kama (rt->ukiukwaji_wa_mzunguko_huu > 0 && r->uelewa_wa_haki > 0.30) {
-            N32 kura = civ_nasibu_chini_ya(1000);
-            D64 kura_d = kura;
-            D64 uwezekano = kura_d / 1000.0;
+            n32 kura = civ_nasibu_chini_ya(1000);
+            d64 kura_d = kura;
+            d64 uwezekano = kura_d / 1000.0;
             kama (uwezekano < 0.10) {
                 r->mashtaka_ya_kikatiba = r->mashtaka_ya_kikatiba + 1;
             }
@@ -150,45 +150,45 @@ W0 utawala_haki_sasisha(UtawalaHakiTamko* r, D64 muda, D64 utawala_wa_sheria,
     }
 }
 
-W0 utawala_haki_weka_ulinzi(UtawalaHakiTamko* r, N32 aina, N32 ngazi) {
+w0 utawala_haki_weka_ulinzi(UtawalaHakiTamko* r, n32 aina, n32 ngazi) {
     kama (r == 0 || aina >= UTAWALA_HAKI_IDADI) { rudisha; }
     UtawalaHaki* rt = utawala_haki_pata(r, aina);
     rt->ngazi_ya_ulinzi = ngazi;
 }
 
-W0 utawala_haki_kiuke(UtawalaHakiTamko* r, N32 aina) {
+w0 utawala_haki_kiuke(UtawalaHakiTamko* r, n32 aina) {
     kama (r == 0 || aina >= UTAWALA_HAKI_IDADI) { rudisha; }
     UtawalaHaki* rt = utawala_haki_pata(r, aina);
     rt->ukiukwaji_wa_mzunguko_huu = rt->ukiukwaji_wa_mzunguko_huu + 1;
 }
 
-D64 utawala_haki_kigezo_cha_furaha(UtawalaHakiTamko* r) {
+d64 utawala_haki_kigezo_cha_furaha(UtawalaHakiTamko* r) {
     kama (r == 0) { rudisha 1.0; }
-    D64 kibinafsi = (utawala_haki_pata(r, UTAWALA_HAKI_HOTUBA)->utekelezaji
+    d64 kibinafsi = (utawala_haki_pata(r, UTAWALA_HAKI_HOTUBA)->utekelezaji
         + utawala_haki_pata(r, UTAWALA_HAKI_MKUTANO)->utekelezaji
         + utawala_haki_pata(r, UTAWALA_HAKI_DINI)->utekelezaji) / 3.0;
     rudisha 0.7 + kibinafsi * 0.3;
 }
 
-D64 utawala_haki_kigezo_cha_utafiti(UtawalaHakiTamko* r) {
+d64 utawala_haki_kigezo_cha_utafiti(UtawalaHakiTamko* r) {
     kama (r == 0) { rudisha 1.0; }
-    D64 udadisi = (utawala_haki_pata(r, UTAWALA_HAKI_HOTUBA)->utekelezaji
+    d64 udadisi = (utawala_haki_pata(r, UTAWALA_HAKI_HOTUBA)->utekelezaji
         + utawala_haki_pata(r, UTAWALA_HAKI_FARAGHA)->utekelezaji) * 0.5;
     rudisha 0.6 + udadisi * 0.4;
 }
 
-D64 utawala_haki_kigezo_cha_utulivu(UtawalaHakiTamko* r) {
+d64 utawala_haki_kigezo_cha_utulivu(UtawalaHakiTamko* r) {
     kama (r == 0) { rudisha 1.0; }
-    D64 uadilifu = (utawala_haki_pata(r, UTAWALA_HAKI_TARATIBU_ZINAZOSTAHILI)->utekelezaji
+    d64 uadilifu = (utawala_haki_pata(r, UTAWALA_HAKI_TARATIBU_ZINAZOSTAHILI)->utekelezaji
         + utawala_haki_pata(r, UTAWALA_HAKI_USAWA)->utekelezaji) * 0.5;
-    D64 upinzani = (utawala_haki_pata(r, UTAWALA_HAKI_HOTUBA)->utekelezaji
+    d64 upinzani = (utawala_haki_pata(r, UTAWALA_HAKI_HOTUBA)->utekelezaji
         + utawala_haki_pata(r, UTAWALA_HAKI_MKUTANO)->utekelezaji) * 0.5;
     rudisha 0.6 + uadilifu * 0.25 - upinzani * 0.15;
 }
 
-D64 utawala_haki_kigezo_cha_kiuchumi(UtawalaHakiTamko* r) {
+d64 utawala_haki_kigezo_cha_kiuchumi(UtawalaHakiTamko* r) {
     kama (r == 0) { rudisha 1.0; }
-    D64 kiuchumi = (utawala_haki_pata(r, UTAWALA_HAKI_MALI)->utekelezaji
+    d64 kiuchumi = (utawala_haki_pata(r, UTAWALA_HAKI_MALI)->utekelezaji
         + utawala_haki_pata(r, UTAWALA_HAKI_KUHAMA)->utekelezaji) * 0.5;
     rudisha 0.7 + kiuchumi * 0.3;
 }

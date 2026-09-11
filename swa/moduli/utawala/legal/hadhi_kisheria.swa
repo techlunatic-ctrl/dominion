@@ -4,44 +4,44 @@
 //
 // Kiambishi: utawala_hadhi_ — angalia ../../../KANUNI-MAJINA.md.
 // edict_history[4][STRING_MEDIUM_LEN] (safu ya nyuzi 4 zenye
-// kikomo) imegawanywa kuwa vigezo 4 vyenye majina vya N8*
+// kikomo) imegawanywa kuwa vigezo 4 vyenye majina vya n8*
 // (kielekezi tu, bila nakala ya kina — sawa na mtindo wa 'jina'
 // kwenye upinzani.swa; Swa haina strncpy inayolingana).
 
 husisha { msingi/msingi_civ.swa }
 
-N32 UTAWALA_HADHI_TAIFA = 0;
-N32 UTAWALA_HADHI_INAVUMILIWA = 1;
-N32 UTAWALA_HADHI_INAKATISHWA = 2;
-N32 UTAWALA_HADHI_IMEPIGWA_MARUFUKU = 3;
-N32 UTAWALA_HADHI_UGAIDI = 4;
+n32 UTAWALA_HADHI_TAIFA = 0;
+n32 UTAWALA_HADHI_INAVUMILIWA = 1;
+n32 UTAWALA_HADHI_INAKATISHWA = 2;
+n32 UTAWALA_HADHI_IMEPIGWA_MARUFUKU = 3;
+n32 UTAWALA_HADHI_UGAIDI = 4;
 
 muundo UtawalaHadhiKisheria {
-    N8* kitambulisho;
-    N32 ngazi;
-    D64 ukubwa_wa_udhalimu;
-    N8* amri_0;
-    N8* amri_1;
-    N8* amri_2;
-    N8* amri_3;
-    N32 idadi_ya_amri;
+    n8* kitambulisho;
+    n32 ngazi;
+    d64 ukubwa_wa_udhalimu;
+    n8* amri_0;
+    n8* amri_1;
+    n8* amri_2;
+    n8* amri_3;
+    n32 idadi_ya_amri;
 };
 
-N8* utawala_hadhi_pata_amri(UtawalaHadhiKisheria* h, N32 idx) {
+n8* utawala_hadhi_pata_amri(UtawalaHadhiKisheria* h, n32 idx) {
     kama (idx == 0) { rudisha h->amri_0; }
     kama (idx == 1) { rudisha h->amri_1; }
     kama (idx == 2) { rudisha h->amri_2; }
     rudisha h->amri_3;
 }
 
-W0 utawala_hadhi_weka_amri(UtawalaHadhiKisheria* h, N32 idx, N8* amri) {
+w0 utawala_hadhi_weka_amri(UtawalaHadhiKisheria* h, n32 idx, n8* amri) {
     kama (idx == 0) { h->amri_0 = amri; }
     sivyo { kama (idx == 1) { h->amri_1 = amri; }
     sivyo { kama (idx == 2) { h->amri_2 = amri; }
     sivyo { h->amri_3 = amri; } } }
 }
 
-CivMatokeo utawala_hadhi_weka(UtawalaHadhiKisheria* h, N32 ngazi, N8* ujumbe_wa_amri) {
+CivMatokeo utawala_hadhi_weka(UtawalaHadhiKisheria* h, n32 ngazi, n8* ujumbe_wa_amri) {
     CivMatokeo r;
     kama (h == 0) {
         r.hitilafu = CIV_HITILAFU_KIELEKEZI_TUPU;
@@ -69,7 +69,7 @@ CivMatokeo utawala_hadhi_weka(UtawalaHadhiKisheria* h, N32 ngazi, N8* ujumbe_wa_
     rudisha r;
 }
 
-D64 utawala_hadhi_athari_ya_ghasia(UtawalaHadhiKisheria* h, D64 asilimia_ya_wafuasi) {
+d64 utawala_hadhi_athari_ya_ghasia(UtawalaHadhiKisheria* h, d64 asilimia_ya_wafuasi) {
     kama (h == 0) { rudisha 0.0; }
 
     kama (h->ngazi >= UTAWALA_HADHI_INAKATISHWA) {

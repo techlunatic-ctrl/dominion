@@ -13,54 +13,54 @@
 //     isiyotumika ya API ya sasa, imeachwa bila kupoteza tabia
 //     yoyote inayofikika.
 //   - civ_vec2_t (x,y) kama parameter YA THAMANI imegawanywa kuwa
-//     vigezo vinne vya D64 (start_x/y, end_x/y) vilivyofungwa
+//     vigezo vinne vya d64 (start_x/y, end_x/y) vilivyofungwa
 //     kwenye DuniaMpakaHoja (angalia mdudu #184 -- kazi ingekuwa na
-//     vigezo 8, 4 kati yao D64).
-//   - safu inayokua ya border_segments imekuwa N64* ya vielekezi
+//     vigezo 8, 4 kati yao d64).
+//   - safu inayokua ya border_segments imekuwa n64* ya vielekezi
 //     (mtindo wa #185, angalia dini.swa).
-//   - char id[] iliyoundwa na snprintf imekuwa faharisi (N32) badala
+//   - char id[] iliyoundwa na snprintf imekuwa faharisi (n32) badala
 //     ya mfuatano.
 
 husisha { msingi/msingi_civ.swa }
 husisha { msingi/maktaba/mfuatano.swa }
 
-N32 DUNIA_MPAKA_ASILIA = 0;
-N32 DUNIA_MPAKA_KISIASA = 1;
-N32 DUNIA_MPAKA_UNAOBISHANIWA = 2;
-N32 DUNIA_MPAKA_ULIOWEKWA_KIJESHI = 3;
-N32 DUNIA_MPAKA_WAZI = 4;
-N32 DUNIA_MPAKA_ULIOFUNGWA = 5;
+n32 DUNIA_MPAKA_ASILIA = 0;
+n32 DUNIA_MPAKA_KISIASA = 1;
+n32 DUNIA_MPAKA_UNAOBISHANIWA = 2;
+n32 DUNIA_MPAKA_ULIOWEKWA_KIJESHI = 3;
+n32 DUNIA_MPAKA_WAZI = 4;
+n32 DUNIA_MPAKA_ULIOFUNGWA = 5;
 
 muundo DuniaMpakaHoja {
-    N8* eneo_a;
-    N8* eneo_b;
-    D64 mwanzo_x;
-    D64 mwanzo_y;
-    D64 mwisho_x;
-    D64 mwisho_y;
-    N32 aina;
+    n8* eneo_a;
+    n8* eneo_b;
+    d64 mwanzo_x;
+    d64 mwanzo_y;
+    d64 mwisho_x;
+    d64 mwisho_y;
+    n32 aina;
 };
 
 muundo DuniaMpakaKipande {
-    N32 kitambulisho;
-    N8* eneo_a;
-    N8* eneo_b;
-    D64 mwanzo_x;
-    D64 mwanzo_y;
-    D64 mwisho_x;
-    D64 mwisho_y;
-    N32 aina;
-    D64 kiwango_cha_uimarishaji;
-    D64 kiwango_cha_mvutano;
+    n32 kitambulisho;
+    n8* eneo_a;
+    n8* eneo_b;
+    d64 mwanzo_x;
+    d64 mwanzo_y;
+    d64 mwisho_x;
+    d64 mwisho_y;
+    n32 aina;
+    d64 kiwango_cha_uimarishaji;
+    d64 kiwango_cha_mvutano;
 };
 
 muundo DuniaMipakaHai {
-    N64* vipande;
-    N32 idadi;
-    N32 uwezo;
+    n64* vipande;
+    n32 idadi;
+    n32 uwezo;
 };
 
-DuniaMpakaKipande* dunia_mpaka_hai_pata_kipande(DuniaMipakaHai* db, N32 faharisi) {
+DuniaMpakaKipande* dunia_mpaka_hai_pata_kipande(DuniaMipakaHai* db, n32 faharisi) {
     rudisha db->vipande[faharisi];
 }
 
@@ -68,11 +68,11 @@ DuniaMipakaHai* dunia_mpaka_hai_unda() {
     DuniaMipakaHai* db = tenga(ukubwa(DuniaMipakaHai));
     db->uwezo = 100;
     db->idadi = 0;
-    db->vipande = tenga(ukubwa(N64) * db->uwezo);
+    db->vipande = tenga(ukubwa(n64) * db->uwezo);
     rudisha db;
 }
 
-W0 dunia_mpaka_hai_uharibu(DuniaMipakaHai* db) {
+w0 dunia_mpaka_hai_uharibu(DuniaMipakaHai* db) {
     achilia db->vipande;
     achilia db;
 }
@@ -89,7 +89,7 @@ CivMatokeo dunia_mpaka_hai_unda_kipande(DuniaMipakaHai* db, DuniaMpakaHoja* hoja
 
     kama (db->idadi >= db->uwezo) {
         db->uwezo = db->uwezo * 2;
-        db->vipande = badili(db->vipande, ukubwa(N64) * db->uwezo);
+        db->vipande = badili(db->vipande, ukubwa(n64) * db->uwezo);
     }
 
     DuniaMpakaKipande* kipande = tenga(ukubwa(DuniaMpakaKipande));
@@ -109,9 +109,9 @@ CivMatokeo dunia_mpaka_hai_unda_kipande(DuniaMipakaHai* db, DuniaMpakaHoja* hoja
     rudisha r;
 }
 
-W0 dunia_mpaka_hai_sasisha(DuniaMipakaHai* db, D64 tofauti_ya_muda) {
+w0 dunia_mpaka_hai_sasisha(DuniaMipakaHai* db, d64 tofauti_ya_muda) {
     kama (db == 0) { rudisha; }
-    N32 i = 0;
+    n32 i = 0;
     wakati (i < db->idadi) {
         DuniaMpakaKipande* kipande = dunia_mpaka_hai_pata_kipande(db, i);
 
@@ -130,14 +130,14 @@ W0 dunia_mpaka_hai_sasisha(DuniaMipakaHai* db, D64 tofauti_ya_muda) {
     }
 }
 
-D64 dunia_mpaka_hai_pata_mvutano(DuniaMipakaHai* db, N8* eneo_a, N8* eneo_b) {
+d64 dunia_mpaka_hai_pata_mvutano(DuniaMipakaHai* db, n8* eneo_a, n8* eneo_b) {
     kama (db == 0 || eneo_a == 0 || eneo_b == 0) { rudisha 0.0; }
-    N32 i = 0;
+    n32 i = 0;
     wakati (i < db->idadi) {
         DuniaMpakaKipande* kipande = dunia_mpaka_hai_pata_kipande(db, i);
-        N32 sawa_moja_kwa_moja = (linganisha_mfuatano(kipande->eneo_a, eneo_a) == 0
+        n32 sawa_moja_kwa_moja = (linganisha_mfuatano(kipande->eneo_a, eneo_a) == 0
             && linganisha_mfuatano(kipande->eneo_b, eneo_b) == 0);
-        N32 sawa_kinyume = (linganisha_mfuatano(kipande->eneo_a, eneo_b) == 0
+        n32 sawa_kinyume = (linganisha_mfuatano(kipande->eneo_a, eneo_b) == 0
             && linganisha_mfuatano(kipande->eneo_b, eneo_a) == 0);
         kama (sawa_moja_kwa_moja != 0 || sawa_kinyume != 0) {
             rudisha kipande->kiwango_cha_mvutano;

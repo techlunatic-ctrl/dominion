@@ -10,7 +10,7 @@
 //     &decision->a_centralization;` kisha `deltas[0..6]` kutembea
 //     kwenye maeneo 7 yanayofuatana ya muundo kama safu — hii
 //     inategemea mpangilio wa kumbukumbu wa muundo wa C na, muhimu
-//     zaidi, ni D64* (kielekezi cha desimali) ambayo HAIFANYI KAZI
+//     zaidi, ni d64* (kielekezi cha desimali) ambayo HAIFANYI KAZI
 //     KABISA kwenye Swa (lugha-swa/swa#181, nimethibitisha moja kwa
 //     moja). Badala yake: matawi matatu ya wazi (kama choice==0/1/2),
 //     kila moja likiweka mihimili saba kwa majina — sio tu suluhisho
@@ -22,62 +22,62 @@
 //     bafa la muda kabla ya bafa la mwisho la mwitaji — kuepuka
 //     kuandika bafa moja huku ikisomwa (chanzo na lengwa sawa).
 //   - static char title[...] + strcpy (jina moja kati ya machache
-//     yaliyobainishwa mapema) imekuwa kurudisha N8* ya moja kwa moja
+//     yaliyobainishwa mapema) imekuwa kurudisha n8* ya moja kwa moja
 //     kwa maandishi ya kudumu — hakuna haja ya nakala ya ndani.
 
 husisha { msingi/msingi_civ.swa }
 husisha { msingi/maktaba/mfuatano.swa }
 
 muundo UtawaliSifa {
-    D64 umoja_wa_madaraka;    // centralization: 0 imegawanyika -> 1 umoja
-    D64 uwakilishi;            // representation: 0 hakuna -> 1 kamili
-    D64 kijeshi;               // militarization: 0 kiraia -> 1 kijeshi
-    D64 mamlaka_ya_dini;       // religious_authority
-    D64 ustahiki;              // meritocracy: 0 urithi -> 1 mtihani/sifa
-    D64 uhuru_wa_kiuchumi;     // economic_freedom
-    D64 kiwango_cha_mila;      // tradition_index
+    d64 umoja_wa_madaraka;    // centralization: 0 imegawanyika -> 1 umoja
+    d64 uwakilishi;            // representation: 0 hakuna -> 1 kamili
+    d64 kijeshi;               // militarization: 0 kiraia -> 1 kijeshi
+    d64 mamlaka_ya_dini;       // religious_authority
+    d64 ustahiki;              // meritocracy: 0 urithi -> 1 mtihani/sifa
+    d64 uhuru_wa_kiuchumi;     // economic_freedom
+    d64 kiwango_cha_mila;      // tradition_index
 };
 
 muundo UtawaliHali {
     UtawaliSifa sifa;
-    D64 utulivu;
-    D64 uhalali;
-    D64 rushwa;
-    N32 muda_wa_kupumzika_mageuzi;   // reform_cooldown
+    d64 utulivu;
+    d64 uhalali;
+    d64 rushwa;
+    n32 muda_wa_kupumzika_mageuzi;   // reform_cooldown
 
-    N32 umri_wa_kiongozi;
-    N32 mgogoro_wa_urithi;
-    D64 utulivu_wa_urithi;
+    n32 umri_wa_kiongozi;
+    n32 mgogoro_wa_urithi;
+    d64 utulivu_wa_urithi;
 
-    N32 dharura_inaendelea;          // 0/1
-    N32 dharura_muda_uliobaki;
-    D64 dharura_unyakuzi_wa_madaraka;
+    n32 dharura_inaendelea;          // 0/1
+    n32 dharura_muda_uliobaki;
+    d64 dharura_unyakuzi_wa_madaraka;
 
-    D64 upendeleo_wa_uhuru_wa_ndani;
+    d64 upendeleo_wa_uhuru_wa_ndani;
 };
 
 muundo UtawaliUamuzi {
-    N8* ombi;
-    N8* chaguo_a;
-    N8* chaguo_b;
-    N8* chaguo_c;
+    n8* ombi;
+    n8* chaguo_a;
+    n8* chaguo_b;
+    n8* chaguo_c;
 
-    D64 a_umoja_wa_madaraka; D64 a_uwakilishi; D64 a_kijeshi;
-    D64 a_dini; D64 a_ustahiki; D64 a_kiuchumi; D64 a_mila;
+    d64 a_umoja_wa_madaraka; d64 a_uwakilishi; d64 a_kijeshi;
+    d64 a_dini; d64 a_ustahiki; d64 a_kiuchumi; d64 a_mila;
 
-    D64 b_umoja_wa_madaraka; D64 b_uwakilishi; D64 b_kijeshi;
-    D64 b_dini; D64 b_ustahiki; D64 b_kiuchumi; D64 b_mila;
+    d64 b_umoja_wa_madaraka; d64 b_uwakilishi; d64 b_kijeshi;
+    d64 b_dini; d64 b_ustahiki; d64 b_kiuchumi; d64 b_mila;
 
-    D64 c_umoja_wa_madaraka; D64 c_uwakilishi; D64 c_kijeshi;
-    D64 c_dini; D64 c_ustahiki; D64 c_kiuchumi; D64 c_mila;
+    d64 c_umoja_wa_madaraka; d64 c_uwakilishi; d64 c_kijeshi;
+    d64 c_dini; d64 c_ustahiki; d64 c_kiuchumi; d64 c_mila;
 
-    D64 a_utulivu; D64 b_utulivu; D64 c_utulivu;
+    d64 a_utulivu; d64 b_utulivu; d64 c_utulivu;
 
-    D64 idadi_ya_chini_ya_watu;
-    D64 utamaduni_wa_chini;
+    d64 idadi_ya_chini_ya_watu;
+    d64 utamaduni_wa_chini;
 };
 
-W0 utawala_anzisha(UtawaliHali* s) {
+w0 utawala_anzisha(UtawaliHali* s) {
     // Hali ya kikabila/inayoibuka ya wastani — inaweza kubinafsishwa
     // kwa kabila kwenye siku zijazo.
     s->sifa.umoja_wa_madaraka = 0.55;
@@ -103,10 +103,10 @@ W0 utawala_anzisha(UtawaliHali* s) {
 
 // ---------- Maswali ya athari kwenye mchezo — kila mhimili unagusa angalau moja ----------
 
-D64 utawala_ufanisi(UtawaliHali* s, D64 idadi_ya_watu, D64 kiwango_cha_utamaduni) {
+d64 utawala_ufanisi(UtawaliHali* s, d64 idadi_ya_watu, d64 kiwango_cha_utamaduni) {
     UtawaliSifa* t = &s->sifa;
 
-    D64 ufanisi = 0.40 + t->ustahiki * 0.35;
+    d64 ufanisi = 0.40 + t->ustahiki * 0.35;
     ufanisi = ufanisi + t->umoja_wa_madaraka * 0.15 * (1.0 - idadi_ya_watu / 2000000.0);
     ufanisi = ufanisi + t->uhuru_wa_kiuchumi * 0.10;
     ufanisi = ufanisi * (1.0 - s->rushwa * 0.6);
@@ -118,10 +118,10 @@ D64 utawala_ufanisi(UtawaliHali* s, D64 idadi_ya_watu, D64 kiwango_cha_utamaduni
     rudisha finya_d64(ufanisi, 0.10, 0.95);
 }
 
-D64 utawala_furaha(UtawaliHali* s, D64 idadi_ya_watu, D64 kiwango_cha_utamaduni) {
+d64 utawala_furaha(UtawaliHali* s, d64 idadi_ya_watu, d64 kiwango_cha_utamaduni) {
     UtawaliSifa* t = &s->sifa;
 
-    D64 furaha_ya_uwakilishi = 0.0;
+    d64 furaha_ya_uwakilishi = 0.0;
     kama (t->uwakilishi < 0.15) {
         furaha_ya_uwakilishi = t->uwakilishi * 0.5;
     } sivyo { kama (t->uwakilishi > 0.75) {
@@ -130,9 +130,9 @@ D64 utawala_furaha(UtawaliHali* s, D64 idadi_ya_watu, D64 kiwango_cha_utamaduni)
         furaha_ya_uwakilishi = 0.55 + t->uwakilishi * 0.25;
     } }
 
-    D64 furaha_ya_uchumi = 0.40 + t->uhuru_wa_kiuchumi * 0.35;
+    d64 furaha_ya_uchumi = 0.40 + t->uhuru_wa_kiuchumi * 0.35;
 
-    D64 furaha_ya_mila = 0.0;
+    d64 furaha_ya_mila = 0.0;
     kama (t->kiwango_cha_mila < 0.20) {
         furaha_ya_mila = 0.30 + t->kiwango_cha_mila;
     } sivyo { kama (t->kiwango_cha_mila > 0.80) {
@@ -141,13 +141,13 @@ D64 utawala_furaha(UtawaliHali* s, D64 idadi_ya_watu, D64 kiwango_cha_utamaduni)
         furaha_ya_mila = 0.50 + t->kiwango_cha_mila * 0.15;
     } }
 
-    D64 adhabu_ya_kijeshi = t->kijeshi * 0.15;
-    D64 furaha_ya_dini = t->mamlaka_ya_dini * (0.20 - kiwango_cha_utamaduni * 0.15);
-    D64 nyongeza_ya_utulivu = s->utulivu * 0.15;
-    N32 mgogoro = s->mgogoro_wa_urithi;
-    D64 adhabu_ya_mgogoro = mgogoro * 0.001;
+    d64 adhabu_ya_kijeshi = t->kijeshi * 0.15;
+    d64 furaha_ya_dini = t->mamlaka_ya_dini * (0.20 - kiwango_cha_utamaduni * 0.15);
+    d64 nyongeza_ya_utulivu = s->utulivu * 0.15;
+    n32 mgogoro = s->mgogoro_wa_urithi;
+    d64 adhabu_ya_mgogoro = mgogoro * 0.001;
 
-    D64 furaha = furaha_ya_uwakilishi * 0.25 + furaha_ya_uchumi * 0.25
+    d64 furaha = furaha_ya_uwakilishi * 0.25 + furaha_ya_uchumi * 0.25
                + furaha_ya_mila * 0.15 + nyongeza_ya_utulivu + furaha_ya_dini
                - adhabu_ya_kijeshi - adhabu_ya_mgogoro;
 
@@ -156,9 +156,9 @@ D64 utawala_furaha(UtawaliHali* s, D64 idadi_ya_watu, D64 kiwango_cha_utamaduni)
     rudisha finya_d64(furaha, 0.05, 0.95);
 }
 
-D64 utawala_faida_ya_kijeshi(UtawaliHali* s) {
+d64 utawala_faida_ya_kijeshi(UtawaliHali* s) {
     UtawaliSifa* t = &s->sifa;
-    D64 faida = 1.0 + t->kijeshi * 0.25;
+    d64 faida = 1.0 + t->kijeshi * 0.25;
     faida = faida + t->umoja_wa_madaraka * 0.10;
     faida = faida + t->ustahiki * 0.08;
     kama (s->dharura_inaendelea != 0) {
@@ -167,9 +167,9 @@ D64 utawala_faida_ya_kijeshi(UtawaliHali* s) {
     rudisha finya_d64(faida, 0.80, 1.50);
 }
 
-D64 utawala_faida_ya_utafiti(UtawaliHali* s) {
+d64 utawala_faida_ya_utafiti(UtawaliHali* s) {
     UtawaliSifa* t = &s->sifa;
-    D64 faida = 1.0 + (1.0 - t->mamlaka_ya_dini) * 0.20;
+    d64 faida = 1.0 + (1.0 - t->mamlaka_ya_dini) * 0.20;
     faida = faida + t->ustahiki * 0.15;
     faida = faida + t->uhuru_wa_kiuchumi * 0.10;
 
@@ -182,34 +182,34 @@ D64 utawala_faida_ya_utafiti(UtawaliHali* s) {
     rudisha finya_d64(faida, 0.50, 1.60);
 }
 
-D64 utawala_faida_ya_umoja(UtawaliHali* s) {
+d64 utawala_faida_ya_umoja(UtawaliHali* s) {
     UtawaliSifa* t = &s->sifa;
-    D64 faida = 0.60 + t->kiwango_cha_mila * 0.25 + t->mamlaka_ya_dini * 0.15;
+    d64 faida = 0.60 + t->kiwango_cha_mila * 0.25 + t->mamlaka_ya_dini * 0.15;
     faida = faida + t->uwakilishi * 0.10;
     faida = faida - t->umoja_wa_madaraka * (1.0 - t->uwakilishi) * 0.15;
     rudisha finya_d64(faida, 0.30, 1.0);
 }
 
-D64 utawala_faida_ya_kiuchumi(UtawaliHali* s) {
+d64 utawala_faida_ya_kiuchumi(UtawaliHali* s) {
     UtawaliSifa* t = &s->sifa;
-    D64 faida = 1.0 + t->uhuru_wa_kiuchumi * 0.20 + t->ustahiki * 0.10;
+    d64 faida = 1.0 + t->uhuru_wa_kiuchumi * 0.20 + t->ustahiki * 0.10;
     faida = faida + t->umoja_wa_madaraka * 0.08;
     faida = faida * (1.0 - s->rushwa * 0.5);
     rudisha finya_d64(faida, 0.60, 1.40);
 }
 
-D64 utawala_upinzani_wa_rushwa(UtawaliHali* s) {
+d64 utawala_upinzani_wa_rushwa(UtawaliHali* s) {
     UtawaliSifa* t = &s->sifa;
-    D64 upinzani = 0.30 + t->ustahiki * 0.35;
+    d64 upinzani = 0.30 + t->ustahiki * 0.35;
     upinzani = upinzani + t->uwakilishi * 0.20;
     upinzani = upinzani + (1.0 - t->mamlaka_ya_dini) * 0.10;
     upinzani = upinzani - t->umoja_wa_madaraka * (1.0 - t->uwakilishi) * 0.15;
     rudisha finya_d64(upinzani, 0.10, 0.90);
 }
 
-D64 utawala_faida_ya_biashara(UtawaliHali* s) {
+d64 utawala_faida_ya_biashara(UtawaliHali* s) {
     UtawaliSifa* t = &s->sifa;
-    D64 faida = 1.0 + t->uhuru_wa_kiuchumi * 0.20;
+    d64 faida = 1.0 + t->uhuru_wa_kiuchumi * 0.20;
     faida = faida + (1.0 - t->kijeshi) * 0.10;
     faida = faida + t->umoja_wa_madaraka * 0.05;
     rudisha finya_d64(faida, 0.60, 1.40);
@@ -217,8 +217,8 @@ D64 utawala_faida_ya_biashara(UtawaliHali* s) {
 
 // ---------- Urithi ----------
 
-D64 utawala_ulaini_wa_urithi(UtawaliHali* s) {
-    D64 matokeo = s->utulivu * 0.25 + s->uhalali * 0.20
+d64 utawala_ulaini_wa_urithi(UtawaliHali* s) {
+    d64 matokeo = s->utulivu * 0.25 + s->uhalali * 0.20
                 + s->sifa.kiwango_cha_mila * 0.20
                 + s->sifa.ustahiki * 0.15
                 + (1.0 - s->rushwa) * 0.10
@@ -226,8 +226,8 @@ D64 utawala_ulaini_wa_urithi(UtawaliHali* s) {
     rudisha matokeo;
 }
 
-W0 utawala_anzisha_urithi(UtawaliHali* s) {
-    D64 ulaini = utawala_ulaini_wa_urithi(s);
+w0 utawala_anzisha_urithi(UtawaliHali* s) {
+    d64 ulaini = utawala_ulaini_wa_urithi(s);
 
     kama (s->sifa.ustahiki < 0.30) {
         ulaini = s->sifa.kiwango_cha_mila * 0.8 + s->utulivu_wa_urithi * 0.2;
@@ -237,8 +237,8 @@ W0 utawala_anzisha_urithi(UtawaliHali* s) {
         ulaini = s->utulivu * 0.5 + s->uhalali * 0.3 + s->utulivu_wa_urithi * 0.2;
     } }
 
-    D64 mgogoro_d = (1.0 - ulaini) * 100.0;
-    N32 mgogoro = mgogoro_d;
+    d64 mgogoro_d = (1.0 - ulaini) * 100.0;
+    n32 mgogoro = mgogoro_d;
     kama (mgogoro < 0) { mgogoro = 0; }
     s->mgogoro_wa_urithi = mgogoro;
 
@@ -260,16 +260,16 @@ W0 utawala_anzisha_urithi(UtawaliHali* s) {
     }
 }
 
-N32 utawala_zeesha_kiongozi(UtawaliHali* s) {
+n32 utawala_zeesha_kiongozi(UtawaliHali* s) {
     s->umri_wa_kiongozi = s->umri_wa_kiongozi + 1;
 
-    D64 vifo = 0.0;
+    d64 vifo = 0.0;
     kama (s->umri_wa_kiongozi > 60) {
-        N32 zaidi = s->umri_wa_kiongozi - 60;
+        n32 zaidi = s->umri_wa_kiongozi - 60;
         vifo = zaidi * 0.003;
     }
     kama (s->umri_wa_kiongozi > 80) {
-        N32 zaidi2 = s->umri_wa_kiongozi - 80;
+        n32 zaidi2 = s->umri_wa_kiongozi - 80;
         vifo = 0.06 + zaidi2 * 0.02;
     }
 
@@ -281,8 +281,8 @@ N32 utawala_zeesha_kiongozi(UtawaliHali* s) {
         vifo = vifo + s->mgogoro_wa_urithi * 0.005;
     }
 
-    D64 kura_d = civ_nasibu_chini_ya(100000);
-    D64 kura = kura_d / 100000.0;
+    d64 kura_d = civ_nasibu_chini_ya(100000);
+    d64 kura = kura_d / 100000.0;
 
     kama (kura < vifo) {
         utawala_anzisha_urithi(s);
@@ -293,7 +293,7 @@ N32 utawala_zeesha_kiongozi(UtawaliHali* s) {
 
 // ---------- Madaraka ya dharura ----------
 
-W0 utawala_tangaza_dharura(UtawaliHali* s) {
+w0 utawala_tangaza_dharura(UtawaliHali* s) {
     s->dharura_inaendelea = 1;
     s->dharura_muda_uliobaki = 40;
     s->dharura_unyakuzi_wa_madaraka = 0.30 + (1.0 - s->sifa.uwakilishi) * 0.30;
@@ -308,11 +308,11 @@ W0 utawala_tangaza_dharura(UtawaliHali* s) {
     kama (s->sifa.kijeshi > 1.0) { s->sifa.kijeshi = 1.0; }
 }
 
-N32 utawala_maliza_dharura(UtawaliHali* s) {
+n32 utawala_maliza_dharura(UtawaliHali* s) {
     kama (s->dharura_inaendelea == 0) { rudisha 1; }
 
-    D64 upinzani = s->dharura_unyakuzi_wa_madaraka * (1.0 - s->sifa.uwakilishi);
-    D64 urejeshaji = s->sifa.uwakilishi * 0.5 + s->uhalali * 0.3 + (1.0 - s->rushwa) * 0.2;
+    d64 upinzani = s->dharura_unyakuzi_wa_madaraka * (1.0 - s->sifa.uwakilishi);
+    d64 urejeshaji = s->sifa.uwakilishi * 0.5 + s->uhalali * 0.3 + (1.0 - s->rushwa) * 0.2;
 
     kama (urejeshaji > upinzani) {
         s->dharura_inaendelea = 0;
@@ -332,7 +332,7 @@ N32 utawala_maliza_dharura(UtawaliHali* s) {
     rudisha 0;
 }
 
-W0 utawala_sasisha_dharura(UtawaliHali* s, D64 dt) {
+w0 utawala_sasisha_dharura(UtawaliHali* s, d64 dt) {
     kama (s->dharura_inaendelea == 0) { rudisha; }
 
     s->dharura_muda_uliobaki = s->dharura_muda_uliobaki - 1;
@@ -347,7 +347,7 @@ W0 utawala_sasisha_dharura(UtawaliHali* s, D64 dt) {
 
 // ---------- Sasisho kuu ----------
 
-CivMatokeo utawala_sasisha(UtawaliHali* s, D64 idadi_ya_watu, D64 kiwango_cha_utamaduni) {
+CivMatokeo utawala_sasisha(UtawaliHali* s, d64 idadi_ya_watu, d64 kiwango_cha_utamaduni) {
     CivMatokeo r;
     r.hitilafu = CIV_SAWA;
     r.ujumbe = "imesasishwa";
@@ -357,7 +357,7 @@ CivMatokeo utawala_sasisha(UtawaliHali* s, D64 idadi_ya_watu, D64 kiwango_cha_ut
 
     kama (s->mgogoro_wa_urithi > 0) {
         s->mgogoro_wa_urithi = s->mgogoro_wa_urithi - 1;
-        D64 mgogoro_sasa = s->mgogoro_wa_urithi;
+        d64 mgogoro_sasa = s->mgogoro_wa_urithi;
         s->utulivu = s->utulivu - mgogoro_sasa * 0.0001;
     }
 
@@ -365,15 +365,15 @@ CivMatokeo utawala_sasisha(UtawaliHali* s, D64 idadi_ya_watu, D64 kiwango_cha_ut
         s->muda_wa_kupumzika_mageuzi = s->muda_wa_kupumzika_mageuzi + 1;
     }
 
-    D64 uwiano_wa_rushwa = 1.0 - utawala_upinzani_wa_rushwa(s);
+    d64 uwiano_wa_rushwa = 1.0 - utawala_upinzani_wa_rushwa(s);
     s->rushwa = s->rushwa + (uwiano_wa_rushwa - s->rushwa) * 0.01;
 
-    D64 furaha = utawala_furaha(s, idadi_ya_watu, kiwango_cha_utamaduni);
-    D64 lengo_la_uhalali = furaha * 0.6 + s->sifa.uwakilishi * 0.3 + s->utulivu * 0.1;
+    d64 furaha = utawala_furaha(s, idadi_ya_watu, kiwango_cha_utamaduni);
+    d64 lengo_la_uhalali = furaha * 0.6 + s->sifa.uwakilishi * 0.3 + s->utulivu * 0.1;
     s->uhalali = s->uhalali + (lengo_la_uhalali - s->uhalali) * 0.02;
 
-    D64 umoja = utawala_faida_ya_umoja(s);
-    D64 lengo_la_utulivu = umoja * 0.4 + s->uhalali * 0.3 - s->rushwa * 0.3 + 0.30;
+    d64 umoja = utawala_faida_ya_umoja(s);
+    d64 lengo_la_utulivu = umoja * 0.4 + s->uhalali * 0.3 - s->rushwa * 0.3 + 0.30;
     s->utulivu = s->utulivu + (lengo_la_utulivu - s->utulivu) * 0.015;
 
     s->utulivu_wa_urithi = s->utulivu_wa_urithi + (s->sifa.kiwango_cha_mila * 0.4
@@ -389,7 +389,7 @@ CivMatokeo utawala_sasisha(UtawaliHali* s, D64 idadi_ya_watu, D64 kiwango_cha_ut
 
 // ---------- Maamuzi ----------
 
-N32 utawala_inapaswa_kuamua(UtawaliHali* s, D64 idadi_ya_watu, D64 kiwango_cha_utamaduni) {
+n32 utawala_inapaswa_kuamua(UtawaliHali* s, d64 idadi_ya_watu, d64 kiwango_cha_utamaduni) {
     kama (s->muda_wa_kupumzika_mageuzi < 15) { rudisha 0; }
 
     kama (s->uhalali < 0.30 && idadi_ya_watu > 500.0) { rudisha 1; }
@@ -398,14 +398,14 @@ N32 utawala_inapaswa_kuamua(UtawaliHali* s, D64 idadi_ya_watu, D64 kiwango_cha_u
     kama (s->rushwa > 0.40) { rudisha 1; }
     kama (s->dharura_inaendelea != 0 && s->dharura_muda_uliobaki < 10) { rudisha 1; }
 
-    D64 kura_d = civ_nasibu_chini_ya(10000);
-    D64 kura = kura_d / 10000.0;
+    d64 kura_d = civ_nasibu_chini_ya(10000);
+    d64 kura = kura_d / 10000.0;
     kama (kura < 0.03) { rudisha 1; }
 
     rudisha 0;
 }
 
-UtawaliUamuzi utawala_zalisha_uamuzi(UtawaliHali* s, D64 idadi_ya_watu, D64 kiwango_cha_utamaduni) {
+UtawaliUamuzi utawala_zalisha_uamuzi(UtawaliHali* s, d64 idadi_ya_watu, d64 kiwango_cha_utamaduni) {
     UtawaliUamuzi d;
     d.a_umoja_wa_madaraka = 0.0; d.a_uwakilishi = 0.0; d.a_kijeshi = 0.0;
     d.a_dini = 0.0; d.a_ustahiki = 0.0; d.a_kiuchumi = 0.0; d.a_mila = 0.0;
@@ -462,7 +462,7 @@ UtawaliUamuzi utawala_zalisha_uamuzi(UtawaliHali* s, D64 idadi_ya_watu, D64 kiwa
     rudisha d;
 }
 
-W0 utawala_tekeleza_uamuzi(UtawaliHali* s, UtawaliUamuzi* d, N32 chaguo) {
+w0 utawala_tekeleza_uamuzi(UtawaliHali* s, UtawaliUamuzi* d, n32 chaguo) {
     kama (chaguo == 0) {
         s->utulivu = s->utulivu + d->a_utulivu;
         s->sifa.umoja_wa_madaraka = s->sifa.umoja_wa_madaraka + d->a_umoja_wa_madaraka;
@@ -505,12 +505,12 @@ W0 utawala_tekeleza_uamuzi(UtawaliHali* s, UtawaliUamuzi* d, N32 chaguo) {
 
 // ---------- Maelezo — lebo 20+ za utawala kutoka mihimili 7 ----------
 
-N8* utawala_eleza(UtawaliHali* s, N8* bafa, N8* bafa_muda) {
+n8* utawala_eleza(UtawaliHali* s, n8* bafa, n8* bafa_muda) {
     UtawaliSifa* t = &s->sifa;
 
     kama (t->mamlaka_ya_dini > 0.65 && t->umoja_wa_madaraka > 0.60) {
-        N8* neno1 = "Theokrasi ya Uwakilishi";
-        N8* neno2 = "Theokrasi ya Kati";
+        n8* neno1 = "Theokrasi ya Uwakilishi";
+        n8* neno2 = "Theokrasi ya Kati";
         kama (t->uwakilishi > 0.30) { nakili_mfuatano(bafa, neno1); } sivyo { nakili_mfuatano(bafa, neno2); }
         rudisha bafa;
     }
@@ -611,7 +611,7 @@ N8* utawala_eleza(UtawaliHali* s, N8* bafa, N8* bafa_muda) {
 
 // ---------- Vyeo ----------
 
-N8* utawala_zalisha_cheo(UtawaliHali* s) {
+n8* utawala_zalisha_cheo(UtawaliHali* s) {
     kama (s == 0) { rudisha "Mkuu wa Kabila"; }
     UtawaliSifa* t = &s->sifa;
 
@@ -642,7 +642,7 @@ N8* utawala_zalisha_cheo(UtawaliHali* s) {
 
 // ---------- Upendeleo wa ndani ----------
 
-W0 utawala_ongeza_upendeleo_wa_ndani(UtawaliHali* s, N8* aina_ya_upendeleo, D64 nguvu) {
+w0 utawala_ongeza_upendeleo_wa_ndani(UtawaliHali* s, n8* aina_ya_upendeleo, d64 nguvu) {
     kama (tafuta_mfuatano(aina_ya_upendeleo, "umoja") != -1) {
         s->upendeleo_wa_uhuru_wa_ndani = s->upendeleo_wa_uhuru_wa_ndani - nguvu * 0.1;
     } sivyo { kama (tafuta_mfuatano(aina_ya_upendeleo, "uhuru") != -1) {

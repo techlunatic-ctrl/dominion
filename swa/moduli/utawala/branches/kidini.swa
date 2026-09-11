@@ -8,45 +8,45 @@
 
 husisha { msingi/msingi_civ.swa }
 
-N32 UTAWALA_KIDINI_UONGOZI = 0;
-N32 UTAWALA_KIDINI_BARAZA = 1;
-N32 UTAWALA_KIDINI_MLINZI = 2;
-N32 UTAWALA_KIDINI_UNABII = 3;
+n32 UTAWALA_KIDINI_UONGOZI = 0;
+n32 UTAWALA_KIDINI_BARAZA = 1;
+n32 UTAWALA_KIDINI_MLINZI = 2;
+n32 UTAWALA_KIDINI_UNABII = 3;
 
-N32 UTAWALA_KIDINI_VIONGOZI_UPEO = 4;
+n32 UTAWALA_KIDINI_VIONGOZI_UPEO = 4;
 
 muundo UtawalaKidiniKiongozi {
-    N8* cheo;
-    N8* kitambulisho_cha_mtu;
-    D64 uchamungu;
-    D64 nguvu_ya_kisiasa;
-    N32 wafuasi;
+    n8* cheo;
+    n8* kitambulisho_cha_mtu;
+    d64 uchamungu;
+    d64 nguvu_ya_kisiasa;
+    n32 wafuasi;
 };
 
 muundo UtawalaKidini {
-    N32 aina;
+    n32 aina;
     UtawalaKidiniKiongozi kiongozi_0; UtawalaKidiniKiongozi kiongozi_1;
     UtawalaKidiniKiongozi kiongozi_2; UtawalaKidiniKiongozi kiongozi_3;
-    N32 idadi_ya_viongozi;
+    n32 idadi_ya_viongozi;
 
-    D64 mamlaka_ya_kiroho;
-    D64 ushawishi_wa_kisiasa;
-    D64 ugumu_wa_mafundisho;
-    D64 nyongeza_ya_umoja_wa_utamaduni;
-    D64 adhabu_ya_kisayansi;
-    N32 anaweza_kupinga_sheria_za_kidunia;
-    N32 anaweza_kuteua_viongozi;
-    N8* dini_kuu;
+    d64 mamlaka_ya_kiroho;
+    d64 ushawishi_wa_kisiasa;
+    d64 ugumu_wa_mafundisho;
+    d64 nyongeza_ya_umoja_wa_utamaduni;
+    d64 adhabu_ya_kisayansi;
+    n32 anaweza_kupinga_sheria_za_kidunia;
+    n32 anaweza_kuteua_viongozi;
+    n8* dini_kuu;
 };
 
-UtawalaKidiniKiongozi* utawala_kidini_pata_kiongozi(UtawalaKidini* r, N32 idx) {
+UtawalaKidiniKiongozi* utawala_kidini_pata_kiongozi(UtawalaKidini* r, n32 idx) {
     kama (idx == 0) { rudisha &r->kiongozi_0; }
     kama (idx == 1) { rudisha &r->kiongozi_1; }
     kama (idx == 2) { rudisha &r->kiongozi_2; }
     rudisha &r->kiongozi_3;
 }
 
-UtawalaKidini* utawala_kidini_unda(N32 aina, N8* dini_kuu) {
+UtawalaKidini* utawala_kidini_unda(n32 aina, n8* dini_kuu) {
     UtawalaKidini* r = tenga(ukubwa(UtawalaKidini));
     r->aina = aina;
     r->dini_kuu = dini_kuu;
@@ -61,12 +61,12 @@ UtawalaKidini* utawala_kidini_unda(N32 aina, N8* dini_kuu) {
     rudisha r;
 }
 
-W0 utawala_kidini_uharibu(UtawalaKidini* r) {
+w0 utawala_kidini_uharibu(UtawalaKidini* r) {
     achilia r;
 }
 
-W0 utawala_kidini_sasisha(UtawalaKidini* r, D64 muda, D64 sifa_ya_mamlaka_ya_kidini,
-                            D64 mila, D64 uwakilishi, D64 rushwa) {
+w0 utawala_kidini_sasisha(UtawalaKidini* r, d64 muda, d64 sifa_ya_mamlaka_ya_kidini,
+                            d64 mila, d64 uwakilishi, d64 rushwa) {
     r->mamlaka_ya_kiroho = r->mamlaka_ya_kiroho
         + (sifa_ya_mamlaka_ya_kidini * 0.5 + mila * 0.3 - r->mamlaka_ya_kiroho) * 0.03 * muda;
 
@@ -92,7 +92,7 @@ W0 utawala_kidini_sasisha(UtawalaKidini* r, D64 muda, D64 sifa_ya_mamlaka_ya_kid
     r->mamlaka_ya_kiroho = r->mamlaka_ya_kiroho - rushwa * 0.02 * muda;
     kama (r->mamlaka_ya_kiroho < 0.05) { r->mamlaka_ya_kiroho = 0.05; }
 
-    N32 i = 0;
+    n32 i = 0;
     wakati (i < r->idadi_ya_viongozi) {
         UtawalaKidiniKiongozi* k = utawala_kidini_pata_kiongozi(r, i);
         k->uchamungu = k->uchamungu + (r->mamlaka_ya_kiroho - k->uchamungu) * 0.02 * muda;
@@ -101,34 +101,34 @@ W0 utawala_kidini_sasisha(UtawalaKidini* r, D64 muda, D64 sifa_ya_mamlaka_ya_kid
     }
 }
 
-UtawalaKidiniKiongozi* utawala_kidini_ongeza_kiongozi(UtawalaKidini* r, N8* cheo,
-                                                        N8* kitambulisho_cha_mtu, D64 uchamungu) {
+UtawalaKidiniKiongozi* utawala_kidini_ongeza_kiongozi(UtawalaKidini* r, n8* cheo,
+                                                        n8* kitambulisho_cha_mtu, d64 uchamungu) {
     kama (r == 0 || cheo == 0 || r->idadi_ya_viongozi >= UTAWALA_KIDINI_VIONGOZI_UPEO) { rudisha 0; }
     UtawalaKidiniKiongozi* k = utawala_kidini_pata_kiongozi(r, r->idadi_ya_viongozi);
     k->cheo = cheo;
     k->kitambulisho_cha_mtu = kitambulisho_cha_mtu;
     k->uchamungu = uchamungu;
     k->nguvu_ya_kisiasa = uchamungu * 0.5;
-    N32 nyongeza = civ_nasibu_chini_ya(10000);
-    D64 nyongeza_d = nyongeza;
-    D64 wafuasi_d = 1000.0 + uchamungu * nyongeza_d;
-    N32 wafuasi_n = wafuasi_d;
+    n32 nyongeza = civ_nasibu_chini_ya(10000);
+    d64 nyongeza_d = nyongeza;
+    d64 wafuasi_d = 1000.0 + uchamungu * nyongeza_d;
+    n32 wafuasi_n = wafuasi_d;
     k->wafuasi = wafuasi_n;
     r->idadi_ya_viongozi = r->idadi_ya_viongozi + 1;
     rudisha k;
 }
 
-D64 utawala_kidini_uhalali_wa_kimaadili(UtawalaKidini* r) {
+d64 utawala_kidini_uhalali_wa_kimaadili(UtawalaKidini* r) {
     kama (r == 0) { rudisha 0.0; }
     rudisha r->mamlaka_ya_kiroho;
 }
 
-D64 utawala_kidini_kikwazo_cha_kidunia(UtawalaKidini* r) {
+d64 utawala_kidini_kikwazo_cha_kidunia(UtawalaKidini* r) {
     kama (r == 0) { rudisha 0.0; }
     rudisha r->ushawishi_wa_kisiasa;
 }
 
-N32 utawala_kidini_pinga_sheria(UtawalaKidini* r, N8* sheria_id) {
+n32 utawala_kidini_pinga_sheria(UtawalaKidini* r, n8* sheria_id) {
     kama (r == 0) { rudisha 0; }
     rudisha r->anaweza_kupinga_sheria_za_kidunia;
 }

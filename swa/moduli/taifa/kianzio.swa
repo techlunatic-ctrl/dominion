@@ -8,7 +8,7 @@
 // taifa moja (mfano vyama), hii ni kuhusu VIGEZO VYA KUANZIA vya
 // taifa lenyewe (aina 8 za ustaarabu za kuchagua mwanzoni mwa
 // mchezo, kama katika michezo ya mkakati mkuu). civ_icon_id_t
-// imekuwa N32 tupu (nambari ya ikoni, safu ya UI bado haijaandikwa).
+// imekuwa n32 tupu (nambari ya ikoni, safu ya UI bado haijaandikwa).
 // sector_weights[8] (safu ya ndani ya float, field ya muundo)
 // imegawanywa kuwa vigezo 8 vyenye majina (uzito_0..uzito_7).
 // s_factions[8] (safu ya kudumu ya C) imekuwa kazi 8 tofauti
@@ -18,44 +18,44 @@
 husisha { msingi/msingi_civ.swa }
 husisha { msingi/maktaba/mfuatano.swa }
 
-N32 TAIFA_KIANZIO_IKONI_TAJI = 0;
-N32 TAIFA_KIANZIO_IKONI_SARAFU = 1;
-N32 TAIFA_KIANZIO_IKONI_HEKALU = 2;
-N32 TAIFA_KIANZIO_IKONI_BENDERA = 3;
-N32 TAIFA_KIANZIO_IKONI_CHUPA = 4;
-N32 TAIFA_KIANZIO_IKONI_UPANGA = 5;
-N32 TAIFA_KIANZIO_IKONI_NGANO = 6;
-N32 TAIFA_KIANZIO_IKONI_PETE_YA_MTI = 7;
+n32 TAIFA_KIANZIO_IKONI_TAJI = 0;
+n32 TAIFA_KIANZIO_IKONI_SARAFU = 1;
+n32 TAIFA_KIANZIO_IKONI_HEKALU = 2;
+n32 TAIFA_KIANZIO_IKONI_BENDERA = 3;
+n32 TAIFA_KIANZIO_IKONI_CHUPA = 4;
+n32 TAIFA_KIANZIO_IKONI_UPANGA = 5;
+n32 TAIFA_KIANZIO_IKONI_NGANO = 6;
+n32 TAIFA_KIANZIO_IKONI_PETE_YA_MTI = 7;
 
 muundo TaifaKianzioHali {
-    N32 kiwango_cha_teknolojia;
-    N32 kiwango_cha_kijeshi;
-    N32 kiwango_cha_uchumi;
-    N32 kiwango_cha_utamaduni;
-    N32 kiwango_cha_uthabiti;
-    N32 kiwango_cha_idadi_ya_watu;
+    n32 kiwango_cha_teknolojia;
+    n32 kiwango_cha_kijeshi;
+    n32 kiwango_cha_uchumi;
+    n32 kiwango_cha_utamaduni;
+    n32 kiwango_cha_uthabiti;
+    n32 kiwango_cha_idadi_ya_watu;
 
-    D64 uzito_0; D64 uzito_1; D64 uzito_2; D64 uzito_3;
-    D64 uzito_4; D64 uzito_5; D64 uzito_6; D64 uzito_7;
+    d64 uzito_0; d64 uzito_1; d64 uzito_2; d64 uzito_3;
+    d64 uzito_4; d64 uzito_5; d64 uzito_6; d64 uzito_7;
 
-    D64 nguvu_ya_utendaji;
-    D64 nguvu_ya_kutunga_sheria;
-    D64 nguvu_ya_mahakama;
+    d64 nguvu_ya_utendaji;
+    d64 nguvu_ya_kutunga_sheria;
+    d64 nguvu_ya_mahakama;
 
-    N8* mazingira_yanayopendelewa;
-    N32 latitudo_inayopendelewa;
+    n8* mazingira_yanayopendelewa;
+    n32 latitudo_inayopendelewa;
 
-    N32 makazi_ya_kuanzia;
-    D64 eneo_la_kuanzia_km2;
+    n32 makazi_ya_kuanzia;
+    d64 eneo_la_kuanzia_km2;
 };
 
 muundo TaifaKianzio {
-    N8* id;
-    N8* jina;
-    N8* maelezo;
-    N32 rangi;
-    N32 rangi_ya_pili;
-    N32 ikoni;
+    n8* id;
+    n8* jina;
+    n8* maelezo;
+    n32 rangi;
+    n32 rangi_ya_pili;
+    n32 ikoni;
     TaifaKianzioHali kuanzia;
 };
 
@@ -203,7 +203,7 @@ TaifaKianzio* taifa_kianzio_walinzi_wa_pori() {
     rudisha f;
 }
 
-TaifaKianzio* taifa_kianzio_pata_kwa_faharisi(N32 idx) {
+TaifaKianzio* taifa_kianzio_pata_kwa_faharisi(n32 idx) {
     kama (idx == 0) { rudisha taifa_kianzio_himaya(); }
     kama (idx == 1) { rudisha taifa_kianzio_muungano_wa_biashara(); }
     kama (idx == 2) { rudisha taifa_kianzio_utawala_wa_kidini(); }
@@ -215,12 +215,12 @@ TaifaKianzio* taifa_kianzio_pata_kwa_faharisi(N32 idx) {
     rudisha 0;
 }
 
-N32 taifa_kianzio_idadi() {
+n32 taifa_kianzio_idadi() {
     rudisha 8;
 }
 
-TaifaKianzio* taifa_kianzio_pata_kwa_id(N8* id) {
-    N32 i = 0;
+TaifaKianzio* taifa_kianzio_pata_kwa_id(n8* id) {
+    n32 i = 0;
     wakati (i < 8) {
         TaifaKianzio* f = taifa_kianzio_pata_kwa_faharisi(i);
         kama (linganisha_mfuatano(f->id, id) == 0) { rudisha f; }

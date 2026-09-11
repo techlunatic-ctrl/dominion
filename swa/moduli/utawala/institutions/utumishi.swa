@@ -9,21 +9,21 @@
 
 husisha { msingi/msingi_civ.swa }
 
-N32 UTAWALA_UTUMISHI_MTIHANI = 0;
-N32 UTAWALA_UTUMISHI_UTEUZI = 1;
-N32 UTAWALA_UTUMISHI_UPENDELEO = 2;
-N32 UTAWALA_UTUMISHI_MCHANGANYIKO = 3;
+n32 UTAWALA_UTUMISHI_MTIHANI = 0;
+n32 UTAWALA_UTUMISHI_UTEUZI = 1;
+n32 UTAWALA_UTUMISHI_UPENDELEO = 2;
+n32 UTAWALA_UTUMISHI_MCHANGANYIKO = 3;
 
-N32 UTAWALA_UTUMISHI_IDARA_UPEO = 8;
+n32 UTAWALA_UTUMISHI_IDARA_UPEO = 8;
 
 muundo UtawalaUtumishiIdara {
-    N8* jina;
-    N32 idadi_ya_wafanyakazi;
-    D64 umahiri_wa_wastani;
-    D64 uaminifu_wa_wastani;
-    D64 ari;
-    D64 bajeti;
-    D64 matokeo;
+    n8* jina;
+    n32 idadi_ya_wafanyakazi;
+    d64 umahiri_wa_wastani;
+    d64 uaminifu_wa_wastani;
+    d64 ari;
+    d64 bajeti;
+    d64 matokeo;
 };
 
 muundo UtawalaUtumishi {
@@ -31,19 +31,19 @@ muundo UtawalaUtumishi {
     UtawalaUtumishiIdara idara_2; UtawalaUtumishiIdara idara_3;
     UtawalaUtumishiIdara idara_4; UtawalaUtumishiIdara idara_5;
     UtawalaUtumishiIdara idara_6; UtawalaUtumishiIdara idara_7;
-    N32 idadi_ya_idara;
+    n32 idadi_ya_idara;
 
-    N32 mfano_wa_uajiri;
-    D64 wafanyakazi_jumla;
-    D64 umahiri_wa_wastani;
-    D64 kumbukumbu_ya_kitaasisi;
-    D64 ugumu_wa_kiurasimu;
-    D64 udhaifu_wa_rushwa;
-    D64 upande_wowote_wa_kisiasa;
-    D64 ufanisi_wa_bajeti;
+    n32 mfano_wa_uajiri;
+    d64 wafanyakazi_jumla;
+    d64 umahiri_wa_wastani;
+    d64 kumbukumbu_ya_kitaasisi;
+    d64 ugumu_wa_kiurasimu;
+    d64 udhaifu_wa_rushwa;
+    d64 upande_wowote_wa_kisiasa;
+    d64 ufanisi_wa_bajeti;
 };
 
-UtawalaUtumishiIdara* utawala_utumishi_pata_idara(UtawalaUtumishi* cs, N32 idx) {
+UtawalaUtumishiIdara* utawala_utumishi_pata_idara(UtawalaUtumishi* cs, n32 idx) {
     kama (idx == 0) { rudisha &cs->idara_0; }
     kama (idx == 1) { rudisha &cs->idara_1; }
     kama (idx == 2) { rudisha &cs->idara_2; }
@@ -68,12 +68,12 @@ UtawalaUtumishi* utawala_utumishi_unda() {
     rudisha cs;
 }
 
-W0 utawala_utumishi_uharibu(UtawalaUtumishi* cs) {
+w0 utawala_utumishi_uharibu(UtawalaUtumishi* cs) {
     achilia cs;
 }
 
-W0 utawala_utumishi_sasisha(UtawalaUtumishi* cs, D64 muda, D64 sifa_ya_umahiri,
-                              D64 rushwa, D64 kiwango_cha_elimu, D64 bajeti_jumla) {
+w0 utawala_utumishi_sasisha(UtawalaUtumishi* cs, d64 muda, d64 sifa_ya_umahiri,
+                              d64 rushwa, d64 kiwango_cha_elimu, d64 bajeti_jumla) {
     kama (cs->mfano_wa_uajiri == UTAWALA_UTUMISHI_MTIHANI) {
         cs->umahiri_wa_wastani = cs->umahiri_wa_wastani
             + (sifa_ya_umahiri * 0.6 + kiwango_cha_elimu * 0.3 - cs->umahiri_wa_wastani) * 0.04 * muda;
@@ -97,10 +97,10 @@ W0 utawala_utumishi_sasisha(UtawalaUtumishi* cs, D64 muda, D64 sifa_ya_umahiri,
         cs->udhaifu_wa_rushwa = 0.25;
     } } }
 
-    D64 rushwa_halisi = rushwa * cs->udhaifu_wa_rushwa * 2.0;
+    d64 rushwa_halisi = rushwa * cs->udhaifu_wa_rushwa * 2.0;
     cs->umahiri_wa_wastani = cs->umahiri_wa_wastani - rushwa_halisi * 0.01 * muda;
 
-    D64 lengo_la_kumbukumbu = 0.55;
+    d64 lengo_la_kumbukumbu = 0.55;
     kama (cs->mfano_wa_uajiri == UTAWALA_UTUMISHI_MTIHANI) { lengo_la_kumbukumbu = 0.80; }
     sivyo { kama (cs->mfano_wa_uajiri == UTAWALA_UTUMISHI_UPENDELEO) { lengo_la_kumbukumbu = 0.25; } }
     cs->kumbukumbu_ya_kitaasisi = cs->kumbukumbu_ya_kitaasisi
@@ -109,14 +109,14 @@ W0 utawala_utumishi_sasisha(UtawalaUtumishi* cs, D64 muda, D64 sifa_ya_umahiri,
     cs->ufanisi_wa_bajeti = cs->umahiri_wa_wastani * 0.5 + cs->upande_wowote_wa_kisiasa * 0.3
         + (1.0 - rushwa_halisi) * 0.2;
 
-    N32 kwa_idara_bajeti_n = cs->idadi_ya_idara;
-    D64 bajeti_kwa_idara = bajeti_jumla;
+    n32 kwa_idara_bajeti_n = cs->idadi_ya_idara;
+    d64 bajeti_kwa_idara = bajeti_jumla;
     kama (cs->idadi_ya_idara > 0) {
-        D64 idadi_d = kwa_idara_bajeti_n;
+        d64 idadi_d = kwa_idara_bajeti_n;
         bajeti_kwa_idara = bajeti_jumla / idadi_d;
     }
 
-    N32 i = 0;
+    n32 i = 0;
     wakati (i < cs->idadi_ya_idara) {
         UtawalaUtumishiIdara* d = utawala_utumishi_pata_idara(cs, i);
         d->bajeti = bajeti_kwa_idara;
@@ -124,8 +124,8 @@ W0 utawala_utumishi_sasisha(UtawalaUtumishi* cs, D64 muda, D64 sifa_ya_umahiri,
         d->ari = d->ari + (kiwango_cha_elimu * 0.0 + 0.3 - d->ari * 0.1) * 0.05 * muda;
         kama (d->ari < 0.10) { d->ari = 0.10; }
         kama (d->ari > 1.0) { d->ari = 1.0; }
-        N32 wafanyakazi_n = d->idadi_ya_wafanyakazi;
-        D64 wafanyakazi_d = wafanyakazi_n;
+        n32 wafanyakazi_n = d->idadi_ya_wafanyakazi;
+        d64 wafanyakazi_d = wafanyakazi_n;
         d->matokeo = wafanyakazi_d * d->umahiri_wa_wastani * d->ari * cs->ufanisi_wa_bajeti;
         i = i + 1;
     }
@@ -134,14 +134,14 @@ W0 utawala_utumishi_sasisha(UtawalaUtumishi* cs, D64 muda, D64 sifa_ya_umahiri,
     i = 0;
     wakati (i < cs->idadi_ya_idara) {
         UtawalaUtumishiIdara* d = utawala_utumishi_pata_idara(cs, i);
-        N32 wafanyakazi_n = d->idadi_ya_wafanyakazi;
-        D64 wafanyakazi_d = wafanyakazi_n;
+        n32 wafanyakazi_n = d->idadi_ya_wafanyakazi;
+        d64 wafanyakazi_d = wafanyakazi_n;
         cs->wafanyakazi_jumla = cs->wafanyakazi_jumla + wafanyakazi_d;
         i = i + 1;
     }
 }
 
-UtawalaUtumishiIdara* utawala_utumishi_ongeza_idara(UtawalaUtumishi* cs, N8* jina, N32 idadi_ya_wafanyakazi) {
+UtawalaUtumishiIdara* utawala_utumishi_ongeza_idara(UtawalaUtumishi* cs, n8* jina, n32 idadi_ya_wafanyakazi) {
     kama (cs == 0 || jina == 0 || cs->idadi_ya_idara >= UTAWALA_UTUMISHI_IDARA_UPEO) { rudisha 0; }
     UtawalaUtumishiIdara* d = utawala_utumishi_pata_idara(cs, cs->idadi_ya_idara);
     d->jina = jina;
@@ -154,22 +154,22 @@ UtawalaUtumishiIdara* utawala_utumishi_ongeza_idara(UtawalaUtumishi* cs, N8* jin
     rudisha d;
 }
 
-W0 utawala_utumishi_weka_uajiri(UtawalaUtumishi* cs, N32 mfano) {
+w0 utawala_utumishi_weka_uajiri(UtawalaUtumishi* cs, n32 mfano) {
     kama (cs == 0) { rudisha; }
     cs->mfano_wa_uajiri = mfano;
 }
 
-D64 utawala_utumishi_kinga_ya_utawala(UtawalaUtumishi* cs) {
+d64 utawala_utumishi_kinga_ya_utawala(UtawalaUtumishi* cs) {
     kama (cs == 0) { rudisha 0.0; }
     rudisha cs->kumbukumbu_ya_kitaasisi * 0.6 + cs->upande_wowote_wa_kisiasa * 0.4;
 }
 
-D64 utawala_utumishi_upinzani_wa_mageuzi(UtawalaUtumishi* cs) {
+d64 utawala_utumishi_upinzani_wa_mageuzi(UtawalaUtumishi* cs) {
     kama (cs == 0) { rudisha 0.0; }
     rudisha cs->ugumu_wa_kiurasimu;
 }
 
-D64 utawala_utumishi_nyongeza_ya_umahiri(UtawalaUtumishi* cs) {
+d64 utawala_utumishi_nyongeza_ya_umahiri(UtawalaUtumishi* cs) {
     kama (cs == 0) { rudisha 0.0; }
     rudisha cs->umahiri_wa_wastani * cs->ufanisi_wa_bajeti;
 }

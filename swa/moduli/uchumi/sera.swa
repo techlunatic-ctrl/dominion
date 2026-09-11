@@ -23,45 +23,45 @@ husisha { msingi/msingi_civ.swa }
 husisha { msingi/maktaba/mfuatano.swa }
 
 // ---------- Aina za silaha za sera ----------
-N32 SERA_RUZUKU = 0;
-N32 SERA_KIKOMO_CHA_BEI = 1;
-N32 SERA_SAKAFU_YA_BEI = 2;
-N32 SERA_MSHAHARA_WA_CHINI = 3;
-N32 SERA_KIKOMO_CHA_RIBA = 4;
-N32 SERA_KIWANGO_CHA_UAGIZAJI = 5;
-N32 SERA_RUZUKU_YA_USAFIRISHAJI = 6;
-N32 SERA_MKOPO_WA_KODI_YA_UWEKEZAJI = 7;
-N32 SERA_IDADI = 8;
+n32 SERA_RUZUKU = 0;
+n32 SERA_KIKOMO_CHA_BEI = 1;
+n32 SERA_SAKAFU_YA_BEI = 2;
+n32 SERA_MSHAHARA_WA_CHINI = 3;
+n32 SERA_KIKOMO_CHA_RIBA = 4;
+n32 SERA_KIWANGO_CHA_UAGIZAJI = 5;
+n32 SERA_RUZUKU_YA_USAFIRISHAJI = 6;
+n32 SERA_MKOPO_WA_KODI_YA_UWEKEZAJI = 7;
+n32 SERA_IDADI = 8;
 
 // ---------- Viwango vya udhibiti ----------
-N32 KANUNI_HAKUNA = 0;
-N32 KANUNI_NYEPESI = 1;
-N32 KANUNI_WASTANI = 2;
-N32 KANUNI_NZITO = 3;
-N32 KANUNI_INAYODHIBITIWA_NA_SERIKALI = 4;
+n32 KANUNI_HAKUNA = 0;
+n32 KANUNI_NYEPESI = 1;
+n32 KANUNI_WASTANI = 2;
+n32 KANUNI_NZITO = 3;
+n32 KANUNI_INAYODHIBITIWA_NA_SERIKALI = 4;
 
 muundo SeraKifaa {
-    N32 aina;
-    N32 inafanya_kazi;   // 0/1
-    D64 kiwango;          // ukubwa wa sera 0.0-1.0
-    D64 gharama;          // gharama ya serikali kwa mzunguko
-    D64 ufanisi;          // 0.0-1.0, huathiriwa na rushwa
-    N8* sekta_lengwa;
+    n32 aina;
+    n32 inafanya_kazi;   // 0/1
+    d64 kiwango;          // ukubwa wa sera 0.0-1.0
+    d64 gharama;          // gharama ya serikali kwa mzunguko
+    d64 ufanisi;          // 0.0-1.0, huathiriwa na rushwa
+    n8* sekta_lengwa;
 };
 
 muundo SeraMfumo {
     SeraKifaa kifaa_0; SeraKifaa kifaa_1; SeraKifaa kifaa_2; SeraKifaa kifaa_3;
     SeraKifaa kifaa_4; SeraKifaa kifaa_5; SeraKifaa kifaa_6; SeraKifaa kifaa_7;
 
-    N32 udhibiti;
-    D64 mshahara_wa_chini;
-    D64 gharama_jumla_ya_sera;
-    D64 imani_ya_walaji;
-    D64 imani_ya_biashara;
-    D64 kiashiria_cha_uhuru_wa_kiuchumi;
+    n32 udhibiti;
+    d64 mshahara_wa_chini;
+    d64 gharama_jumla_ya_sera;
+    d64 imani_ya_walaji;
+    d64 imani_ya_biashara;
+    d64 kiashiria_cha_uhuru_wa_kiuchumi;
 };
 
-SeraKifaa* sera_pata_kifaa(SeraMfumo* p, N32 aina) {
+SeraKifaa* sera_pata_kifaa(SeraMfumo* p, n32 aina) {
     kama (aina == 0) { rudisha &p->kifaa_0; }
     kama (aina == 1) { rudisha &p->kifaa_1; }
     kama (aina == 2) { rudisha &p->kifaa_2; }
@@ -100,15 +100,15 @@ SeraMfumo* sera_unda() {
     rudisha p;
 }
 
-W0 sera_uharibu(SeraMfumo* p) {
+w0 sera_uharibu(SeraMfumo* p) {
     achilia p;
 }
 
-W0 sera_sasisha(SeraMfumo* p, D64 muda, D64 kiwango_cha_mfumuko,
-                 D64 kiwango_cha_ukosefu_wa_kazi, D64 ukuaji_wa_pato,
-                 D64 kiwango_cha_rushwa) {
+w0 sera_sasisha(SeraMfumo* p, d64 muda, d64 kiwango_cha_mfumuko,
+                 d64 kiwango_cha_ukosefu_wa_kazi, d64 ukuaji_wa_pato,
+                 d64 kiwango_cha_rushwa) {
     p->gharama_jumla_ya_sera = 0.0;
-    N32 i = 0;
+    n32 i = 0;
     wakati (i < SERA_IDADI) {
         SeraKifaa* k = sera_pata_kifaa(p, i);
         kama (k->inafanya_kazi != 0) {
@@ -118,16 +118,16 @@ W0 sera_sasisha(SeraMfumo* p, D64 muda, D64 kiwango_cha_mfumuko,
         i = i + 1;
     }
 
-    D64 lengo_la_walaji = 0.70;
+    d64 lengo_la_walaji = 0.70;
     lengo_la_walaji = lengo_la_walaji - (kiwango_cha_ukosefu_wa_kazi - 0.05) * 1.5;
     lengo_la_walaji = lengo_la_walaji - (kiwango_cha_mfumuko - 0.03) * 2.0;
     lengo_la_walaji = lengo_la_walaji + ukuaji_wa_pato * 2.0;
     lengo_la_walaji = finya_d64(lengo_la_walaji, 0.10, 0.95);
     p->imani_ya_walaji = p->imani_ya_walaji + (lengo_la_walaji - p->imani_ya_walaji) * 0.15;
 
-    N32 udhibiti_n = p->udhibiti;
-    D64 udhibiti_d = udhibiti_n;
-    D64 lengo_la_biashara = 0.65;
+    n32 udhibiti_n = p->udhibiti;
+    d64 udhibiti_d = udhibiti_n;
+    d64 lengo_la_biashara = 0.65;
     lengo_la_biashara = lengo_la_biashara + ukuaji_wa_pato * 2.5;
     lengo_la_biashara = lengo_la_biashara - udhibiti_d * 0.06;
     lengo_la_biashara = lengo_la_biashara - kiwango_cha_rushwa * 0.4;
@@ -135,13 +135,13 @@ W0 sera_sasisha(SeraMfumo* p, D64 muda, D64 kiwango_cha_mfumuko,
     lengo_la_biashara = finya_d64(lengo_la_biashara, 0.05, 0.95);
     p->imani_ya_biashara = p->imani_ya_biashara + (lengo_la_biashara - p->imani_ya_biashara) * 0.12;
 
-    D64 lengo_la_uhuru = 0.85 - udhibiti_d * 0.15 - kiwango_cha_rushwa * 0.3;
+    d64 lengo_la_uhuru = 0.85 - udhibiti_d * 0.15 - kiwango_cha_rushwa * 0.3;
     kama (lengo_la_uhuru < 0.10) { lengo_la_uhuru = 0.10; }
     p->kiashiria_cha_uhuru_wa_kiuchumi = p->kiashiria_cha_uhuru_wa_kiuchumi
         + (lengo_la_uhuru - p->kiashiria_cha_uhuru_wa_kiuchumi) * 0.1;
 }
 
-W0 sera_weka_kifaa(SeraMfumo* p, N32 aina, N32 inafanya_kazi, D64 kiwango, N8* sekta_lengwa) {
+w0 sera_weka_kifaa(SeraMfumo* p, n32 aina, n32 inafanya_kazi, d64 kiwango, n8* sekta_lengwa) {
     kama (aina >= SERA_IDADI) { rudisha; }
     SeraKifaa* k = sera_pata_kifaa(p, aina);
     k->aina = aina;
@@ -160,13 +160,13 @@ W0 sera_weka_kifaa(SeraMfumo* p, N32 aina, N32 inafanya_kazi, D64 kiwango, N8* s
     } }
 }
 
-W0 sera_weka_udhibiti(SeraMfumo* p, N32 kiwango) {
+w0 sera_weka_udhibiti(SeraMfumo* p, n32 kiwango) {
     p->udhibiti = kiwango;
 }
 
-D64 sera_kizidishi_cha_ruzuku(SeraMfumo* p, N8* sekta) {
-    D64 kizidishi = 1.0;
-    N32 i = 0;
+d64 sera_kizidishi_cha_ruzuku(SeraMfumo* p, n8* sekta) {
+    d64 kizidishi = 1.0;
+    n32 i = 0;
     wakati (i < SERA_IDADI) {
         SeraKifaa* k = sera_pata_kifaa(p, i);
         kama (k->inafanya_kazi != 0) {
@@ -181,8 +181,8 @@ D64 sera_kizidishi_cha_ruzuku(SeraMfumo* p, N8* sekta) {
     rudisha kizidishi;
 }
 
-D64 sera_kibadilishaji_cha_bei(SeraMfumo* p, N8* bidhaa) {
-    D64 badiliko = 1.0;
+d64 sera_kibadilishaji_cha_bei(SeraMfumo* p, n8* bidhaa) {
+    d64 badiliko = 1.0;
 
     SeraKifaa* kikomo = sera_pata_kifaa(p, SERA_KIKOMO_CHA_BEI);
     kama (kikomo->inafanya_kazi != 0) {
@@ -202,10 +202,10 @@ D64 sera_kibadilishaji_cha_bei(SeraMfumo* p, N8* bidhaa) {
     rudisha finya_d64(badiliko, 0.5, 2.0);
 }
 
-D64 sera_kizidishi_cha_ukuaji(SeraMfumo* p) {
-    N32 udhibiti_n = p->udhibiti;
-    D64 udhibiti_d = udhibiti_n;
-    D64 kizidishi = 1.0 - udhibiti_d * 0.04;
+d64 sera_kizidishi_cha_ukuaji(SeraMfumo* p) {
+    n32 udhibiti_n = p->udhibiti;
+    d64 udhibiti_d = udhibiti_n;
+    d64 kizidishi = 1.0 - udhibiti_d * 0.04;
 
     SeraKifaa* mkopo = sera_pata_kifaa(p, SERA_MKOPO_WA_KODI_YA_UWEKEZAJI);
     kama (mkopo->inafanya_kazi != 0) {
@@ -218,8 +218,8 @@ D64 sera_kizidishi_cha_ukuaji(SeraMfumo* p) {
     rudisha finya_d64(kizidishi, 0.5, 1.5);
 }
 
-D64 sera_kizidishi_cha_ukosefu_wa_usawa(SeraMfumo* p) {
-    D64 kizidishi = 1.0;
+d64 sera_kizidishi_cha_ukosefu_wa_usawa(SeraMfumo* p) {
+    d64 kizidishi = 1.0;
 
     kama (p->mshahara_wa_chini > 0.0) { kizidishi = kizidishi - 0.05; }
     kama (p->udhibiti >= KANUNI_NZITO) { kizidishi = kizidishi * 1.05; }

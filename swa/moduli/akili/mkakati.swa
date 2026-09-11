@@ -15,8 +15,8 @@
 // (DiplomasiaMfumo*, DuniaMakaziMsimamizi*) badala ya Mchezo* moja
 // kwa moja, ili kuepuka utegemezi mzito wa mzunguko kati ya akili/
 // na mchezo.swa na kuheshimu kikomo cha #184 (kazi zenye hoja >=7
-// ambapo moja ni D64 huharibu stack ya mwitaji ndani ya kitanzi --
-// kazi zote nne hapa hazina hoja yoyote ya D64, hivyo hazikumbwi na
+// ambapo moja ni d64 huharibu stack ya mwitaji ndani ya kitanzi --
+// kazi zote nne hapa hazina hoja yoyote ya d64, hivyo hazikumbwi na
 // hilo hata kama zingekuwa na hoja nyingi).
 //
 // TOFAUTI MBILI ZA KIMAKUSUDI (urembuzi, si hitilafu ya tafsiri):
@@ -47,8 +47,8 @@
 //
 // base_ai (kielekezi kwenda AkiliMsingi) na malengo[] (safu
 // inayokua) vinafuata mitindo iliyothibitishwa kwenye mbinu.swa
-// (N64 kwa field moja ya kielekezi, #186) na kitengo.swa/dini.swa
-// (N64* kwa safu ya kielekezi, #185).
+// (n64 kwa field moja ya kielekezi, #186) na kitengo.swa/dini.swa
+// (n64* kwa safu ya kielekezi, #185).
 
 husisha { msingi/msingi_civ.swa }
 husisha { msingi/maktaba/mfuatano.swa }
@@ -56,49 +56,49 @@ husisha { moduli/akili/msingi.swa }
 husisha { moduli/diplomasia/diplomasia.swa }
 husisha { moduli/dunia/makazi.swa }
 
-N32 AKILI_MKAKATI_UTU_USAWA = 0;
-N32 AKILI_MKAKATI_UTU_UKALI = 1;
-N32 AKILI_MKAKATI_UTU_UPANUZI = 2;
-N32 AKILI_MKAKATI_UTU_BIASHARA = 3;
-N32 AKILI_MKAKATI_UTU_UTAMADUNI = 4;
+n32 AKILI_MKAKATI_UTU_USAWA = 0;
+n32 AKILI_MKAKATI_UTU_UKALI = 1;
+n32 AKILI_MKAKATI_UTU_UPANUZI = 2;
+n32 AKILI_MKAKATI_UTU_BIASHARA = 3;
+n32 AKILI_MKAKATI_UTU_UTAMADUNI = 4;
 
 // Misimamo ya kidiplomasia (DiplomasiaUhusiano.msimamo_wa_sasa) --
 // haikuwepo kama constants zenye majina kwenye diplomasia.swa kabla
 // ya kazi hii; imefafanuliwa hapa kwa sababu akili_mkakati_
 // tathmini_vitisho ndiyo mtumiaji wa kwanza halisi wa field hii.
-N32 AKILI_MKAKATI_MSIMAMO_UHASAMA = 0;
-N32 AKILI_MKAKATI_MSIMAMO_TAHADHARI = 1;
-N32 AKILI_MKAKATI_MSIMAMO_KATI = 2;
-N32 AKILI_MKAKATI_MSIMAMO_URAFIKI = 3;
+n32 AKILI_MKAKATI_MSIMAMO_UHASAMA = 0;
+n32 AKILI_MKAKATI_MSIMAMO_TAHADHARI = 1;
+n32 AKILI_MKAKATI_MSIMAMO_KATI = 2;
+n32 AKILI_MKAKATI_MSIMAMO_URAFIKI = 3;
 
 muundo AkiliMkakatiLengo {
-    N8* aina_ya_lengo;
-    N8* maelezo;
-    D64 kipaumbele;
-    D64 maendeleo;
+    n8* aina_ya_lengo;
+    n8* maelezo;
+    d64 kipaumbele;
+    d64 maendeleo;
 };
 
 muundo AkiliMkakati {
-    N64 msingi_anwani;
-    N64* malengo;
-    N32 idadi_ya_malengo;
-    N32 uwezo_wa_malengo;
-    D64 upeo_wa_mipango;
-    D64 uvumilivu_wa_hatari;
-    N32 zamu_ya_mwisho_ya_upanuzi;
-    N32 marudio_ya_upanuzi;
-    N32 utu;
+    n64 msingi_anwani;
+    n64* malengo;
+    n32 idadi_ya_malengo;
+    n32 uwezo_wa_malengo;
+    d64 upeo_wa_mipango;
+    d64 uvumilivu_wa_hatari;
+    n32 zamu_ya_mwisho_ya_upanuzi;
+    n32 marudio_ya_upanuzi;
+    n32 utu;
 };
 
 AkiliMsingi* akili_mkakati_pata_msingi(AkiliMkakati* ai) {
     rudisha ai->msingi_anwani;
 }
 
-AkiliMkakatiLengo* akili_mkakati_pata_lengo(AkiliMkakati* ai, N32 idx) {
+AkiliMkakatiLengo* akili_mkakati_pata_lengo(AkiliMkakati* ai, n32 idx) {
     rudisha ai->malengo[idx];
 }
 
-AkiliMkakati* akili_mkakati_unda(N8* kitambulisho, N8* jina) {
+AkiliMkakati* akili_mkakati_unda(n8* kitambulisho, n8* jina) {
     AkiliMkakati* ai = tenga(ukubwa(AkiliMkakati));
     AkiliMsingi* msingi = akili_msingi_unda(kitambulisho, jina);
     ai->msingi_anwani = msingi;
@@ -107,7 +107,7 @@ AkiliMkakati* akili_mkakati_unda(N8* kitambulisho, N8* jina) {
     ai->uvumilivu_wa_hatari = 0.5;
     ai->uwezo_wa_malengo = 16;
     ai->idadi_ya_malengo = 0;
-    ai->malengo = tenga(ukubwa(N64) * ai->uwezo_wa_malengo);
+    ai->malengo = tenga(ukubwa(n64) * ai->uwezo_wa_malengo);
 
     ai->utu = civ_nasibu_chini_ya(4);
     ai->zamu_ya_mwisho_ya_upanuzi = 0;
@@ -120,14 +120,14 @@ AkiliMkakati* akili_mkakati_unda(N8* kitambulisho, N8* jina) {
     rudisha ai;
 }
 
-W0 akili_mkakati_uharibu(AkiliMkakati* ai) {
+w0 akili_mkakati_uharibu(AkiliMkakati* ai) {
     AkiliMsingi* msingi = akili_mkakati_pata_msingi(ai);
     kama (msingi != 0) { akili_msingi_uharibu(msingi); }
     achilia ai->malengo;
     achilia ai;
 }
 
-CivMatokeo akili_mkakati_ongeza_lengo(AkiliMkakati* ai, N8* aina_ya_lengo, N8* maelezo, D64 kipaumbele) {
+CivMatokeo akili_mkakati_ongeza_lengo(AkiliMkakati* ai, n8* aina_ya_lengo, n8* maelezo, d64 kipaumbele) {
     CivMatokeo r;
     r.hitilafu = CIV_SAWA;
     r.ujumbe = 0;
@@ -137,11 +137,11 @@ CivMatokeo akili_mkakati_ongeza_lengo(AkiliMkakati* ai, N8* aina_ya_lengo, N8* m
         rudisha r;
     }
 
-    D64 kipaumbele_kilichofinywa = finya_d64(kipaumbele, 0.0, 1.0);
+    d64 kipaumbele_kilichofinywa = finya_d64(kipaumbele, 0.0, 1.0);
 
     kama (ai->idadi_ya_malengo >= ai->uwezo_wa_malengo) {
         ai->uwezo_wa_malengo = ai->uwezo_wa_malengo * 2;
-        ai->malengo = badili(ai->malengo, ukubwa(N64) * ai->uwezo_wa_malengo);
+        ai->malengo = badili(ai->malengo, ukubwa(n64) * ai->uwezo_wa_malengo);
     }
 
     AkiliMkakatiLengo* lengo = tenga(ukubwa(AkiliMkakatiLengo));
@@ -160,7 +160,7 @@ AkiliMkakatiLengo* akili_mkakati_lengo_la_kipaumbele(AkiliMkakati* ai) {
     kama (ai == 0 || ai->idadi_ya_malengo == 0) { rudisha 0; }
 
     AkiliMkakatiLengo* bora = akili_mkakati_pata_lengo(ai, 0);
-    N32 i = 1;
+    n32 i = 1;
     wakati (i < ai->idadi_ya_malengo) {
         AkiliMkakatiLengo* huyu = akili_mkakati_pata_lengo(ai, i);
         kama (huyu->kipaumbele > bora->kipaumbele) { bora = huyu; }
@@ -170,7 +170,7 @@ AkiliMkakatiLengo* akili_mkakati_lengo_la_kipaumbele(AkiliMkakati* ai) {
     rudisha bora;
 }
 
-CivMatokeo akili_mkakati_sasisha_lengo(AkiliMkakati* ai, N32 faharisi_ya_lengo, D64 maendeleo) {
+CivMatokeo akili_mkakati_sasisha_lengo(AkiliMkakati* ai, n32 faharisi_ya_lengo, d64 maendeleo) {
     CivMatokeo r;
     r.hitilafu = CIV_SAWA;
     r.ujumbe = 0;
@@ -190,8 +190,8 @@ CivMatokeo akili_mkakati_sasisha_lengo(AkiliMkakati* ai, N32 faharisi_ya_lengo, 
     rudisha r;
 }
 
-W0 akili_mkakati_ondoa_lengo_kwa_idx(AkiliMkakati* ai, N32 idx) {
-    N32 j = idx;
+w0 akili_mkakati_ondoa_lengo_kwa_idx(AkiliMkakati* ai, n32 idx) {
+    n32 j = idx;
     wakati (j < ai->idadi_ya_malengo - 1) {
         ai->malengo[j] = ai->malengo[j + 1];
         j = j + 1;
@@ -199,7 +199,7 @@ W0 akili_mkakati_ondoa_lengo_kwa_idx(AkiliMkakati* ai, N32 idx) {
     ai->idadi_ya_malengo = ai->idadi_ya_malengo - 1;
 }
 
-CivMatokeo akili_mkakati_panga(AkiliMkakati* ai, D64 muda) {
+CivMatokeo akili_mkakati_panga(AkiliMkakati* ai, d64 muda) {
     CivMatokeo r;
     r.hitilafu = CIV_SAWA;
     r.ujumbe = 0;
@@ -228,7 +228,7 @@ CivMatokeo akili_mkakati_panga(AkiliMkakati* ai, D64 muda) {
         } } } }
     }
 
-    N32 i = 0;
+    n32 i = 0;
     wakati (i < ai->idadi_ya_malengo) {
         AkiliMkakatiLengo* lengo = akili_mkakati_pata_lengo(ai, i);
         kama (lengo->maendeleo >= 1.0) {
@@ -245,7 +245,7 @@ CivMatokeo akili_mkakati_panga(AkiliMkakati* ai, D64 muda) {
 // civ_strategic_ai_evaluate_threats. Angalia maoni ya kichwa cha
 // faili kuhusu tofauti ya kimakusudi #1 (lengwa_id badala ya
 // "PLAYER" iliyowekwa kwa mkono).
-CivMatokeo akili_mkakati_tathmini_vitisho(AkiliMkakati* ai, DiplomasiaMfumo* ds, DuniaMakaziMsimamizi* mk, N8* lengwa_id) {
+CivMatokeo akili_mkakati_tathmini_vitisho(AkiliMkakati* ai, DiplomasiaMfumo* ds, DuniaMakaziMsimamizi* mk, n8* lengwa_id) {
     CivMatokeo r;
     r.hitilafu = CIV_SAWA;
     r.ujumbe = 0;
@@ -270,19 +270,19 @@ CivMatokeo akili_mkakati_tathmini_vitisho(AkiliMkakati* ai, DiplomasiaMfumo* ds,
     // 1. Hesabu msuguano wa mpaka: umbali mfupi zaidi kati ya makazi
     // ya ai na makazi ya lengwa_id (eneo_id hutumika kama kitambulisho
     // cha umiliki wa taifa, sawa na region_id kwenye C).
-    D64 umbali_wa_chini = 1000.0;
+    d64 umbali_wa_chini = 1000.0;
     kama (mk != 0) {
-        N32 mi = 0;
+        n32 mi = 0;
         wakati (mi < mk->idadi) {
             DuniaMakazi* s1 = dunia_makazi_msimamizi_pata(mk, mi);
             kama (linganisha_mfuatano(s1->eneo_id, msingi->kitambulisho) == 0) {
-                N32 mj = 0;
+                n32 mj = 0;
                 wakati (mj < mk->idadi) {
                     DuniaMakazi* s2 = dunia_makazi_msimamizi_pata(mk, mj);
                     kama (linganisha_mfuatano(s2->eneo_id, lengwa_id) == 0) {
-                        D64 dx = s1->x - s2->x;
-                        D64 dy = s1->y - s2->y;
-                        D64 d = civ_mzizi(dx * dx + dy * dy);
+                        d64 dx = s1->x - s2->x;
+                        d64 dy = s1->y - s2->y;
+                        d64 d = civ_mzizi(dx * dx + dy * dy);
                         kama (d < umbali_wa_chini) { umbali_wa_chini = d; }
                     }
                     mj = mj + 1;
@@ -292,7 +292,7 @@ CivMatokeo akili_mkakati_tathmini_vitisho(AkiliMkakati* ai, DiplomasiaMfumo* ds,
         }
     }
 
-    D64 adhabu_ya_mpaka = 0.0;
+    d64 adhabu_ya_mpaka = 0.0;
     kama (umbali_wa_chini < 15.0) {
         adhabu_ya_mpaka = (15.0 - umbali_wa_chini) * 2.0;
     }
@@ -300,7 +300,7 @@ CivMatokeo akili_mkakati_tathmini_vitisho(AkiliMkakati* ai, DiplomasiaMfumo* ds,
     // 2. Uwiano wa kijeshi (nafasi tu, sawa na chanzo cha C -- maoni
     // yake yenyewe yanasema "Placeholder: Assume AI likes being
     // stronger if aggressive").
-    D64 kigezo_cha_nguvu = 0.0;
+    d64 kigezo_cha_nguvu = 0.0;
     kama (ai->utu == AKILI_MKAKATI_UTU_UKALI) {
         kigezo_cha_nguvu = 0.0 - 10.0;
     }
@@ -329,8 +329,8 @@ CivMatokeo akili_mkakati_tathmini_vitisho(AkiliMkakati* ai, DiplomasiaMfumo* ds,
 // akili_mkakati_je_atangaze_vita -- tafsiri ya
 // civ_strategic_ai_should_declare_war. Angalia maoni ya kichwa cha
 // faili kuhusu tofauti ya kimakusudi #2 (njia ya tatu: sababu halali
-// ya vita). Kurudisha N32 (1=ndiyo, 0=hapana) -- Swa haina bool.
-N32 akili_mkakati_je_atangaze_vita(AkiliMkakati* ai, DiplomasiaMfumo* ds, N8* lengwa_id) {
+// ya vita). Kurudisha n32 (1=ndiyo, 0=hapana) -- Swa haina bool.
+n32 akili_mkakati_je_atangaze_vita(AkiliMkakati* ai, DiplomasiaMfumo* ds, n8* lengwa_id) {
     kama (ai == 0 || ds == 0 || lengwa_id == 0) { rudisha 0; }
 
     AkiliMsingi* msingi = akili_mkakati_pata_msingi(ai);
@@ -360,9 +360,9 @@ N32 akili_mkakati_je_atangaze_vita(AkiliMkakati* ai, DiplomasiaMfumo* ds, N8* le
 }
 
 // akili_mkakati_je_atoe_amani -- tafsiri ya
-// civ_strategic_ai_should_offer_peace. Kurudisha N32 (1=ndiyo,
+// civ_strategic_ai_should_offer_peace. Kurudisha n32 (1=ndiyo,
 // 0=hapana).
-N32 akili_mkakati_je_atoe_amani(AkiliMkakati* ai, DiplomasiaMfumo* ds, N8* lengwa_id) {
+n32 akili_mkakati_je_atoe_amani(AkiliMkakati* ai, DiplomasiaMfumo* ds, n8* lengwa_id) {
     kama (ai == 0 || ds == 0 || lengwa_id == 0) { rudisha 0; }
 
     AkiliMsingi* msingi = akili_mkakati_pata_msingi(ai);
@@ -382,13 +382,13 @@ N32 akili_mkakati_je_atoe_amani(AkiliMkakati* ai, DiplomasiaMfumo* ds, N8* lengw
 }
 
 // hoja_kutoka_kielekezi -- kinyume cha kielekezi_kutoka_hoja
-// (kumbukumbu.swa): hubadilisha N8* kuwa N64 wazi, kwa sababu
+// (kumbukumbu.swa): hubadilisha n8* kuwa n64 wazi, kwa sababu
 // ukaguzi wa hoja za kazi (tangu 2026-09-01) hukataa kupitisha
-// kielekezi moja kwa moja kwenye kigezo cha N64 (ona mfuatano_umbiza
+// kielekezi moja kwa moja kwenye kigezo cha n64 (ona mfuatano_umbiza
 // hapa chini). Haikuwekwa kwenye mfuatano.swa/kumbukumbu.swa kwa
 // makusudi -- ni ya ndani ya faili hili pekee kwa sasa.
-N64 hoja_kutoka_kielekezi(N8* p) {
-    N64 v = p;
+n64 hoja_kutoka_kielekezi(n8* p) {
+    n64 v = p;
     rudisha v;
 }
 
@@ -397,7 +397,7 @@ N64 hoja_kutoka_kielekezi(N8* p) {
 // mgao wa +-10 ni sawa na chanzo cha C, ambacho chenyewe kinasema
 // waziwazi "For simplicity" -- HAIKUREKEBISHWA kwa makusudi (si
 // muundo mbovu, ni uamuzi wa kubuni ulioandikwa wazi).
-CivMatokeo akili_mkakati_shughulikia_upanuzi(AkiliMkakati* ai, DuniaMakaziMsimamizi* mk, N32 zamu_ya_sasa) {
+CivMatokeo akili_mkakati_shughulikia_upanuzi(AkiliMkakati* ai, DuniaMakaziMsimamizi* mk, n32 zamu_ya_sasa) {
     CivMatokeo r;
     r.hitilafu = CIV_SAWA;
     r.ujumbe = 0;
@@ -413,33 +413,33 @@ CivMatokeo akili_mkakati_shughulikia_upanuzi(AkiliMkakati* ai, DuniaMakaziMsimam
         rudisha r;
     }
 
-    N32 tofauti_ya_zamu = zamu_ya_sasa - ai->zamu_ya_mwisho_ya_upanuzi;
+    n32 tofauti_ya_zamu = zamu_ya_sasa - ai->zamu_ya_mwisho_ya_upanuzi;
     kama (tofauti_ya_zamu < ai->marudio_ya_upanuzi) {
         r.ujumbe = "bado katika muda wa kupumzika";
         rudisha r;
     }
 
-    D64 x_ya_utafutaji = 30.0;
-    D64 y_ya_utafutaji = 30.0;
+    d64 x_ya_utafutaji = 30.0;
+    d64 y_ya_utafutaji = 30.0;
 
-    N32 jaribio = 0;
+    n32 jaribio = 0;
     wakati (jaribio < 10) {
-        N32 mgao_x = civ_nasibu_chini_ya(20) - 10;
-        N32 mgao_y = civ_nasibu_chini_ya(20) - 10;
-        D64 mgao_x_d = mgao_x;
-        D64 mgao_y_d = mgao_y;
-        D64 tx = x_ya_utafutaji + mgao_x_d;
-        D64 ty = y_ya_utafutaji + mgao_y_d;
+        n32 mgao_x = civ_nasibu_chini_ya(20) - 10;
+        n32 mgao_y = civ_nasibu_chini_ya(20) - 10;
+        d64 mgao_x_d = mgao_x;
+        d64 mgao_y_d = mgao_y;
+        d64 tx = x_ya_utafutaji + mgao_x_d;
+        d64 ty = y_ya_utafutaji + mgao_y_d;
 
-        D64 ufaafu = dunia_makazi_hesabu_ufaafu_wa_eneo(tx, ty);
-        D64 kizingiti = 0.75;
+        d64 ufaafu = dunia_makazi_hesabu_ufaafu_wa_eneo(tx, ty);
+        d64 kizingiti = 0.75;
         kama (ai->utu == AKILI_MKAKATI_UTU_UTAMADUNI) { kizingiti = 0.65; }
 
         kama (ufaafu > kizingiti) {
-            N64 zamu_n64 = zamu_ya_sasa;
-            N8* kitambulisho_kipya = tenga(64);
+            n64 zamu_n64 = zamu_ya_sasa;
+            n8* kitambulisho_kipya = tenga(64);
             mfuatano_umbiza(kitambulisho_kipya, 64, "makazi_%s_%d", hoja_kutoka_kielekezi(msingi->kitambulisho), zamu_n64, 0, 0, 0, 0);
-            N8* jina_jipya = tenga(64);
+            n8* jina_jipya = tenga(64);
             mfuatano_umbiza(jina_jipya, 64, "Makazi Jipya la %s", hoja_kutoka_kielekezi(msingi->jina), 0, 0, 0, 0, 0);
 
             CivMatokeo matokeo_ya_uundaji = dunia_makazi_jaribu_kuunda(mk, tx, ty, kitambulisho_kipya, jina_jipya);
@@ -447,19 +447,19 @@ CivMatokeo akili_mkakati_shughulikia_upanuzi(AkiliMkakati* ai, DuniaMakaziMsimam
                 DuniaMakazi* mji_mpya = dunia_makazi_msimamizi_pata(mk, mk->idadi - 1);
                 mji_mpya->eneo_id = msingi->kitambulisho;
 
-                N64 tx_n = tx;
-                N64 ty_n = ty;
-                N64 ufaafu_asilimia = ufaafu * 100.0;
+                n64 tx_n = tx;
+                n64 ty_n = ty;
+                n64 ufaafu_asilimia = ufaafu * 100.0;
                 andika("[AI] %s alianzisha makazi mapya kwenye (%d,%d) (Ufaafu: %d%%)\n",
                        msingi->jina, tx_n, ty_n, ufaafu_asilimia, 0, 0);
 
                 ai->zamu_ya_mwisho_ya_upanuzi = zamu_ya_sasa;
 
-                N32 li = 0;
+                n32 li = 0;
                 wakati (li < ai->idadi_ya_malengo) {
                     AkiliMkakatiLengo* lengo = akili_mkakati_pata_lengo(ai, li);
                     kama (linganisha_mfuatano(lengo->aina_ya_lengo, "Upanuzi") == 0 || linganisha_mfuatano(lengo->aina_ya_lengo, "Utamaduni") == 0) {
-                        D64 maendeleo_mapya = lengo->maendeleo + 0.34;
+                        d64 maendeleo_mapya = lengo->maendeleo + 0.34;
                         lengo->maendeleo = finya_d64(maendeleo_mapya, 0.0, 1.0);
                     }
                     li = li + 1;

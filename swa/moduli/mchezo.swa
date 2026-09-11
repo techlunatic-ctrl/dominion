@@ -124,240 +124,240 @@ husisha { moduli/siasa/kikundi.swa }
 husisha { moduli/teknolojia/teknolojia.swa }
 husisha { moduli/maarifa/maarifa.swa }
 
-N32 MCHEZO_HALI_KUANDAA = 0;
-N32 MCHEZO_HALI_INAENDESHA = 1;
-N32 MCHEZO_HALI_IMESIMAMA = 2;
-N32 MCHEZO_HALI_INAHIFADHI = 3;
-N32 MCHEZO_HALI_INAPAKIA = 4;
-N32 MCHEZO_HALI_INAZIMWA = 5;
+n32 MCHEZO_HALI_KUANDAA = 0;
+n32 MCHEZO_HALI_INAENDESHA = 1;
+n32 MCHEZO_HALI_IMESIMAMA = 2;
+n32 MCHEZO_HALI_INAHIFADHI = 3;
+n32 MCHEZO_HALI_INAPAKIA = 4;
+n32 MCHEZO_HALI_INAZIMWA = 5;
 
 muundo MchezoUsanidi {
-    N8* jina;
-    N8* toleo;
-    N32 mwaka_wa_kuanza;
-    N32 ugumu;
-    N32 washa_mantiki_isiyo_wazi;
-    N32 washa_ufuatiliaji_wa_utegemezi;
-    N32 muda_wa_hifadhi_otomatiki;
-    N32 kiwango_cha_juu_cha_kumbukumbu_matukio;
+    n8* jina;
+    n8* toleo;
+    n32 mwaka_wa_kuanza;
+    n32 ugumu;
+    n32 washa_mantiki_isiyo_wazi;
+    n32 washa_ufuatiliaji_wa_utegemezi;
+    n32 muda_wa_hifadhi_otomatiki;
+    n32 kiwango_cha_juu_cha_kumbukumbu_matukio;
 };
 
 muundo MchezoUtendaji {
-    N64 idadi_ya_sasisho;
-    D64 muda_wa_wastani_wa_sasisho;
-    D64 muda_wa_mwisho_wa_sasisho;
+    n64 idadi_ya_sasisho;
+    d64 muda_wa_wastani_wa_sasisho;
+    d64 muda_wa_mwisho_wa_sasisho;
 };
 
 muundo Mchezo {
-    N32 hali_ya_mchezo;
+    n32 hali_ya_mchezo;
     MchezoUsanidi usanidi;
     MchezoUtendaji utendaji;
 
-    N32 zamu_ya_sasa;
-    N32 inafanya_kazi;
-    N32 imesimamishwa;
+    n32 zamu_ya_sasa;
+    n32 inafanya_kazi;
+    n32 imesimamishwa;
 
-    // Anwani za mifumo midogo (N64, si vielekezi vya moja kwa moja) —
+    // Anwani za mifumo midogo (n64, si vielekezi vya moja kwa moja) —
     // lugha-swa/swa#186: field ya muundo yenye aina ya kielekezi
     // kwenda muundo mwingine haihifadhi thamani sahihi. Suluhisho
     // lililothibitishwa mara nyingi kikao hiki: hifadhi anwani kama
-    // N64, tumia kazi ya "pata"/"weka" inayofanya ubadilishaji wa
+    // n64, tumia kazi ya "pata"/"weka" inayofanya ubadilishaji wa
     // aina (type coercion) kupitia aina ya kurudisha.
-    N64 muda_addr;
-    N64 idadi_ya_watu_addr;
-    N64 serikali_addr;
-    N64 ramani_addr;
-    N64 makazi_addr;
-    N64 akili_addr;
-    N64 diplomasia_addr;
+    n64 muda_addr;
+    n64 idadi_ya_watu_addr;
+    n64 serikali_addr;
+    n64 ramani_addr;
+    n64 makazi_addr;
+    n64 akili_addr;
+    n64 diplomasia_addr;
 
     // Taifa (nation.c) na nguzo ya uchumi (moduli 20) — kiambishi
     // "uchumi_makazi" kwa nyumba (housing) ili kuepuka mgongano na
     // "makazi_addr" ya juu (settlement_manager) ndani ya muundo huu.
-    N64 taifa_addr;
-    N64 uchumi_mkuu_addr;
-    N64 nguvukazi_addr;
-    N64 sera_addr;
-    N64 kodi_addr;
-    N64 bajeti_addr;
-    N64 bidhaa_addr;
-    N64 benki_addr;
-    N64 kilimo_addr;
-    N64 uchimbaji_addr;
-    N64 miundombinu_addr;
-    N64 viwanda_addr;
-    N64 nishati_addr;
-    N64 uchumi_makazi_addr;
-    N64 ardhi_addr;
-    N64 mtaji_addr;
-    N64 biashara_ndani_addr;
-    N64 biashara_nje_addr;
-    N64 uvumbuzi_addr;
-    N64 soko_haramu_addr;
-    N64 vita_addr;
+    n64 taifa_addr;
+    n64 uchumi_mkuu_addr;
+    n64 nguvukazi_addr;
+    n64 sera_addr;
+    n64 kodi_addr;
+    n64 bajeti_addr;
+    n64 bidhaa_addr;
+    n64 benki_addr;
+    n64 kilimo_addr;
+    n64 uchimbaji_addr;
+    n64 miundombinu_addr;
+    n64 viwanda_addr;
+    n64 nishati_addr;
+    n64 uchumi_makazi_addr;
+    n64 ardhi_addr;
+    n64 mtaji_addr;
+    n64 biashara_ndani_addr;
+    n64 biashara_nje_addr;
+    n64 uvumbuzi_addr;
+    n64 soko_haramu_addr;
+    n64 vita_addr;
 
     // Nyongeza ya wimbi la tano: utamaduni, matukio, wakala, injini_*.
-    N64 utamaduni_kitambulisho_addr;
-    N64 utamaduni_kuenea_addr;
-    N64 utamaduni_itikadi_addr;
-    N64 utamaduni_uigaji_addr;
-    N64 utamaduni_dini_addr;
-    N64 matukio_addr;
-    N64 wakala_addr;
-    N64 injini_okestra_addr;
-    N64 injini_saa_kuu_addr;
-    N64 injini_uhifadhi_addr;
-    N64 injini_utendaji_addr;
+    n64 utamaduni_kitambulisho_addr;
+    n64 utamaduni_kuenea_addr;
+    n64 utamaduni_itikadi_addr;
+    n64 utamaduni_uigaji_addr;
+    n64 utamaduni_dini_addr;
+    n64 matukio_addr;
+    n64 wakala_addr;
+    n64 injini_okestra_addr;
+    n64 injini_saa_kuu_addr;
+    n64 injini_uhifadhi_addr;
+    n64 injini_utendaji_addr;
 
     // Nyongeza (wimbi la tano, sehemu ya pili): jeshi (units/combat/
     // conquest), siasa_kikundi (factions), teknolojia, maarifa
     // (research). `wakala` (NPC engine) ILIACHWA HAPA KWA MAKUSUDI —
     // tayari imeongezwa na kazi nyingine sambamba (angalia
     // wakala_addr juu) ili kuepuka mgongano wa marudio.
-    N64 jeshi_vitengo_addr;
-    N64 mapigano_addr;
-    N64 ushindi_addr;
-    N64 kikundi_addr;
-    N64 teknolojia_addr;
-    N64 maarifa_addr;
+    n64 jeshi_vitengo_addr;
+    n64 mapigano_addr;
+    n64 ushindi_addr;
+    n64 kikundi_addr;
+    n64 teknolojia_addr;
+    n64 maarifa_addr;
 };
 
 InjiniMudaMfumo* mchezo_pata_muda(Mchezo* g) { rudisha g->muda_addr; }
-W0 mchezo_weka_muda(Mchezo* g, InjiniMudaMfumo* v) { g->muda_addr = v; }
+w0 mchezo_weka_muda(Mchezo* g, InjiniMudaMfumo* v) { g->muda_addr = v; }
 
 IdadiYaWatuMsimamizi* mchezo_pata_idadi_ya_watu(Mchezo* g) { rudisha g->idadi_ya_watu_addr; }
-W0 mchezo_weka_idadi_ya_watu(Mchezo* g, IdadiYaWatuMsimamizi* v) { g->idadi_ya_watu_addr = v; }
+w0 mchezo_weka_idadi_ya_watu(Mchezo* g, IdadiYaWatuMsimamizi* v) { g->idadi_ya_watu_addr = v; }
 
 UtawalaSerikali* mchezo_pata_serikali(Mchezo* g) { rudisha g->serikali_addr; }
-W0 mchezo_weka_serikali(Mchezo* g, UtawalaSerikali* v) { g->serikali_addr = v; }
+w0 mchezo_weka_serikali(Mchezo* g, UtawalaSerikali* v) { g->serikali_addr = v; }
 
 DuniaRamani* mchezo_pata_ramani(Mchezo* g) { rudisha g->ramani_addr; }
-W0 mchezo_weka_ramani(Mchezo* g, DuniaRamani* v) { g->ramani_addr = v; }
+w0 mchezo_weka_ramani(Mchezo* g, DuniaRamani* v) { g->ramani_addr = v; }
 
 DuniaMakaziMsimamizi* mchezo_pata_makazi(Mchezo* g) { rudisha g->makazi_addr; }
-W0 mchezo_weka_makazi(Mchezo* g, DuniaMakaziMsimamizi* v) { g->makazi_addr = v; }
+w0 mchezo_weka_makazi(Mchezo* g, DuniaMakaziMsimamizi* v) { g->makazi_addr = v; }
 
 AkiliMfumo* mchezo_pata_akili(Mchezo* g) { rudisha g->akili_addr; }
-W0 mchezo_weka_akili(Mchezo* g, AkiliMfumo* v) { g->akili_addr = v; }
+w0 mchezo_weka_akili(Mchezo* g, AkiliMfumo* v) { g->akili_addr = v; }
 
 DiplomasiaMfumo* mchezo_pata_diplomasia(Mchezo* g) { rudisha g->diplomasia_addr; }
-W0 mchezo_weka_diplomasia(Mchezo* g, DiplomasiaMfumo* v) { g->diplomasia_addr = v; }
+w0 mchezo_weka_diplomasia(Mchezo* g, DiplomasiaMfumo* v) { g->diplomasia_addr = v; }
 
 TaifaMfumo* mchezo_pata_taifa(Mchezo* g) { rudisha g->taifa_addr; }
-W0 mchezo_weka_taifa(Mchezo* g, TaifaMfumo* v) { g->taifa_addr = v; }
+w0 mchezo_weka_taifa(Mchezo* g, TaifaMfumo* v) { g->taifa_addr = v; }
 
 UchumiMkuuMfumo* mchezo_pata_uchumi_mkuu(Mchezo* g) { rudisha g->uchumi_mkuu_addr; }
-W0 mchezo_weka_uchumi_mkuu(Mchezo* g, UchumiMkuuMfumo* v) { g->uchumi_mkuu_addr = v; }
+w0 mchezo_weka_uchumi_mkuu(Mchezo* g, UchumiMkuuMfumo* v) { g->uchumi_mkuu_addr = v; }
 
 NguvukaziMfumo* mchezo_pata_nguvukazi(Mchezo* g) { rudisha g->nguvukazi_addr; }
-W0 mchezo_weka_nguvukazi(Mchezo* g, NguvukaziMfumo* v) { g->nguvukazi_addr = v; }
+w0 mchezo_weka_nguvukazi(Mchezo* g, NguvukaziMfumo* v) { g->nguvukazi_addr = v; }
 
 SeraMfumo* mchezo_pata_sera(Mchezo* g) { rudisha g->sera_addr; }
-W0 mchezo_weka_sera(Mchezo* g, SeraMfumo* v) { g->sera_addr = v; }
+w0 mchezo_weka_sera(Mchezo* g, SeraMfumo* v) { g->sera_addr = v; }
 
 KodiMfumo* mchezo_pata_kodi(Mchezo* g) { rudisha g->kodi_addr; }
-W0 mchezo_weka_kodi(Mchezo* g, KodiMfumo* v) { g->kodi_addr = v; }
+w0 mchezo_weka_kodi(Mchezo* g, KodiMfumo* v) { g->kodi_addr = v; }
 
 BajetiMfumo* mchezo_pata_bajeti(Mchezo* g) { rudisha g->bajeti_addr; }
-W0 mchezo_weka_bajeti(Mchezo* g, BajetiMfumo* v) { g->bajeti_addr = v; }
+w0 mchezo_weka_bajeti(Mchezo* g, BajetiMfumo* v) { g->bajeti_addr = v; }
 
 BidhaaSoko* mchezo_pata_bidhaa(Mchezo* g) { rudisha g->bidhaa_addr; }
-W0 mchezo_weka_bidhaa(Mchezo* g, BidhaaSoko* v) { g->bidhaa_addr = v; }
+w0 mchezo_weka_bidhaa(Mchezo* g, BidhaaSoko* v) { g->bidhaa_addr = v; }
 
 BenkiMfumo* mchezo_pata_benki(Mchezo* g) { rudisha g->benki_addr; }
-W0 mchezo_weka_benki(Mchezo* g, BenkiMfumo* v) { g->benki_addr = v; }
+w0 mchezo_weka_benki(Mchezo* g, BenkiMfumo* v) { g->benki_addr = v; }
 
 KilimoMfumo* mchezo_pata_kilimo(Mchezo* g) { rudisha g->kilimo_addr; }
-W0 mchezo_weka_kilimo(Mchezo* g, KilimoMfumo* v) { g->kilimo_addr = v; }
+w0 mchezo_weka_kilimo(Mchezo* g, KilimoMfumo* v) { g->kilimo_addr = v; }
 
 UchimbajiMfumo* mchezo_pata_uchimbaji(Mchezo* g) { rudisha g->uchimbaji_addr; }
-W0 mchezo_weka_uchimbaji(Mchezo* g, UchimbajiMfumo* v) { g->uchimbaji_addr = v; }
+w0 mchezo_weka_uchimbaji(Mchezo* g, UchimbajiMfumo* v) { g->uchimbaji_addr = v; }
 
 MiundombinuMfumo* mchezo_pata_miundombinu(Mchezo* g) { rudisha g->miundombinu_addr; }
-W0 mchezo_weka_miundombinu(Mchezo* g, MiundombinuMfumo* v) { g->miundombinu_addr = v; }
+w0 mchezo_weka_miundombinu(Mchezo* g, MiundombinuMfumo* v) { g->miundombinu_addr = v; }
 
 ViwandaMfumo* mchezo_pata_viwanda(Mchezo* g) { rudisha g->viwanda_addr; }
-W0 mchezo_weka_viwanda(Mchezo* g, ViwandaMfumo* v) { g->viwanda_addr = v; }
+w0 mchezo_weka_viwanda(Mchezo* g, ViwandaMfumo* v) { g->viwanda_addr = v; }
 
 NishatiMfumo* mchezo_pata_nishati(Mchezo* g) { rudisha g->nishati_addr; }
-W0 mchezo_weka_nishati(Mchezo* g, NishatiMfumo* v) { g->nishati_addr = v; }
+w0 mchezo_weka_nishati(Mchezo* g, NishatiMfumo* v) { g->nishati_addr = v; }
 
 MakaziMfumo* mchezo_pata_uchumi_makazi(Mchezo* g) { rudisha g->uchumi_makazi_addr; }
-W0 mchezo_weka_uchumi_makazi(Mchezo* g, MakaziMfumo* v) { g->uchumi_makazi_addr = v; }
+w0 mchezo_weka_uchumi_makazi(Mchezo* g, MakaziMfumo* v) { g->uchumi_makazi_addr = v; }
 
 ArdhiMfumo* mchezo_pata_ardhi(Mchezo* g) { rudisha g->ardhi_addr; }
-W0 mchezo_weka_ardhi(Mchezo* g, ArdhiMfumo* v) { g->ardhi_addr = v; }
+w0 mchezo_weka_ardhi(Mchezo* g, ArdhiMfumo* v) { g->ardhi_addr = v; }
 
 MtajiMfumo* mchezo_pata_mtaji(Mchezo* g) { rudisha g->mtaji_addr; }
-W0 mchezo_weka_mtaji(Mchezo* g, MtajiMfumo* v) { g->mtaji_addr = v; }
+w0 mchezo_weka_mtaji(Mchezo* g, MtajiMfumo* v) { g->mtaji_addr = v; }
 
 BiasharaNdaniMfumo* mchezo_pata_biashara_ndani(Mchezo* g) { rudisha g->biashara_ndani_addr; }
-W0 mchezo_weka_biashara_ndani(Mchezo* g, BiasharaNdaniMfumo* v) { g->biashara_ndani_addr = v; }
+w0 mchezo_weka_biashara_ndani(Mchezo* g, BiasharaNdaniMfumo* v) { g->biashara_ndani_addr = v; }
 
 BiasharaNjeMfumo* mchezo_pata_biashara_nje(Mchezo* g) { rudisha g->biashara_nje_addr; }
-W0 mchezo_weka_biashara_nje(Mchezo* g, BiasharaNjeMfumo* v) { g->biashara_nje_addr = v; }
+w0 mchezo_weka_biashara_nje(Mchezo* g, BiasharaNjeMfumo* v) { g->biashara_nje_addr = v; }
 
 UvumbuziMfumo* mchezo_pata_uvumbuzi(Mchezo* g) { rudisha g->uvumbuzi_addr; }
-W0 mchezo_weka_uvumbuzi(Mchezo* g, UvumbuziMfumo* v) { g->uvumbuzi_addr = v; }
+w0 mchezo_weka_uvumbuzi(Mchezo* g, UvumbuziMfumo* v) { g->uvumbuzi_addr = v; }
 
 SokoHaramuMfumo* mchezo_pata_soko_haramu(Mchezo* g) { rudisha g->soko_haramu_addr; }
-W0 mchezo_weka_soko_haramu(Mchezo* g, SokoHaramuMfumo* v) { g->soko_haramu_addr = v; }
+w0 mchezo_weka_soko_haramu(Mchezo* g, SokoHaramuMfumo* v) { g->soko_haramu_addr = v; }
 
 VitaMfumo* mchezo_pata_vita(Mchezo* g) { rudisha g->vita_addr; }
-W0 mchezo_weka_vita(Mchezo* g, VitaMfumo* v) { g->vita_addr = v; }
+w0 mchezo_weka_vita(Mchezo* g, VitaMfumo* v) { g->vita_addr = v; }
 
 UtamaduniKitambulishoMfumo* mchezo_pata_utamaduni_kitambulisho(Mchezo* g) { rudisha g->utamaduni_kitambulisho_addr; }
-W0 mchezo_weka_utamaduni_kitambulisho(Mchezo* g, UtamaduniKitambulishoMfumo* v) { g->utamaduni_kitambulisho_addr = v; }
+w0 mchezo_weka_utamaduni_kitambulisho(Mchezo* g, UtamaduniKitambulishoMfumo* v) { g->utamaduni_kitambulisho_addr = v; }
 
 UtamaduniKuenea* mchezo_pata_utamaduni_kuenea(Mchezo* g) { rudisha g->utamaduni_kuenea_addr; }
-W0 mchezo_weka_utamaduni_kuenea(Mchezo* g, UtamaduniKuenea* v) { g->utamaduni_kuenea_addr = v; }
+w0 mchezo_weka_utamaduni_kuenea(Mchezo* g, UtamaduniKuenea* v) { g->utamaduni_kuenea_addr = v; }
 
 UtamaduniItikadiMfumo* mchezo_pata_utamaduni_itikadi(Mchezo* g) { rudisha g->utamaduni_itikadi_addr; }
-W0 mchezo_weka_utamaduni_itikadi(Mchezo* g, UtamaduniItikadiMfumo* v) { g->utamaduni_itikadi_addr = v; }
+w0 mchezo_weka_utamaduni_itikadi(Mchezo* g, UtamaduniItikadiMfumo* v) { g->utamaduni_itikadi_addr = v; }
 
 UtamaduniUigajiTracker* mchezo_pata_utamaduni_uigaji(Mchezo* g) { rudisha g->utamaduni_uigaji_addr; }
-W0 mchezo_weka_utamaduni_uigaji(Mchezo* g, UtamaduniUigajiTracker* v) { g->utamaduni_uigaji_addr = v; }
+w0 mchezo_weka_utamaduni_uigaji(Mchezo* g, UtamaduniUigajiTracker* v) { g->utamaduni_uigaji_addr = v; }
 
 UtamaduniDiniMfumo* mchezo_pata_utamaduni_dini(Mchezo* g) { rudisha g->utamaduni_dini_addr; }
-W0 mchezo_weka_utamaduni_dini(Mchezo* g, UtamaduniDiniMfumo* v) { g->utamaduni_dini_addr = v; }
+w0 mchezo_weka_utamaduni_dini(Mchezo* g, UtamaduniDiniMfumo* v) { g->utamaduni_dini_addr = v; }
 
 MatukioTukioMfumo* mchezo_pata_matukio(Mchezo* g) { rudisha g->matukio_addr; }
-W0 mchezo_weka_matukio(Mchezo* g, MatukioTukioMfumo* v) { g->matukio_addr = v; }
+w0 mchezo_weka_matukio(Mchezo* g, MatukioTukioMfumo* v) { g->matukio_addr = v; }
 
 WakalaInjini* mchezo_pata_wakala(Mchezo* g) { rudisha g->wakala_addr; }
-W0 mchezo_weka_wakala(Mchezo* g, WakalaInjini* v) { g->wakala_addr = v; }
+w0 mchezo_weka_wakala(Mchezo* g, WakalaInjini* v) { g->wakala_addr = v; }
 
 InjiniOkestra* mchezo_pata_okestra(Mchezo* g) { rudisha g->injini_okestra_addr; }
-W0 mchezo_weka_okestra(Mchezo* g, InjiniOkestra* v) { g->injini_okestra_addr = v; }
+w0 mchezo_weka_okestra(Mchezo* g, InjiniOkestra* v) { g->injini_okestra_addr = v; }
 
 InjiniSaaKuu* mchezo_pata_saa_kuu(Mchezo* g) { rudisha g->injini_saa_kuu_addr; }
-W0 mchezo_weka_saa_kuu(Mchezo* g, InjiniSaaKuu* v) { g->injini_saa_kuu_addr = v; }
+w0 mchezo_weka_saa_kuu(Mchezo* g, InjiniSaaKuu* v) { g->injini_saa_kuu_addr = v; }
 
 InjiniUhifadhi* mchezo_pata_uhifadhi(Mchezo* g) { rudisha g->injini_uhifadhi_addr; }
-W0 mchezo_weka_uhifadhi(Mchezo* g, InjiniUhifadhi* v) { g->injini_uhifadhi_addr = v; }
+w0 mchezo_weka_uhifadhi(Mchezo* g, InjiniUhifadhi* v) { g->injini_uhifadhi_addr = v; }
 
 InjiniUtendaji* mchezo_pata_utendaji(Mchezo* g) { rudisha g->injini_utendaji_addr; }
-W0 mchezo_weka_utendaji(Mchezo* g, InjiniUtendaji* v) { g->injini_utendaji_addr = v; }
+w0 mchezo_weka_utendaji(Mchezo* g, InjiniUtendaji* v) { g->injini_utendaji_addr = v; }
 
 JeshiVitengoMfumo* mchezo_pata_jeshi_vitengo(Mchezo* g) { rudisha g->jeshi_vitengo_addr; }
-W0 mchezo_weka_jeshi_vitengo(Mchezo* g, JeshiVitengoMfumo* v) { g->jeshi_vitengo_addr = v; }
+w0 mchezo_weka_jeshi_vitengo(Mchezo* g, JeshiVitengoMfumo* v) { g->jeshi_vitengo_addr = v; }
 
 MapiganoMfumo* mchezo_pata_mapigano(Mchezo* g) { rudisha g->mapigano_addr; }
-W0 mchezo_weka_mapigano(Mchezo* g, MapiganoMfumo* v) { g->mapigano_addr = v; }
+w0 mchezo_weka_mapigano(Mchezo* g, MapiganoMfumo* v) { g->mapigano_addr = v; }
 
 UshindiMfumo* mchezo_pata_ushindi(Mchezo* g) { rudisha g->ushindi_addr; }
-W0 mchezo_weka_ushindi(Mchezo* g, UshindiMfumo* v) { g->ushindi_addr = v; }
+w0 mchezo_weka_ushindi(Mchezo* g, UshindiMfumo* v) { g->ushindi_addr = v; }
 
 SiasaKikundiMfumo* mchezo_pata_kikundi(Mchezo* g) { rudisha g->kikundi_addr; }
-W0 mchezo_weka_kikundi(Mchezo* g, SiasaKikundiMfumo* v) { g->kikundi_addr = v; }
+w0 mchezo_weka_kikundi(Mchezo* g, SiasaKikundiMfumo* v) { g->kikundi_addr = v; }
 
 TeknolojiaMfumo* mchezo_pata_teknolojia(Mchezo* g) { rudisha g->teknolojia_addr; }
-W0 mchezo_weka_teknolojia(Mchezo* g, TeknolojiaMfumo* v) { g->teknolojia_addr = v; }
+w0 mchezo_weka_teknolojia(Mchezo* g, TeknolojiaMfumo* v) { g->teknolojia_addr = v; }
 
 MaarifaUtafiti* mchezo_pata_maarifa(Mchezo* g) { rudisha g->maarifa_addr; }
-W0 mchezo_weka_maarifa(Mchezo* g, MaarifaUtafiti* v) { g->maarifa_addr = v; }
+w0 mchezo_weka_maarifa(Mchezo* g, MaarifaUtafiti* v) { g->maarifa_addr = v; }
 
-W0 mchezo_usanidi_chaguomsingi(MchezoUsanidi* u) {
+w0 mchezo_usanidi_chaguomsingi(MchezoUsanidi* u) {
     kama (u == 0) { rudisha; }
     u->jina = "Ustaarabu Mpya";
     u->toleo = "0.1.0";
@@ -581,10 +581,10 @@ CivMatokeo mchezo_anzisha(Mchezo* g, MchezoUsanidi* usanidi) {
 // (wakati -> idadi ya watu -> utawala -> makazi -> akili -> diplomasia).
 // SI civ_game_update kamili (haina uchumi, hauna mizunguko ya
 // mfululizo ya awamu 10 za asili).
-W0 mchezo_sasisha(Mchezo* g) {
+w0 mchezo_sasisha(Mchezo* g) {
     kama (g == 0 || g->inafanya_kazi == 0 || g->imesimamishwa != 0) { rudisha; }
 
-    D64 dt = 1.0;
+    d64 dt = 1.0;
     InjiniMudaMfumo* muda = mchezo_pata_muda(g);
     kama (muda != 0) {
         dt = injini_muda_sasisha(muda, 1.0);
@@ -592,10 +592,10 @@ W0 mchezo_sasisha(Mchezo* g) {
     }
 
     IdadiYaWatuMsimamizi* pm = mchezo_pata_idadi_ya_watu(g);
-    N32 idadi_ya_watu_n = 100;
+    n32 idadi_ya_watu_n = 100;
     kama (pm != 0) {
         idadi_ya_watu_sasisha(pm, dt, 0.5);
-        N64 idadi_jumla = pm->demografia.idadi_jumla;
+        n64 idadi_jumla = pm->demografia.idadi_jumla;
         idadi_ya_watu_n = idadi_jumla;
         kama (idadi_ya_watu_n < 100) { idadi_ya_watu_n = 100; }
     }
@@ -608,12 +608,12 @@ W0 mchezo_sasisha(Mchezo* g) {
     // soko_haramu -> vita. Kila kimoja hulishwa na matokeo halisi ya
     // kile kilichotangulia pale inapowezekana (GDP, mfumuko, rushwa,
     // riba, ubora wa miundombinu, n.k.) badala ya thamani za bandia.
-    D64 pato = 0.0;
-    D64 mfumuko = 0.02;
-    D64 ukuaji = 0.0;
-    D64 ukosefu_wa_kazi = 0.05;
-    D64 rushwa_jumla = 0.0;
-    D64 ufanisi_wa_utawala = 0.5;
+    d64 pato = 0.0;
+    d64 mfumuko = 0.02;
+    d64 ukuaji = 0.0;
+    d64 ukosefu_wa_kazi = 0.05;
+    d64 rushwa_jumla = 0.0;
+    d64 ufanisi_wa_utawala = 0.5;
 
     UtawalaSerikali* serikali_kwa_uchumi = mchezo_pata_serikali(g);
     kama (serikali_kwa_uchumi != 0) {
@@ -631,7 +631,7 @@ W0 mchezo_sasisha(Mchezo* g) {
     }
 
     NguvukaziMfumo* nguvukazi = mchezo_pata_nguvukazi(g);
-    D64 mshahara_wa_wastani = 30000.0;
+    d64 mshahara_wa_wastani = 30000.0;
     kama (nguvukazi != 0) {
         NguvukaziMazingira* nm = tenga(ukubwa(NguvukaziMazingira));
         nm->kiwango_cha_teknolojia = 0.5;
@@ -648,14 +648,14 @@ W0 mchezo_sasisha(Mchezo* g) {
     }
 
     KodiMfumo* kodi = mchezo_pata_kodi(g);
-    D64 mapato_ya_kodi = 0.0;
+    d64 mapato_ya_kodi = 0.0;
     kama (kodi != 0) {
         kodi_sasisha(kodi, dt, pato, idadi_ya_watu_n, ufanisi_wa_utawala, rushwa_jumla);
         mapato_ya_kodi = kodi->mapato_jumla;
     }
 
     BajetiMfumo* bajeti = mchezo_pata_bajeti(g);
-    D64 mgao_wa_miundombinu = 1000.0;
+    d64 mgao_wa_miundombinu = 1000.0;
     kama (bajeti != 0) {
         bajeti_sasisha(bajeti, dt, mapato_ya_kodi, pato);
         mgao_wa_miundombinu = bajeti_pata_mgao(bajeti, 0);
@@ -667,7 +667,7 @@ W0 mchezo_sasisha(Mchezo* g) {
     }
 
     BenkiMfumo* benki = mchezo_pata_benki(g);
-    D64 kiwango_cha_riba = 0.04;
+    d64 kiwango_cha_riba = 0.04;
     kama (benki != 0) {
         benki_sasisha(benki, dt, mfumuko, ukuaji, ukosefu_wa_kazi, 0.3);
         kiwango_cha_riba = benki->kiwango_cha_msingi_cha_riba;
@@ -684,14 +684,14 @@ W0 mchezo_sasisha(Mchezo* g) {
     }
 
     MiundombinuMfumo* miundombinu = mchezo_pata_miundombinu(g);
-    D64 ubora_wa_miundombinu = 0.5;
+    d64 ubora_wa_miundombinu = 0.5;
     kama (miundombinu != 0) {
         miundombinu_sasisha(miundombinu, dt, mgao_wa_miundombinu, idadi_ya_watu_n, 1.0);
         ubora_wa_miundombinu = miundombinu->ubora_wa_jumla;
     }
 
     ViwandaMfumo* viwanda = mchezo_pata_viwanda(g);
-    D64 pato_la_viwanda = 0.0;
+    d64 pato_la_viwanda = 0.0;
     kama (viwanda != 0) {
         viwanda_sasisha(viwanda, dt, 0.5, mshahara_wa_wastani, 0.5, ubora_wa_miundombinu);
         pato_la_viwanda = viwanda->pato_jumla_la_viwanda;
@@ -708,10 +708,10 @@ W0 mchezo_sasisha(Mchezo* g) {
     }
 
     ArdhiMfumo* ardhi = mchezo_pata_ardhi(g);
-    D64 pato_kwa_mtu = 0.0;
+    d64 pato_kwa_mtu = 0.0;
     kama (ardhi != 0) {
-        N32 idadi_ya_watu_p1 = idadi_ya_watu_n + 1;
-        D64 idadi_ya_watu_p1_d = idadi_ya_watu_p1;
+        n32 idadi_ya_watu_p1 = idadi_ya_watu_n + 1;
+        d64 idadi_ya_watu_p1_d = idadi_ya_watu_p1;
         pato_kwa_mtu = pato / idadi_ya_watu_p1_d;
         ardhi_sasisha(ardhi, dt, idadi_ya_watu_n, pato_kwa_mtu, 0.02);
     }
@@ -784,7 +784,7 @@ W0 mchezo_sasisha(Mchezo* g) {
 
     DiplomasiaMfumo* diplomasia = mchezo_pata_diplomasia(g);
     kama (diplomasia != 0) {
-        N64 zamu_d = g->zamu_ya_sasa;
+        n64 zamu_d = g->zamu_ya_sasa;
         diplomasia_sasisha_mahusiano(diplomasia, zamu_d);
     }
 
@@ -863,15 +863,15 @@ CivMatokeo mchezo_maliza_zamu(Mchezo* g) {
     rudisha r;
 }
 
-W0 mchezo_pumzisha(Mchezo* g) {
+w0 mchezo_pumzisha(Mchezo* g) {
     kama (g != 0) { g->imesimamishwa = 1; }
 }
 
-W0 mchezo_endelea(Mchezo* g) {
+w0 mchezo_endelea(Mchezo* g) {
     kama (g != 0) { g->imesimamishwa = 0; }
 }
 
-W0 mchezo_zima(Mchezo* g) {
+w0 mchezo_zima(Mchezo* g) {
     kama (g == 0) { rudisha; }
     g->inafanya_kazi = 0;
     g->hali_ya_mchezo = MCHEZO_HALI_INAZIMWA;
@@ -966,7 +966,7 @@ W0 mchezo_zima(Mchezo* g) {
     kama (maarifa_zima != 0) { maarifa_uharibu(maarifa_zima); }
 }
 
-W0 mchezo_uharibu(Mchezo* g) {
+w0 mchezo_uharibu(Mchezo* g) {
     kama (g == 0) { rudisha; }
     mchezo_zima(g);
     achilia g;
@@ -984,7 +984,7 @@ W0 mchezo_uharibu(Mchezo* g) {
 // safu/array) unaohifadhiwa/kupakiwa KAMA BAITI GHAFI moja kwa
 // moja -- hii inaepuka mapungufu matatu yaliyothibitishwa kikao
 // hiki: #186 (field ya kielekezi cha muundo ndani ya muundo
-// haihifadhi sahihi), hakuna umbizaji wa D64/float ndani ya
+// haihifadhi sahihi), hakuna umbizaji wa d64/float ndani ya
 // mfuatano_umbiza (hivyo maandishi/text serialization ya nambari
 // za desimali haiwezekani sasa), na kuepuka safu zenye ukubwa
 // maalum ndani ya muundo (haziwezi kuchanganuliwa).
@@ -1003,26 +1003,26 @@ W0 mchezo_uharibu(Mchezo* g) {
 // si kosa la bahati mbaya. Kupanua MchezoHifadhiData kwa mifumo
 // zaidi ni kazi ijayo, si sehemu ya toleo hili la kwanza.
 muundo MchezoHifadhiData {
-    N32 hali_ya_mchezo;
-    N32 zamu_ya_sasa;
-    N32 inafanya_kazi;
-    N32 imesimamishwa;
+    n32 hali_ya_mchezo;
+    n32 zamu_ya_sasa;
+    n32 inafanya_kazi;
+    n32 imesimamishwa;
 
-    N32 usanidi_mwaka_wa_kuanza;
-    N32 usanidi_ugumu;
-    N32 usanidi_washa_mantiki_isiyo_wazi;
-    N32 usanidi_washa_ufuatiliaji_wa_utegemezi;
-    N32 usanidi_muda_wa_hifadhi_otomatiki;
-    N32 usanidi_kiwango_cha_juu_cha_kumbukumbu_matukio;
+    n32 usanidi_mwaka_wa_kuanza;
+    n32 usanidi_ugumu;
+    n32 usanidi_washa_mantiki_isiyo_wazi;
+    n32 usanidi_washa_ufuatiliaji_wa_utegemezi;
+    n32 usanidi_muda_wa_hifadhi_otomatiki;
+    n32 usanidi_kiwango_cha_juu_cha_kumbukumbu_matukio;
 
-    D64 uchumi_mkuu_kiwango_cha_kodi;
-    D64 uchumi_mkuu_matumizi_ya_serikali;
+    d64 uchumi_mkuu_kiwango_cha_kodi;
+    d64 uchumi_mkuu_matumizi_ya_serikali;
 };
 
-N8* mchezo_hifadhi_data_kama_baiti(MchezoHifadhiData* d) { rudisha d; }
-MchezoHifadhiData* mchezo_hifadhi_data_kutoka_baiti(N8* b) { rudisha b; }
+n8* mchezo_hifadhi_data_kama_baiti(MchezoHifadhiData* d) { rudisha d; }
+MchezoHifadhiData* mchezo_hifadhi_data_kutoka_baiti(n8* b) { rudisha b; }
 
-W0 mchezo_hifadhi_data_jaza(Mchezo* g, MchezoHifadhiData* d) {
+w0 mchezo_hifadhi_data_jaza(Mchezo* g, MchezoHifadhiData* d) {
     d->hali_ya_mchezo = g->hali_ya_mchezo;
     d->zamu_ya_sasa = g->zamu_ya_sasa;
     d->inafanya_kazi = g->inafanya_kazi;
@@ -1042,7 +1042,7 @@ W0 mchezo_hifadhi_data_jaza(Mchezo* g, MchezoHifadhiData* d) {
     }
 }
 
-W0 mchezo_hifadhi_data_tumia(Mchezo* g, MchezoHifadhiData* d) {
+w0 mchezo_hifadhi_data_tumia(Mchezo* g, MchezoHifadhiData* d) {
     g->hali_ya_mchezo = d->hali_ya_mchezo;
     g->zamu_ya_sasa = d->zamu_ya_sasa;
     g->inafanya_kazi = d->inafanya_kazi;
@@ -1064,7 +1064,7 @@ W0 mchezo_hifadhi_data_tumia(Mchezo* g, MchezoHifadhiData* d) {
 
 // Huhifadhi hali ya sasa ya g kwenye jina_la_faili (ndani ya saraka
 // ya injini_uhifadhi ya g, mfano "saves/jina_la_faili").
-CivMatokeo mchezo_hifadhi(Mchezo* g, N8* jina_la_faili) {
+CivMatokeo mchezo_hifadhi(Mchezo* g, n8* jina_la_faili) {
     CivMatokeo r;
     r.hitilafu = CIV_SAWA;
     r.ujumbe = 0;
@@ -1082,7 +1082,7 @@ CivMatokeo mchezo_hifadhi(Mchezo* g, N8* jina_la_faili) {
 
     MchezoHifadhiData* d = tenga(ukubwa(MchezoHifadhiData));
     mchezo_hifadhi_data_jaza(g, d);
-    N8* baiti = mchezo_hifadhi_data_kama_baiti(d);
+    n8* baiti = mchezo_hifadhi_data_kama_baiti(d);
     r = injini_uhifadhi_hifadhi(sp, jina_la_faili, baiti, ukubwa(MchezoHifadhiData));
     achilia d;
     rudisha r;
@@ -1090,7 +1090,7 @@ CivMatokeo mchezo_hifadhi(Mchezo* g, N8* jina_la_faili) {
 
 // Hupakia hali kutoka jina_la_faili na kuiweka moja kwa moja kwenye
 // g (shamba na shamba, kupitia mchezo_hifadhi_data_tumia).
-CivMatokeo mchezo_pakia(Mchezo* g, N8* jina_la_faili) {
+CivMatokeo mchezo_pakia(Mchezo* g, n8* jina_la_faili) {
     CivMatokeo r;
     r.hitilafu = CIV_SAWA;
     r.ujumbe = 0;
@@ -1110,11 +1110,11 @@ CivMatokeo mchezo_pakia(Mchezo* g, N8* jina_la_faili) {
     // baiti moja ya mwisho ya "uwezo" kwa ajili ya NUL (imeundwa kwa
     // ajili ya mfuatano wa maandishi) -- hivyo ikitolewa uwezo sawa
     // na ukubwa halisi wa data, itasoma baiti MOJA PUNGUFU kimya kimya
-    // (imethibitishwa kwa jaribio: shamba la mwisho la D64 lilipotea
+    // (imethibitishwa kwa jaribio: shamba la mwisho la d64 lilipotea
     // baiti yake ya mwisho). Tunatoa nafasi ya ziada ya baiti 1 ili
     // data yote ya MchezoHifadhiData isomwe kikamilifu.
-    N64 uwezo_wa_kupakia = ukubwa(MchezoHifadhiData) + 1;
-    N8* baiti = tenga(uwezo_wa_kupakia);
+    n64 uwezo_wa_kupakia = ukubwa(MchezoHifadhiData) + 1;
+    n8* baiti = tenga(uwezo_wa_kupakia);
     r = injini_uhifadhi_pakia(sp, jina_la_faili, baiti, uwezo_wa_kupakia);
     kama (r.hitilafu != CIV_SAWA) {
         achilia baiti;

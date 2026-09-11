@@ -29,7 +29,7 @@
 //     DuniaRamani* iliyoundwa na dunia_ramani_unda() -- vipimo
 //     (upana/urefu) lazima vifanane na faili, sawa na C.
 //   - Vipande vinapatikana kupitia dunia_ramani_pata_kipande
-//     (tayari N64*-kama-anwani, #185) -- ramani KUBWA (2048x1024
+//     (tayari n64*-kama-anwani, #185) -- ramani KUBWA (2048x1024
 //     kama chaguo-msingi la C) haziwezekani bado (zingehitaji
 //     tenga() milioni 2 tofauti); jaribio hili linatumia vipimo
 //     vidogo (angalia jaribio), sawa na onyo lililopo tayari kwenye
@@ -41,10 +41,10 @@ husisha { msingi/maktaba/bin_soma.swa }
 husisha { moduli/dunia/ramani.swa }
 
 // "EARTH" endian ndogo = 0x48545241 = 1213485633.
-N32 DUNIA_RAMANI_HALISI_MAGIC = 1213485633;
-N32 DUNIA_RAMANI_HALISI_KICHWA_UKUBWA = 56;
+n32 DUNIA_RAMANI_HALISI_MAGIC = 1213485633;
+n32 DUNIA_RAMANI_HALISI_KICHWA_UKUBWA = 56;
 
-CivMatokeo dunia_ramani_halisi_pakia(DuniaRamani* ramani, N8* njia) {
+CivMatokeo dunia_ramani_halisi_pakia(DuniaRamani* ramani, n8* njia) {
     CivMatokeo r;
     r.hitilafu = CIV_SAWA;
     r.ujumbe = 0;
@@ -54,9 +54,9 @@ CivMatokeo dunia_ramani_halisi_pakia(DuniaRamani* ramani, N8* njia) {
         rudisha r;
     }
 
-    N32 upana = ramani->upana;
-    N32 urefu = ramani->urefu;
-    N32 idadi_ya_vipande = upana * urefu;
+    n32 upana = ramani->upana;
+    n32 urefu = ramani->urefu;
+    n32 idadi_ya_vipande = upana * urefu;
 
     // MUHIMU: faili_soma_yote() inasoma baiti (uwezo - 1) TU -- baiti
     // moja ya mwisho ya "uwezo" imehifadhiwa kwa NUL (angalia maelezo
@@ -66,36 +66,36 @@ CivMatokeo dunia_ramani_halisi_pakia(DuniaRamani* ramani, N8* njia) {
     // mwisho cha ramani kingepata data ya NUL (0) badala ya thamani
     // yake halisi ya landmask kimya kimya (imegunduliwa kwa jaribio
     // moja kwa moja, si kwa kudhani).
-    N32 uwezo_bafa = DUNIA_RAMANI_HALISI_KICHWA_UKUBWA + idadi_ya_vipande + 1;
-    N8* buf = tenga(uwezo_bafa);
-    N64 urefu_uliosomwa = faili_soma_yote(njia, buf, uwezo_bafa);
+    n32 uwezo_bafa = DUNIA_RAMANI_HALISI_KICHWA_UKUBWA + idadi_ya_vipande + 1;
+    n8* buf = tenga(uwezo_bafa);
+    n64 urefu_uliosomwa = faili_soma_yote(njia, buf, uwezo_bafa);
     kama (urefu_uliosomwa < 56) {
         r.hitilafu = CIV_HITILAFU_HAIJAPATIKANA;
         r.ujumbe = "faili halifunguki au kichwa ni kifupi mno";
         rudisha r;
     }
 
-    N32 magic = civ_bin_u32le(buf, 0);
+    n32 magic = civ_bin_u32le(buf, 0);
     kama (magic != DUNIA_RAMANI_HALISI_MAGIC) {
         r.hitilafu = CIV_HITILAFU_HOJA_MBAYA;
         r.ujumbe = "faili si ramani halali ya Dunia (magic si sahihi)";
         rudisha r;
     }
 
-    N32 upana_wa_faili = civ_bin_u32le(buf, 8);
-    N32 urefu_wa_faili = civ_bin_u32le(buf, 12);
+    n32 upana_wa_faili = civ_bin_u32le(buf, 8);
+    n32 urefu_wa_faili = civ_bin_u32le(buf, 12);
     kama (upana_wa_faili != upana || urefu_wa_faili != urefu) {
         r.hitilafu = CIV_HITILAFU_HOJA_MBAYA;
         r.ujumbe = "vipimo vya ramani ya Dunia havifanani na ramani ya mchezo";
         rudisha r;
     }
 
-    D64 kiwango_cha_bahari = civ_bin_f32le(buf, 16);
-    N32 mbegu = civ_bin_u32le(buf, 20);
+    d64 kiwango_cha_bahari = civ_bin_f32le(buf, 16);
+    n32 mbegu = civ_bin_u32le(buf, 20);
     ramani->kiwango_cha_bahari = kiwango_cha_bahari;
     ramani->mbegu = mbegu;
 
-    N64 baiti_zinazohitajika = DUNIA_RAMANI_HALISI_KICHWA_UKUBWA;
+    n64 baiti_zinazohitajika = DUNIA_RAMANI_HALISI_KICHWA_UKUBWA;
     baiti_zinazohitajika = baiti_zinazohitajika + idadi_ya_vipande;
     kama (urefu_uliosomwa < baiti_zinazohitajika) {
         r.hitilafu = CIV_HITILAFU_HAIJAPATIKANA;
@@ -105,22 +105,22 @@ CivMatokeo dunia_ramani_halisi_pakia(DuniaRamani* ramani, N8* njia) {
 
     ramani->idadi_ya_vipande_vya_ardhi = 0;
 
-    N32 y = 0;
+    n32 y = 0;
     wakati (y < urefu) {
-        D64 y_d = y;
-        D64 urefu_m1_d = urefu - 1;
-        D64 ny = y_d / urefu_m1_d;
-        D64 tofauti = ny - 0.5;
+        d64 y_d = y;
+        d64 urefu_m1_d = urefu - 1;
+        d64 ny = y_d / urefu_m1_d;
+        d64 tofauti = ny - 0.5;
         kama (tofauti < 0.0) { tofauti = 0.0 - tofauti; }
-        D64 kipengele_cha_latitudo = 1.0 - tofauti * 2.0;
+        d64 kipengele_cha_latitudo = 1.0 - tofauti * 2.0;
 
-        N32 x = 0;
+        n32 x = 0;
         wakati (x < upana) {
             DuniaRamaniKipande* kipande = dunia_ramani_pata_kipande(ramani, x, y);
             kama (kipande != 0) {
-                N32 faharisi_ya_landmask = DUNIA_RAMANI_HALISI_KICHWA_UKUBWA + y * upana + x;
-                N32 mask = civ_bin_u8(buf, faharisi_ya_landmask);
-                N32 ni_ardhi = 0;
+                n32 faharisi_ya_landmask = DUNIA_RAMANI_HALISI_KICHWA_UKUBWA + y * upana + x;
+                n32 mask = civ_bin_u8(buf, faharisi_ya_landmask);
+                n32 ni_ardhi = 0;
                 kama (mask > 0) { ni_ardhi = 1; }
 
                 kipande->x = x;
@@ -167,13 +167,13 @@ CivMatokeo dunia_ramani_halisi_pakia(DuniaRamani* ramani, N8* njia) {
     rudisha r;
 }
 
-N32 dunia_ramani_halisi_ni_halali(N8* njia) {
+n32 dunia_ramani_halisi_ni_halali(n8* njia) {
     kama (njia == 0) { rudisha 0; }
-    N32 uwezo_bafa = DUNIA_RAMANI_HALISI_KICHWA_UKUBWA + 1;
-    N8* buf = tenga(uwezo_bafa);
-    N64 urefu_uliosomwa = faili_soma_yote(njia, buf, uwezo_bafa);
+    n32 uwezo_bafa = DUNIA_RAMANI_HALISI_KICHWA_UKUBWA + 1;
+    n8* buf = tenga(uwezo_bafa);
+    n64 urefu_uliosomwa = faili_soma_yote(njia, buf, uwezo_bafa);
     kama (urefu_uliosomwa < 56) { rudisha 0; }
-    N32 magic = civ_bin_u32le(buf, 0);
+    n32 magic = civ_bin_u32le(buf, 0);
     kama (magic != DUNIA_RAMANI_HALISI_MAGIC) { rudisha 0; }
     rudisha 1;
 }

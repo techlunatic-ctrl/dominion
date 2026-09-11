@@ -4,7 +4,7 @@
 //
 // Kiambishi: idadi_ya_watu_ — angalia ../../KANUNI-MAJINA.md.
 // region_ids (safu inayokua ya char*, uwezo 10 unaoongezeka mara
-// mbili) imekuwa vigezo 8 vyenye majina vya N8* (kikomo cha maeneo
+// mbili) imekuwa vigezo 8 vyenye majina vya n8* (kikomo cha maeneo
 // 8 — cha kutosha kwa mchezo, badala ya ukuaji usio na kikomo
 // ambao hauwezekani kwa urahisi bila safu za miundo ndani ya
 // muundo). to_dict/from_dict (JSON) hazikuletwa — hazina mantiki
@@ -24,22 +24,22 @@ husisha { msingi/msingi_civ.swa }
 husisha { msingi/maktaba/mfuatano.swa }
 husisha { moduli/idadi_ya_watu/demografia.swa }
 
-N32 IDADI_YA_WATU_MAENEO_KIWANGO_CHA_JUU = 8;
+n32 IDADI_YA_WATU_MAENEO_KIWANGO_CHA_JUU = 8;
 
 muundo IdadiYaWatuMsimamizi {
     DemografiaMfumo demografia;
-    D64 kiwango_cha_uzazi;
-    D64 kiwango_cha_vifo;
-    D64 kiwango_cha_uhamiaji;
-    D64 kiwango_cha_ukuaji;
+    d64 kiwango_cha_uzazi;
+    d64 kiwango_cha_vifo;
+    d64 kiwango_cha_uhamiaji;
+    d64 kiwango_cha_ukuaji;
 
-    D64 ubora_wa_elimu;
-    D64 kiashiria_cha_afya;
-    D64 kuridhika;
+    d64 ubora_wa_elimu;
+    d64 kiashiria_cha_afya;
+    d64 kuridhika;
 
-    N8* eneo_0; N8* eneo_1; N8* eneo_2; N8* eneo_3;
-    N8* eneo_4; N8* eneo_5; N8* eneo_6; N8* eneo_7;
-    N32 idadi_ya_maeneo;
+    n8* eneo_0; n8* eneo_1; n8* eneo_2; n8* eneo_3;
+    n8* eneo_4; n8* eneo_5; n8* eneo_6; n8* eneo_7;
+    n32 idadi_ya_maeneo;
 };
 
 IdadiYaWatuMsimamizi* idadi_ya_watu_unda() {
@@ -60,36 +60,36 @@ IdadiYaWatuMsimamizi* idadi_ya_watu_unda() {
     rudisha pm;
 }
 
-W0 idadi_ya_watu_uharibu(IdadiYaWatuMsimamizi* pm) {
+w0 idadi_ya_watu_uharibu(IdadiYaWatuMsimamizi* pm) {
     achilia pm;
 }
 
-W0 idadi_ya_watu_sasisha(IdadiYaWatuMsimamizi* pm, D64 muda, D64 kigezo_cha_kiuchumi) {
-    N64 idadi_ya_sasa = demografia_pata_jumla(&pm->demografia);
-    D64 idadi_ya_sasa_d = idadi_ya_sasa;
+w0 idadi_ya_watu_sasisha(IdadiYaWatuMsimamizi* pm, d64 muda, d64 kigezo_cha_kiuchumi) {
+    n64 idadi_ya_sasa = demografia_pata_jumla(&pm->demografia);
+    d64 idadi_ya_sasa_d = idadi_ya_sasa;
 
-    D64 uzazi_d = idadi_ya_sasa_d * pm->kiwango_cha_uzazi * muda;
-    D64 vifo_d = idadi_ya_sasa_d * pm->kiwango_cha_vifo * muda * kigezo_cha_kiuchumi;
+    d64 uzazi_d = idadi_ya_sasa_d * pm->kiwango_cha_uzazi * muda;
+    d64 vifo_d = idadi_ya_sasa_d * pm->kiwango_cha_vifo * muda * kigezo_cha_kiuchumi;
 
-    D64 kigezo_cha_afya = 1.0 - (1.0 - pm->kiashiria_cha_afya) * 0.3;
+    d64 kigezo_cha_afya = 1.0 - (1.0 - pm->kiashiria_cha_afya) * 0.3;
     vifo_d = vifo_d * kigezo_cha_afya;
 
-    D64 kigezo_cha_elimu = 1.0 + pm->ubora_wa_elimu * 0.1;
+    d64 kigezo_cha_elimu = 1.0 + pm->ubora_wa_elimu * 0.1;
     uzazi_d = uzazi_d * kigezo_cha_elimu;
 
-    N32 uzazi = uzazi_d;
-    N32 vifo = vifo_d;
+    n32 uzazi = uzazi_d;
+    n32 vifo = vifo_d;
 
     demografia_sasisha(&pm->demografia, uzazi, vifo, muda);
 
-    N64 idadi_mpya = demografia_pata_jumla(&pm->demografia);
+    n64 idadi_mpya = demografia_pata_jumla(&pm->demografia);
     kama (idadi_ya_sasa > 0 && muda > 0.0) {
-        D64 idadi_mpya_d = idadi_mpya;
+        d64 idadi_mpya_d = idadi_mpya;
         pm->kiwango_cha_ukuaji = ((idadi_mpya_d - idadi_ya_sasa_d) / idadi_ya_sasa_d) / muda;
     }
 }
 
-N8* idadi_ya_watu_pata_eneo(IdadiYaWatuMsimamizi* pm, N32 faharisi) {
+n8* idadi_ya_watu_pata_eneo(IdadiYaWatuMsimamizi* pm, n32 faharisi) {
     kama (faharisi == 0) { rudisha pm->eneo_0; }
     kama (faharisi == 1) { rudisha pm->eneo_1; }
     kama (faharisi == 2) { rudisha pm->eneo_2; }
@@ -100,7 +100,7 @@ N8* idadi_ya_watu_pata_eneo(IdadiYaWatuMsimamizi* pm, N32 faharisi) {
     rudisha pm->eneo_7;
 }
 
-W0 idadi_ya_watu_weka_eneo(IdadiYaWatuMsimamizi* pm, N32 faharisi, N8* eneo) {
+w0 idadi_ya_watu_weka_eneo(IdadiYaWatuMsimamizi* pm, n32 faharisi, n8* eneo) {
     kama (faharisi == 0) { pm->eneo_0 = eneo; }
     sivyo { kama (faharisi == 1) { pm->eneo_1 = eneo; }
     sivyo { kama (faharisi == 2) { pm->eneo_2 = eneo; }
@@ -111,12 +111,12 @@ W0 idadi_ya_watu_weka_eneo(IdadiYaWatuMsimamizi* pm, N32 faharisi, N8* eneo) {
     sivyo { pm->eneo_7 = eneo; } } } } } } }
 }
 
-W0 idadi_ya_watu_anzisha_eneo(IdadiYaWatuMsimamizi* pm, N8* eneo_id, N64 idadi_ya_awali) {
+w0 idadi_ya_watu_anzisha_eneo(IdadiYaWatuMsimamizi* pm, n8* eneo_id, n64 idadi_ya_awali) {
     kama (eneo_id == 0) { rudisha; }
 
-    N32 i = 0;
+    n32 i = 0;
     wakati (i < pm->idadi_ya_maeneo) {
-        N8* uliopo = idadi_ya_watu_pata_eneo(pm, i);
+        n8* uliopo = idadi_ya_watu_pata_eneo(pm, i);
         kama (linganisha_mfuatano(uliopo, eneo_id) == 0) { rudisha; }
         i = i + 1;
     }
@@ -126,10 +126,10 @@ W0 idadi_ya_watu_anzisha_eneo(IdadiYaWatuMsimamizi* pm, N8* eneo_id, N64 idadi_y
     pm->idadi_ya_maeneo = pm->idadi_ya_maeneo + 1;
 }
 
-N64 idadi_ya_watu_pata_jumla(IdadiYaWatuMsimamizi* pm) {
+n64 idadi_ya_watu_pata_jumla(IdadiYaWatuMsimamizi* pm) {
     rudisha demografia_pata_jumla(&pm->demografia);
 }
 
-D64 idadi_ya_watu_pata_kiwango_cha_ukuaji(IdadiYaWatuMsimamizi* pm) {
+d64 idadi_ya_watu_pata_kiwango_cha_ukuaji(IdadiYaWatuMsimamizi* pm) {
     rudisha pm->kiwango_cha_ukuaji;
 }

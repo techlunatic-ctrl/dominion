@@ -13,13 +13,13 @@ husisha { moduli/onyesho/baiti_ghafi.swa }
 // Offsets zimepatikana kwa `offsetof` halisi dhidi ya
 // <linux/input.h> iliyosakinishwa, si kukisiwa.
 
-N64 KIFAA_UKUBWA_TUKIO = 24;
-N64 KIFAA_EV_SYN = 0;
-N64 KIFAA_EV_KEY = 1;
-N64 KIFAA_EV_REL = 2;
-N64 KIFAA_EV_ABS = 3;
+n64 KIFAA_UKUBWA_TUKIO = 24;
+n64 KIFAA_EV_SYN = 0;
+n64 KIFAA_EV_KEY = 1;
+n64 KIFAA_EV_REL = 2;
+n64 KIFAA_EV_ABS = 3;
 
-N64 kifaa_fungua(N8* njia) {
+n64 kifaa_fungua(n8* njia) {
     // O_RDONLY=0, na O_NONBLOCK=2048 -- bila hii, kusoma bila tukio
     // jipya huzuia (block) mchakato mzima milele. Kwa kuwa
     // sys_fungua ya kumbukumbu.swa haichukui bendera ghafi za
@@ -27,7 +27,7 @@ N64 kifaa_fungua(N8* njia) {
     rudisha wito_wa_mfumo(2, njia, 2048, 0, 0, 0, 0);
 }
 
-W0 kifaa_funga(N64 fd) {
+w0 kifaa_funga(n64 fd) {
     sys_funga(fd);
 }
 
@@ -37,25 +37,25 @@ W0 kifaa_funga(N64 fd) {
 // KIFAA_UKUBWA_TUKIO angalau), 0 ikiwa hakuna tukio la sasa
 // (EAGAIN -- kawaida kabisa, si hitilafu), au -1 kwa hitilafu halisi
 // nyingine.
-N64 kifaa_soma_tukio(N64 fd, N8* nje) {
-    N64 n = sys_soma(fd, nje, KIFAA_UKUBWA_TUKIO);
+n64 kifaa_soma_tukio(n64 fd, n8* nje) {
+    n64 n = sys_soma(fd, nje, KIFAA_UKUBWA_TUKIO);
     kama (n == KIFAA_UKUBWA_TUKIO) { rudisha 1; }
     kama (n < 0) {
-        N64 hasi = 0 - n;
+        n64 hasi = 0 - n;
         kama (hasi == 11) { rudisha 0; }  // EAGAIN -- hakuna tukio bado
         rudisha -1;
     }
     rudisha 0;
 }
 
-N64 kifaa_tukio_aina(N8* t) { rudisha pata_u16(t, 16); }
-N64 kifaa_tukio_kanuni(N8* t) { rudisha pata_u16(t, 18); }
+n64 kifaa_tukio_aina(n8* t) { rudisha pata_u16(t, 16); }
+n64 kifaa_tukio_kanuni(n8* t) { rudisha pata_u16(t, 18); }
 
-N64 kifaa_tukio_thamani(N8* t) {
+n64 kifaa_tukio_thamani(n8* t) {
     // value ni s32 (yenye ishara) -- pata_u32 huipanua bila ishara,
     // hivyo lazima tuipanue kwa ishara kwa mkono kama bit 31 imewekwa
     // (mfano REL_X/REL_Y hasi -- kipanya kikienda kushoto/juu).
-    N64 v = pata_u32(t, 20);
+    n64 v = pata_u32(t, 20);
     kama (v >= 2147483648) { v = v - 4294967296; }
     rudisha v;
 }

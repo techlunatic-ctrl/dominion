@@ -9,7 +9,7 @@
 // Ilikuwa imezuiwa kikao kizima kwa sababu mbili, zote sasa
 // zimetatuliwa: (1) ilihitaji hub ya serikali inayofanya kazi
 // (utawala/serikali.swa, sasa imekamilika), (2) mdudu wa mkusanyaji
-// #192 (uharibifu wa kimya wa D64 kwenye faili kubwa) uliozuia
+// #192 (uharibifu wa kimya wa d64 kwenye faili kubwa) uliozuia
 // graph yoyote kubwa ya husisha kufanya kazi sahihi -- sasa
 // umerekebishwa (PR #196, imeunganishwa).
 //
@@ -22,10 +22,10 @@
 //   - government (civ_government_t*) na constitution (void*) ni
 //     mifano ya lugha-swa/swa#186 (field ya muundo yenye aina ya
 //     kielekezi kwenda muundo mwingine haihifadhi sahihi) -- zimekuwa
-//     N64 (anwani) + kazi za kupata/kuweka, mtindo ulioothibitishwa
+//     n64 (anwani) + kazi za kupata/kuweka, mtindo ulioothibitishwa
 //     kwenye serikali.swa (fields 14 za aina hii kwenye faili hilo).
 //   - civ_nation_manager_t.nations (safu inayokua ya THAMANI za
-//     struct, calloc moja kwa moja) imekuwa N64* ya vielekezi kwenda
+//     struct, calloc moja kwa moja) imekuwa n64* ya vielekezi kwenda
 //     TaifaNchi zilizotengwa kando (mtindo wa dini.swa/kikundi.swa),
 //     uwezo umewekwa mara moja kwa DUNIA_TAIFA_UWEZO_JUU (256, sawa
 //     na CIV_NATION_CAPACITY_MAX).
@@ -39,7 +39,7 @@
 //     visivyohitajika.
 //   - rand() imekuwa civ_nasibu_chini_ya().
 //   - snprintf/strcpy za majina/id zimekuwa maandishi ya moja kwa
-//     moja (N8* hazihifadhi nakala, kama moduli nyingine zote).
+//     moja (n8* hazihifadhi nakala, kama moduli nyingine zote).
 
 husisha { msingi/msingi_civ.swa }
 husisha { msingi/maktaba/mfuatano.swa }
@@ -50,69 +50,69 @@ husisha { moduli/dunia/mipaka_kisiasa.swa }
 husisha { moduli/dunia/rasilimali.swa }
 husisha { moduli/dunia/ramani.swa }
 
-N32 DUNIA_TAIFA_ENEO_IDADI = 8;
-N32 DUNIA_TAIFA_MGAWANYO_IDADI = 16;
-N32 DUNIA_TAIFA_UWEZO_JUU = 256;
+n32 DUNIA_TAIFA_ENEO_IDADI = 8;
+n32 DUNIA_TAIFA_MGAWANYO_IDADI = 16;
+n32 DUNIA_TAIFA_UWEZO_JUU = 256;
 
 muundo TaifaEneo {
-    D64 lon_chini;
-    D64 lon_juu;
-    D64 lat_chini;
-    D64 lat_juu;
+    d64 lon_chini;
+    d64 lon_juu;
+    d64 lat_chini;
+    d64 lat_juu;
 };
 
 muundo TaifaMgawanyo {
-    N8* jina;
-    N8* kitambulisho;
-    N32 rangi;
+    n8* jina;
+    n8* kitambulisho;
+    n32 rangi;
     TaifaEneo eneo;
 };
 
 muundo TaifaUchumi {
-    D64 pato_ghafi;                 // gdp (millions)
-    D64 pato_kwa_kila_mtu;
-    D64 ukuaji_wa_pato;
-    D64 mfumuko;
-    D64 ukosefu_wa_kazi;
-    D64 mapato_ya_kodi;
-    D64 uzalishaji_wa_chakula;
-    D64 matumizi_ya_chakula;
-    D64 uzalishaji_wa_nishati;
-    D64 uzalishaji_wa_viwanda;
-    D64 malighafi;
-    D64 nguvukazi;
-    D64 mshahara_wa_wastani;
-    N32 vipande_vya_ardhi;
-    N32 vipande_vya_maji;
+    d64 pato_ghafi;                 // gdp (millions)
+    d64 pato_kwa_kila_mtu;
+    d64 ukuaji_wa_pato;
+    d64 mfumuko;
+    d64 ukosefu_wa_kazi;
+    d64 mapato_ya_kodi;
+    d64 uzalishaji_wa_chakula;
+    d64 matumizi_ya_chakula;
+    d64 uzalishaji_wa_nishati;
+    d64 uzalishaji_wa_viwanda;
+    d64 malighafi;
+    d64 nguvukazi;
+    d64 mshahara_wa_wastani;
+    n32 vipande_vya_ardhi;
+    n32 vipande_vya_maji;
 };
 
 muundo TaifaRasilimaliWasifu {
-    N32 jumla;
-    N32 idadi_ya_aina;
-    N32 mafuta;
-    N32 gesi_asilia;
-    N32 makaa;
+    n32 jumla;
+    n32 idadi_ya_aina;
+    n32 mafuta;
+    n32 gesi_asilia;
+    n32 makaa;
 };
 
 muundo TaifaNchi {
-    N8* kitambulisho;
-    N8* jina;
-    N32 rangi;
-    N32 rangi_pambizo;
+    n8* kitambulisho;
+    n8* jina;
+    n32 rangi;
+    n32 rangi_pambizo;
 
-    N32 data_id;
-    N8* iso_a3;
-    N8* iso_a2;
+    n32 data_id;
+    n8* iso_a3;
+    n8* iso_a2;
 
     TaifaEneo eneo_0; TaifaEneo eneo_1; TaifaEneo eneo_2; TaifaEneo eneo_3;
     TaifaEneo eneo_4; TaifaEneo eneo_5; TaifaEneo eneo_6; TaifaEneo eneo_7;
-    N32 idadi_ya_maeneo;
+    n32 idadi_ya_maeneo;
 
-    D64 mji_mkuu_lon;
-    D64 mji_mkuu_lat;
+    d64 mji_mkuu_lon;
+    d64 mji_mkuu_lat;
 
-    N64 serikali_addr;    // UtawalaSerikali* (#186)
-    N64 katiba_addr;      // TaifaKatiba* (#186)
+    n64 serikali_addr;    // UtawalaSerikali* (#186)
+    n64 katiba_addr;      // TaifaKatiba* (#186)
 
     TaifaMgawanyo mgawanyo_0; TaifaMgawanyo mgawanyo_1;
     TaifaMgawanyo mgawanyo_2; TaifaMgawanyo mgawanyo_3;
@@ -122,30 +122,30 @@ muundo TaifaNchi {
     TaifaMgawanyo mgawanyo_10; TaifaMgawanyo mgawanyo_11;
     TaifaMgawanyo mgawanyo_12; TaifaMgawanyo mgawanyo_13;
     TaifaMgawanyo mgawanyo_14; TaifaMgawanyo mgawanyo_15;
-    N32 idadi_ya_mgawanyo;
+    n32 idadi_ya_mgawanyo;
 
     TaifaUchumi uchumi;
 
-    N32 kielezo_cha_teknolojia;
-    N32 kielezo_cha_uchumi;
-    N32 kielezo_cha_kijeshi;
-    N32 kielezo_cha_utamaduni;
+    n32 kielezo_cha_teknolojia;
+    n32 kielezo_cha_uchumi;
+    n32 kielezo_cha_kijeshi;
+    n32 kielezo_cha_utamaduni;
 
-    N64 idadi_ya_watu;
-    D64 gharama_ya_maisha;
-    D64 pato_kwa_kila_mtu;
+    n64 idadi_ya_watu;
+    d64 gharama_ya_maisha;
+    d64 pato_kwa_kila_mtu;
 };
 
 muundo TaifaMfumo {
-    N64* mataifa;
-    N32 idadi;
-    N32 uwezo;
-    N32 faharisi_ya_taifa_la_mchezaji;
+    n64* mataifa;
+    n32 idadi;
+    n32 uwezo;
+    n32 faharisi_ya_taifa_la_mchezaji;
 };
 
 // ---------- Vipata (getters) ----------
 
-TaifaEneo* dunia_taifa_pata_eneo(TaifaNchi* t, N32 i) {
+TaifaEneo* dunia_taifa_pata_eneo(TaifaNchi* t, n32 i) {
     kama (i == 0) { rudisha &t->eneo_0; }
     kama (i == 1) { rudisha &t->eneo_1; }
     kama (i == 2) { rudisha &t->eneo_2; }
@@ -156,7 +156,7 @@ TaifaEneo* dunia_taifa_pata_eneo(TaifaNchi* t, N32 i) {
     rudisha &t->eneo_7;
 }
 
-TaifaMgawanyo* dunia_taifa_pata_mgawanyo(TaifaNchi* t, N32 i) {
+TaifaMgawanyo* dunia_taifa_pata_mgawanyo(TaifaNchi* t, n32 i) {
     kama (i == 0) { rudisha &t->mgawanyo_0; }
     kama (i == 1) { rudisha &t->mgawanyo_1; }
     kama (i == 2) { rudisha &t->mgawanyo_2; }
@@ -178,25 +178,25 @@ TaifaMgawanyo* dunia_taifa_pata_mgawanyo(TaifaNchi* t, N32 i) {
 UtawalaSerikali* dunia_taifa_pata_serikali(TaifaNchi* t) {
     rudisha t->serikali_addr;
 }
-W0 dunia_taifa_weka_serikali(TaifaNchi* t, UtawalaSerikali* v) {
+w0 dunia_taifa_weka_serikali(TaifaNchi* t, UtawalaSerikali* v) {
     t->serikali_addr = v;
 }
 
 TaifaKatiba* dunia_taifa_pata_katiba(TaifaNchi* t) {
     rudisha t->katiba_addr;
 }
-W0 dunia_taifa_weka_katiba(TaifaNchi* t, TaifaKatiba* v) {
+w0 dunia_taifa_weka_katiba(TaifaNchi* t, TaifaKatiba* v) {
     t->katiba_addr = v;
 }
 
-TaifaNchi* dunia_taifa_mfumo_pata_kwa_faharisi(TaifaMfumo* m, N32 idx) {
+TaifaNchi* dunia_taifa_mfumo_pata_kwa_faharisi(TaifaMfumo* m, n32 idx) {
     kama (idx < 0 || idx >= m->idadi) { rudisha 0; }
     rudisha m->mataifa[idx];
 }
 
 // ---------- Msaidizi: nukta iko ndani ya eneo ----------
 
-N32 dunia_taifa_ndani_ya_eneo(D64 lon, D64 lat, TaifaEneo* e) {
+n32 dunia_taifa_ndani_ya_eneo(d64 lon, d64 lat, TaifaEneo* e) {
     kama (lon >= e->lon_chini && lon <= e->lon_juu
         && lat >= e->lat_chini && lat <= e->lat_juu) {
         rudisha 1;
@@ -209,15 +209,15 @@ N32 dunia_taifa_ndani_ya_eneo(D64 lon, D64 lat, TaifaEneo* e) {
 TaifaMfumo* dunia_taifa_mfumo_unda() {
     TaifaMfumo* m = tenga(ukubwa(TaifaMfumo));
     m->uwezo = DUNIA_TAIFA_UWEZO_JUU;
-    m->mataifa = tenga(ukubwa(N64) * m->uwezo);
+    m->mataifa = tenga(ukubwa(n64) * m->uwezo);
     m->idadi = 0;
     m->faharisi_ya_taifa_la_mchezaji = 0;
     rudisha m;
 }
 
-W0 dunia_taifa_mfumo_uharibu(TaifaMfumo* m) {
+w0 dunia_taifa_mfumo_uharibu(TaifaMfumo* m) {
     kama (m == 0) { rudisha; }
-    N32 i = 0;
+    n32 i = 0;
     wakati (i < m->idadi) {
         TaifaNchi* t = m->mataifa[i];
         UtawalaSerikali* g = dunia_taifa_pata_serikali(t);
@@ -233,7 +233,7 @@ W0 dunia_taifa_mfumo_uharibu(TaifaMfumo* m) {
 
 // ---------- Serikali chaguo-msingi (data-driven) ----------
 
-W0 dunia_taifa_anzisha_serikali_chaguo_msingi(TaifaNchi* t) {
+w0 dunia_taifa_anzisha_serikali_chaguo_msingi(TaifaNchi* t) {
     UtawalaSerikali* g = utawala_serikali_unda(t->jina);
     TaifaKatiba* k = taifa_katiba_unda(t->kitambulisho);
     dunia_taifa_weka_serikali(t, g);
@@ -269,7 +269,7 @@ W0 dunia_taifa_anzisha_serikali_chaguo_msingi(TaifaNchi* t) {
 
 // ---------- Mataifa 8 yaliyowekwa awali (procedural fallback) ----------
 
-W0 dunia_taifa_kwanza_kifalme(TaifaNchi* t) {
+w0 dunia_taifa_kwanza_kifalme(TaifaNchi* t) {
     t->kitambulisho = "utawala_wa_kifalme";
     t->jina = "Utawala wa Kifalme";
     t->rangi = 13382656; t->rangi_pambizo = 16755780;
@@ -282,9 +282,9 @@ W0 dunia_taifa_kwanza_kifalme(TaifaNchi* t) {
     t->idadi_ya_maeneo = 2;
     t->mji_mkuu_lon = 12.0; t->mji_mkuu_lat = 52.0;
     t->idadi_ya_watu = 45000000;
-    N32 gr = civ_nasibu_chini_ya(100); D64 gr_d = gr;
+    n32 gr = civ_nasibu_chini_ya(100); d64 gr_d = gr;
     t->gharama_ya_maisha = 0.7 + (gr_d / 200.0);
-    N32 zw = civ_nasibu_chini_ya(9500); D64 zw_d = zw;
+    n32 zw = civ_nasibu_chini_ya(9500); d64 zw_d = zw;
     t->pato_kwa_kila_mtu = 500.0 + zw_d;
 
     TaifaMgawanyo* s0 = dunia_taifa_pata_mgawanyo(t, 0);
@@ -314,7 +314,7 @@ W0 dunia_taifa_kwanza_kifalme(TaifaNchi* t) {
     utawala_serikali_hesabu_wasifu(g);
 }
 
-W0 dunia_taifa_kwanza_kibiashara(TaifaNchi* t) {
+w0 dunia_taifa_kwanza_kibiashara(TaifaNchi* t) {
     t->kitambulisho = "muungano_wa_kibiashara";
     t->jina = "Muungano wa Kibiashara";
     t->rangi = 14329120; t->rangi_pambizo = 16766720;
@@ -327,9 +327,9 @@ W0 dunia_taifa_kwanza_kibiashara(TaifaNchi* t) {
     t->idadi_ya_maeneo = 2;
     t->mji_mkuu_lon = 29.0; t->mji_mkuu_lat = 41.0;
     t->idadi_ya_watu = 32000000;
-    N32 gr = civ_nasibu_chini_ya(100); D64 gr_d = gr;
+    n32 gr = civ_nasibu_chini_ya(100); d64 gr_d = gr;
     t->gharama_ya_maisha = 0.7 + (gr_d / 200.0);
-    N32 zw = civ_nasibu_chini_ya(9500); D64 zw_d = zw;
+    n32 zw = civ_nasibu_chini_ya(9500); d64 zw_d = zw;
     t->pato_kwa_kila_mtu = 500.0 + zw_d;
 
     TaifaMgawanyo* s0 = dunia_taifa_pata_mgawanyo(t, 0);
@@ -359,7 +359,7 @@ W0 dunia_taifa_kwanza_kibiashara(TaifaNchi* t) {
     utawala_serikali_hesabu_wasifu(g);
 }
 
-W0 dunia_taifa_kwanza_kidini(TaifaNchi* t) {
+w0 dunia_taifa_kwanza_kidini(TaifaNchi* t) {
     t->kitambulisho = "dola_ya_kidini";
     t->jina = "Dola ya Kidini";
     t->rangi = 9109708; t->rangi_pambizo = 13385471;
@@ -372,9 +372,9 @@ W0 dunia_taifa_kwanza_kidini(TaifaNchi* t) {
     t->idadi_ya_maeneo = 2;
     t->mji_mkuu_lon = 51.0; t->mji_mkuu_lat = 35.0;
     t->idadi_ya_watu = 28000000;
-    N32 gr = civ_nasibu_chini_ya(100); D64 gr_d = gr;
+    n32 gr = civ_nasibu_chini_ya(100); d64 gr_d = gr;
     t->gharama_ya_maisha = 0.7 + (gr_d / 200.0);
-    N32 zw = civ_nasibu_chini_ya(9500); D64 zw_d = zw;
+    n32 zw = civ_nasibu_chini_ya(9500); d64 zw_d = zw;
     t->pato_kwa_kila_mtu = 500.0 + zw_d;
 
     TaifaMgawanyo* s0 = dunia_taifa_pata_mgawanyo(t, 0);
@@ -408,7 +408,7 @@ W0 dunia_taifa_kwanza_kidini(TaifaNchi* t) {
     utawala_serikali_hesabu_wasifu(g);
 }
 
-W0 dunia_taifa_kwanza_kidemokrasia(TaifaNchi* t) {
+w0 dunia_taifa_kwanza_kidemokrasia(TaifaNchi* t) {
     t->kitambulisho = "shirikisho_la_kidemokrasia";
     t->jina = "Shirikisho la Kidemokrasia";
     t->rangi = 2244095; t->rangi_pambizo = 6737151;
@@ -421,9 +421,9 @@ W0 dunia_taifa_kwanza_kidemokrasia(TaifaNchi* t) {
     t->idadi_ya_maeneo = 2;
     t->mji_mkuu_lon = 0.0 - 77.0; t->mji_mkuu_lat = 39.0;
     t->idadi_ya_watu = 52000000;
-    N32 gr = civ_nasibu_chini_ya(100); D64 gr_d = gr;
+    n32 gr = civ_nasibu_chini_ya(100); d64 gr_d = gr;
     t->gharama_ya_maisha = 0.7 + (gr_d / 200.0);
-    N32 zw = civ_nasibu_chini_ya(9500); D64 zw_d = zw;
+    n32 zw = civ_nasibu_chini_ya(9500); d64 zw_d = zw;
     t->pato_kwa_kila_mtu = 500.0 + zw_d;
 
     TaifaMgawanyo* s0 = dunia_taifa_pata_mgawanyo(t, 0);
@@ -460,7 +460,7 @@ W0 dunia_taifa_kwanza_kidemokrasia(TaifaNchi* t) {
     utawala_serikali_hesabu_wasifu(g);
 }
 
-W0 dunia_taifa_kwanza_kiteknolojia(TaifaNchi* t) {
+w0 dunia_taifa_kwanza_kiteknolojia(TaifaNchi* t) {
     t->kitambulisho = "muungano_wa_kiteknolojia";
     t->jina = "Muungano wa Kiteknolojia";
     t->rangi = 43724; t->rangi_pambizo = 4587007;
@@ -473,9 +473,9 @@ W0 dunia_taifa_kwanza_kiteknolojia(TaifaNchi* t) {
     t->idadi_ya_maeneo = 2;
     t->mji_mkuu_lon = 139.0; t->mji_mkuu_lat = 36.0;
     t->idadi_ya_watu = 38000000;
-    N32 gr = civ_nasibu_chini_ya(100); D64 gr_d = gr;
+    n32 gr = civ_nasibu_chini_ya(100); d64 gr_d = gr;
     t->gharama_ya_maisha = 0.7 + (gr_d / 200.0);
-    N32 zw = civ_nasibu_chini_ya(9500); D64 zw_d = zw;
+    n32 zw = civ_nasibu_chini_ya(9500); d64 zw_d = zw;
     t->pato_kwa_kila_mtu = 500.0 + zw_d;
 
     TaifaMgawanyo* s0 = dunia_taifa_pata_mgawanyo(t, 0);
@@ -505,7 +505,7 @@ W0 dunia_taifa_kwanza_kiteknolojia(TaifaNchi* t) {
     utawala_serikali_hesabu_wasifu(g);
 }
 
-W0 dunia_taifa_kwanza_kijeshi(TaifaNchi* t) {
+w0 dunia_taifa_kwanza_kijeshi(TaifaNchi* t) {
     t->kitambulisho = "jeshi_la_kihamaji";
     t->jina = "Jeshi la Kihamaji";
     t->rangi = 13369344; t->rangi_pambizo = 16724531;
@@ -518,9 +518,9 @@ W0 dunia_taifa_kwanza_kijeshi(TaifaNchi* t) {
     t->idadi_ya_maeneo = 2;
     t->mji_mkuu_lon = 76.0; t->mji_mkuu_lat = 43.0;
     t->idadi_ya_watu = 18000000;
-    N32 gr = civ_nasibu_chini_ya(100); D64 gr_d = gr;
+    n32 gr = civ_nasibu_chini_ya(100); d64 gr_d = gr;
     t->gharama_ya_maisha = 0.7 + (gr_d / 200.0);
-    N32 zw = civ_nasibu_chini_ya(9500); D64 zw_d = zw;
+    n32 zw = civ_nasibu_chini_ya(9500); d64 zw_d = zw;
     t->pato_kwa_kila_mtu = 500.0 + zw_d;
 
     TaifaMgawanyo* s0 = dunia_taifa_pata_mgawanyo(t, 0);
@@ -546,7 +546,7 @@ W0 dunia_taifa_kwanza_kijeshi(TaifaNchi* t) {
     utawala_serikali_hesabu_wasifu(g);
 }
 
-W0 dunia_taifa_kwanza_kilimo(TaifaNchi* t) {
+w0 dunia_taifa_kwanza_kilimo(TaifaNchi* t) {
     t->kitambulisho = "ushirika_wa_kilimo";
     t->jina = "Ushirika wa Kilimo";
     t->rangi = 2261504; t->rangi_pambizo = 4513604;
@@ -559,9 +559,9 @@ W0 dunia_taifa_kwanza_kilimo(TaifaNchi* t) {
     t->idadi_ya_maeneo = 2;
     t->mji_mkuu_lon = 77.0; t->mji_mkuu_lat = 23.0;
     t->idadi_ya_watu = 65000000;
-    N32 gr = civ_nasibu_chini_ya(100); D64 gr_d = gr;
+    n32 gr = civ_nasibu_chini_ya(100); d64 gr_d = gr;
     t->gharama_ya_maisha = 0.7 + (gr_d / 200.0);
-    N32 zw = civ_nasibu_chini_ya(9500); D64 zw_d = zw;
+    n32 zw = civ_nasibu_chini_ya(9500); d64 zw_d = zw;
     t->pato_kwa_kila_mtu = 500.0 + zw_d;
 
     TaifaMgawanyo* s0 = dunia_taifa_pata_mgawanyo(t, 0);
@@ -591,7 +591,7 @@ W0 dunia_taifa_kwanza_kilimo(TaifaNchi* t) {
     utawala_serikali_hesabu_wasifu(g);
 }
 
-W0 dunia_taifa_kwanza_walinzi(TaifaNchi* t) {
+w0 dunia_taifa_kwanza_walinzi(TaifaNchi* t) {
     t->kitambulisho = "walinzi_wa_pori";
     t->jina = "Walinzi wa Pori";
     t->rangi = 2263108; t->rangi_pambizo = 2277512;
@@ -604,9 +604,9 @@ W0 dunia_taifa_kwanza_walinzi(TaifaNchi* t) {
     t->idadi_ya_maeneo = 2;
     t->mji_mkuu_lon = 0.0 - 47.0; t->mji_mkuu_lat = 0.0 - 16.0;
     t->idadi_ya_watu = 22000000;
-    N32 gr = civ_nasibu_chini_ya(100); D64 gr_d = gr;
+    n32 gr = civ_nasibu_chini_ya(100); d64 gr_d = gr;
     t->gharama_ya_maisha = 0.7 + (gr_d / 200.0);
-    N32 zw = civ_nasibu_chini_ya(9500); D64 zw_d = zw;
+    n32 zw = civ_nasibu_chini_ya(9500); d64 zw_d = zw;
     t->pato_kwa_kila_mtu = 500.0 + zw_d;
 
     TaifaMgawanyo* s0 = dunia_taifa_pata_mgawanyo(t, 0);
@@ -636,12 +636,12 @@ W0 dunia_taifa_kwanza_walinzi(TaifaNchi* t) {
     utawala_serikali_hesabu_wasifu(g);
 }
 
-W0 dunia_taifa_mfumo_anzisha_chaguo_msingi(TaifaMfumo* m) {
+w0 dunia_taifa_mfumo_anzisha_chaguo_msingi(TaifaMfumo* m) {
     kama (m == 0) { rudisha; }
-    N32 idadi = 8;
+    n32 idadi = 8;
     kama (idadi > m->uwezo) { idadi = m->uwezo; }
 
-    N32 i = 0;
+    n32 i = 0;
     wakati (i < idadi) {
         TaifaNchi* t = tenga(ukubwa(TaifaNchi));
         t->idadi_ya_maeneo = 0;
@@ -665,20 +665,20 @@ W0 dunia_taifa_mfumo_anzisha_chaguo_msingi(TaifaMfumo* m) {
 
 // ---------- Uanzishaji unaotokana na data (borders + nations_data) ----------
 
-W0 dunia_taifa_mfumo_anzisha_kutoka_data(TaifaMfumo* m, DuniaMataifaData* nd,
+w0 dunia_taifa_mfumo_anzisha_kutoka_data(TaifaMfumo* m, DuniaMataifaData* nd,
                                            DuniaMipakaKisiasa* mipaka) {
     kama (m == 0) { rudisha; }
-    N32 idadi_ya_mipaka = 0;
+    n32 idadi_ya_mipaka = 0;
     kama (mipaka != 0) { idadi_ya_mipaka = dunia_mipaka_kisiasa_idadi_ya_mataifa(mipaka); }
 
     kama (idadi_ya_mipaka > 0 && idadi_ya_mipaka <= m->uwezo) {
-        N32 imeundwa = 0;
-        N32 cid = 0;
+        n32 imeundwa = 0;
+        n32 cid = 0;
         wakati (cid < idadi_ya_mipaka) {
-            N8* jina_la_nchi = dunia_mipaka_kisiasa_jina_la_taifa(mipaka, cid);
+            n8* jina_la_nchi = dunia_mipaka_kisiasa_jina_la_taifa(mipaka, cid);
             kama (jina_la_nchi == 0) { cid = cid + 1; endelea; }
 
-            N32 rangi = dunia_mipaka_kisiasa_rangi_ya_taifa(mipaka, cid);
+            n32 rangi = dunia_mipaka_kisiasa_rangi_ya_taifa(mipaka, cid);
 
             TaifaNchi* t = tenga(ukubwa(TaifaNchi));
             t->kitambulisho = "taifa";
@@ -697,17 +697,17 @@ W0 dunia_taifa_mfumo_anzisha_kutoka_data(TaifaMfumo* m, DuniaMataifaData* nd,
                 t->iso_a2 = data->iso_a2;
                 t->mji_mkuu_lon = data->mji_mkuu_lon;
                 t->mji_mkuu_lat = data->mji_mkuu_lat;
-                N32 idadi_ya_watu_n32 = data->idadi_ya_watu_ukadiriaji;
+                n32 idadi_ya_watu_n32 = data->idadi_ya_watu_ukadiriaji;
                 t->idadi_ya_watu = idadi_ya_watu_n32;
 
-                N32 gdp_m = data->gdp_ukadiriaji_milioni;
+                n32 gdp_m = data->gdp_ukadiriaji_milioni;
                 kama (gdp_m > 0 && idadi_ya_watu_n32 > 0) {
-                    D64 gdp_d = gdp_m;
-                    D64 pop_d = idadi_ya_watu_n32;
+                    d64 gdp_d = gdp_m;
+                    d64 pop_d = idadi_ya_watu_n32;
                     t->pato_kwa_kila_mtu = gdp_d * 1000000.0 / pop_d;
                 } sivyo {
-                    N32 zawadi = civ_nasibu_chini_ya(9500);
-                    D64 zawadi_d = zawadi;
+                    n32 zawadi = civ_nasibu_chini_ya(9500);
+                    d64 zawadi_d = zawadi;
                     t->pato_kwa_kila_mtu = 500.0 + zawadi_d;
                 }
 
@@ -716,11 +716,11 @@ W0 dunia_taifa_mfumo_anzisha_kutoka_data(TaifaMfumo* m, DuniaMataifaData* nd,
                 t->kielezo_cha_kijeshi = 50 + (idadi_ya_watu_n32 % 300);
                 t->kielezo_cha_utamaduni = 60 + (idadi_ya_watu_n32 % 350);
             } sivyo {
-                N32 nyongeza = civ_nasibu_chini_ya(5000000);
-                N64 nyongeza64 = nyongeza;
+                n32 nyongeza = civ_nasibu_chini_ya(5000000);
+                n64 nyongeza64 = nyongeza;
                 t->idadi_ya_watu = 5000000 + nyongeza64;
-                N32 zawadi = civ_nasibu_chini_ya(9500);
-                D64 zawadi_d = zawadi;
+                n32 zawadi = civ_nasibu_chini_ya(9500);
+                d64 zawadi_d = zawadi;
                 t->pato_kwa_kila_mtu = 500.0 + zawadi_d;
                 t->kielezo_cha_teknolojia = 150;
                 t->kielezo_cha_uchumi = 120;
@@ -728,8 +728,8 @@ W0 dunia_taifa_mfumo_anzisha_kutoka_data(TaifaMfumo* m, DuniaMataifaData* nd,
                 t->kielezo_cha_utamaduni = 100;
             }
 
-            N32 gharama_r = civ_nasibu_chini_ya(100);
-            D64 gharama_r_d = gharama_r;
+            n32 gharama_r = civ_nasibu_chini_ya(100);
+            d64 gharama_r_d = gharama_r;
             t->gharama_ya_maisha = 0.7 + (gharama_r_d / 200.0);
 
             dunia_taifa_anzisha_serikali_chaguo_msingi(t);
@@ -747,34 +747,34 @@ W0 dunia_taifa_mfumo_anzisha_kutoka_data(TaifaMfumo* m, DuniaMataifaData* nd,
 
 // ---------- Kudai eneo ----------
 
-W0 dunia_taifa_dai_eneo(TaifaNchi* t, DuniaRamani* ramani) {
+w0 dunia_taifa_dai_eneo(TaifaNchi* t, DuniaRamani* ramani) {
     kama (t == 0 || ramani == 0) { rudisha; }
-    N32 urefu_p1 = ramani->urefu - 1;
-    N32 upana_p1 = ramani->upana - 1;
+    n32 urefu_p1 = ramani->urefu - 1;
+    n32 upana_p1 = ramani->upana - 1;
     kama (urefu_p1 < 1) { urefu_p1 = 1; }
     kama (upana_p1 < 1) { upana_p1 = 1; }
-    D64 urefu_p1_d = urefu_p1;
-    D64 upana_p1_d = upana_p1;
+    d64 urefu_p1_d = urefu_p1;
+    d64 upana_p1_d = upana_p1;
 
-    N32 y = 0;
+    n32 y = 0;
     wakati (y < ramani->urefu) {
-        D64 y_d = y;
-        D64 lat = 90.0 - (y_d / urefu_p1_d) * 180.0;
+        d64 y_d = y;
+        d64 lat = 90.0 - (y_d / urefu_p1_d) * 180.0;
 
-        N32 x = 0;
+        n32 x = 0;
         wakati (x < ramani->upana) {
-            D64 x_d = x;
-            D64 lon = (x_d / upana_p1_d) * 360.0 - 180.0;
+            d64 x_d = x;
+            d64 lon = (x_d / upana_p1_d) * 360.0 - 180.0;
 
-            N32 r = 0;
+            n32 r = 0;
             wakati (r < t->idadi_ya_maeneo) {
                 TaifaEneo* eneo = dunia_taifa_pata_eneo(t, r);
                 kama (dunia_taifa_ndani_ya_eneo(lon, lat, eneo) != 0) {
                     DuniaRamaniKipande* kipande = dunia_ramani_pata_kipande(ramani, x, y);
                     kama (kipande != 0 && kipande->matumizi_ya_ardhi != MAZINGIRA_MATUMIZI_MAJI) {
-                        N32 tupu = 1;
+                        n32 tupu = 1;
                         kama (kipande->mmiliki_id != 0) {
-                            N32 urefu_wa_id = urefu_wa_mfuatano(kipande->mmiliki_id);
+                            n32 urefu_wa_id = urefu_wa_mfuatano(kipande->mmiliki_id);
                             kama (urefu_wa_id > 0) { tupu = 0; }
                         }
                         kama (tupu != 0) {
@@ -793,9 +793,9 @@ W0 dunia_taifa_dai_eneo(TaifaNchi* t, DuniaRamani* ramani) {
     }
 }
 
-W0 dunia_taifa_mfumo_dai_maeneo_yote(TaifaMfumo* m, DuniaRamani* ramani) {
+w0 dunia_taifa_mfumo_dai_maeneo_yote(TaifaMfumo* m, DuniaRamani* ramani) {
     kama (m == 0 || ramani == 0) { rudisha; }
-    N32 i = 0;
+    n32 i = 0;
     wakati (i < m->idadi) {
         TaifaNchi* t = m->mataifa[i];
         dunia_taifa_dai_eneo(t, ramani);
@@ -803,14 +803,14 @@ W0 dunia_taifa_mfumo_dai_maeneo_yote(TaifaMfumo* m, DuniaRamani* ramani) {
     }
 }
 
-W0 dunia_taifa_dai_kutoka_mipaka(TaifaNchi* t, DuniaRamani* ramani,
-                                   DuniaMipakaKisiasa* mipaka, N32 faharisi_ya_taifa) {
+w0 dunia_taifa_dai_kutoka_mipaka(TaifaNchi* t, DuniaRamani* ramani,
+                                   DuniaMipakaKisiasa* mipaka, n32 faharisi_ya_taifa) {
     kama (t == 0 || ramani == 0 || mipaka == 0) { rudisha; }
-    N32 y = 0;
+    n32 y = 0;
     wakati (y < ramani->urefu) {
-        N32 x = 0;
+        n32 x = 0;
         wakati (x < ramani->upana) {
-            N32 cid = dunia_mipaka_kisiasa_taifa_la_kipande(mipaka, x, y);
+            n32 cid = dunia_mipaka_kisiasa_taifa_la_kipande(mipaka, x, y);
             kama (cid == faharisi_ya_taifa) {
                 DuniaRamaniKipande* kipande = dunia_ramani_pata_kipande(ramani, x, y);
                 kama (kipande != 0 && kipande->matumizi_ya_ardhi != MAZINGIRA_MATUMIZI_MAJI) {
@@ -826,7 +826,7 @@ W0 dunia_taifa_dai_kutoka_mipaka(TaifaNchi* t, DuniaRamani* ramani,
 
 // ---------- Rasilimali na uchumi ----------
 
-W0 dunia_taifa_hesabu_rasilimali(TaifaNchi* t, DuniaRamani* ramani,
+w0 dunia_taifa_hesabu_rasilimali(TaifaNchi* t, DuniaRamani* ramani,
                                     DuniaRasilimaliRamani* rm, TaifaRasilimaliWasifu* nje) {
     kama (t == 0 || ramani == 0 || nje == 0) { rudisha; }
     nje->jumla = 0;
@@ -837,9 +837,9 @@ W0 dunia_taifa_hesabu_rasilimali(TaifaNchi* t, DuniaRamani* ramani,
 
     kama (rm == 0) { rudisha; }
 
-    N32 y = 0;
+    n32 y = 0;
     wakati (y < ramani->urefu) {
-        N32 x = 0;
+        n32 x = 0;
         wakati (x < ramani->upana) {
             DuniaRamaniKipande* kipande = dunia_ramani_pata_kipande(ramani, x, y);
             kama (kipande == 0 || kipande->matumizi_ya_ardhi == MAZINGIRA_MATUMIZI_MAJI) {
@@ -881,9 +881,9 @@ W0 dunia_taifa_hesabu_rasilimali(TaifaNchi* t, DuniaRamani* ramani,
     kama (nje->makaa > 0) { nje->idadi_ya_aina = nje->idadi_ya_aina + 1; }
 }
 
-TaifaNchi* dunia_taifa_tafuta_kwa_kitambulisho(TaifaMfumo* m, N8* id) {
+TaifaNchi* dunia_taifa_tafuta_kwa_kitambulisho(TaifaMfumo* m, n8* id) {
     kama (m == 0 || id == 0) { rudisha 0; }
-    N32 i = 0;
+    n32 i = 0;
     wakati (i < m->idadi) {
         TaifaNchi* t = m->mataifa[i];
         kama (linganisha_mfuatano(t->kitambulisho, id) == 0) { rudisha t; }
@@ -892,13 +892,13 @@ TaifaNchi* dunia_taifa_tafuta_kwa_kitambulisho(TaifaMfumo* m, N8* id) {
     rudisha 0;
 }
 
-TaifaNchi* dunia_taifa_tafuta_kwa_faharisi(TaifaMfumo* m, N32 idx) {
+TaifaNchi* dunia_taifa_tafuta_kwa_faharisi(TaifaMfumo* m, n32 idx) {
     rudisha dunia_taifa_mfumo_pata_kwa_faharisi(m, idx);
 }
 
-N32 dunia_taifa_ina_nukta(TaifaNchi* t, D64 lon, D64 lat) {
+n32 dunia_taifa_ina_nukta(TaifaNchi* t, d64 lon, d64 lat) {
     kama (t == 0) { rudisha 0; }
-    N32 r = 0;
+    n32 r = 0;
     wakati (r < t->idadi_ya_maeneo) {
         TaifaEneo* eneo = dunia_taifa_pata_eneo(t, r);
         kama (dunia_taifa_ndani_ya_eneo(lon, lat, eneo) != 0) { rudisha 1; }
@@ -907,26 +907,26 @@ N32 dunia_taifa_ina_nukta(TaifaNchi* t, D64 lon, D64 lat) {
     rudisha 0;
 }
 
-N32 dunia_taifa_ina_kipande(TaifaNchi* t, N32 tx, N32 ty, DuniaRamani* ramani) {
+n32 dunia_taifa_ina_kipande(TaifaNchi* t, n32 tx, n32 ty, DuniaRamani* ramani) {
     kama (t == 0 || ramani == 0) { rudisha 0; }
-    N32 upana_p1 = ramani->upana - 1;
-    N32 urefu_p1 = ramani->urefu - 1;
+    n32 upana_p1 = ramani->upana - 1;
+    n32 urefu_p1 = ramani->urefu - 1;
     kama (upana_p1 < 1) { upana_p1 = 1; }
     kama (urefu_p1 < 1) { urefu_p1 = 1; }
-    D64 tx_d = tx; D64 ty_d = ty;
-    D64 upana_p1_d = upana_p1; D64 urefu_p1_d = urefu_p1;
-    D64 lon = (tx_d / upana_p1_d) * 360.0 - 180.0;
-    D64 lat = 90.0 - (ty_d / urefu_p1_d) * 180.0;
+    d64 tx_d = tx; d64 ty_d = ty;
+    d64 upana_p1_d = upana_p1; d64 urefu_p1_d = urefu_p1;
+    d64 lon = (tx_d / upana_p1_d) * 360.0 - 180.0;
+    d64 lat = 90.0 - (ty_d / urefu_p1_d) * 180.0;
     rudisha dunia_taifa_ina_nukta(t, lon, lat);
 }
 
-TaifaNchi* dunia_taifa_tafuta_mmiliki(TaifaMfumo* m, DuniaRamani* ramani, N32 tx, N32 ty) {
+TaifaNchi* dunia_taifa_tafuta_mmiliki(TaifaMfumo* m, DuniaRamani* ramani, n32 tx, n32 ty) {
     kama (m == 0 || ramani == 0) { rudisha 0; }
     DuniaRamaniKipande* kipande = dunia_ramani_pata_kipande(ramani, tx, ty);
     kama (kipande == 0 || kipande->mmiliki_id == 0) { rudisha 0; }
-    N32 urefu_wa_id = urefu_wa_mfuatano(kipande->mmiliki_id);
+    n32 urefu_wa_id = urefu_wa_mfuatano(kipande->mmiliki_id);
     kama (urefu_wa_id == 0) { rudisha 0; }
-    N32 i = 0;
+    n32 i = 0;
     wakati (i < m->idadi) {
         TaifaNchi* t = m->mataifa[i];
         kama (linganisha_mfuatano(t->kitambulisho, kipande->mmiliki_id) == 0) { rudisha t; }
@@ -935,7 +935,7 @@ TaifaNchi* dunia_taifa_tafuta_mmiliki(TaifaMfumo* m, DuniaRamani* ramani, N32 tx
     rudisha 0;
 }
 
-W0 dunia_taifa_hesabu_uchumi(TaifaNchi* t, DuniaRamani* ramani, DuniaRasilimaliRamani* rm) {
+w0 dunia_taifa_hesabu_uchumi(TaifaNchi* t, DuniaRamani* ramani, DuniaRasilimaliRamani* rm) {
     kama (t == 0 || ramani == 0) { rudisha; }
 
     t->uchumi.pato_ghafi = 0.0;
@@ -957,14 +957,14 @@ W0 dunia_taifa_hesabu_uchumi(TaifaNchi* t, DuniaRamani* ramani, DuniaRasilimaliR
     TaifaRasilimaliWasifu* rp = tenga(ukubwa(TaifaRasilimaliWasifu));
     dunia_taifa_hesabu_rasilimali(t, ramani, rm, rp);
 
-    N32 vipande_vya_ardhi = 0;
-    N32 vipande_vya_maji = 0;
-    D64 jumla_ya_mwinuko = 0.0;
-    D64 jumla_ya_rutuba = 0.0;
+    n32 vipande_vya_ardhi = 0;
+    n32 vipande_vya_maji = 0;
+    d64 jumla_ya_mwinuko = 0.0;
+    d64 jumla_ya_rutuba = 0.0;
 
-    N32 y = 0;
+    n32 y = 0;
     wakati (y < ramani->urefu) {
-        N32 x = 0;
+        n32 x = 0;
         wakati (x < ramani->upana) {
             DuniaRamaniKipande* kp = dunia_ramani_pata_kipande(ramani, x, y);
             kama (kp == 0) { x = x + 1; endelea; }
@@ -988,30 +988,30 @@ W0 dunia_taifa_hesabu_uchumi(TaifaNchi* t, DuniaRamani* ramani, DuniaRasilimaliR
 
     kama (vipande_vya_ardhi == 0) { rudisha; }
 
-    D64 vipande_ardhi_d = vipande_vya_ardhi;
-    D64 wastani_wa_mwinuko = jumla_ya_mwinuko / vipande_ardhi_d;
-    D64 wastani_wa_rutuba = jumla_ya_rutuba / vipande_ardhi_d;
+    d64 vipande_ardhi_d = vipande_vya_ardhi;
+    d64 wastani_wa_mwinuko = jumla_ya_mwinuko / vipande_ardhi_d;
+    d64 wastani_wa_rutuba = jumla_ya_rutuba / vipande_ardhi_d;
 
-    D64 idadi_d = t->idadi_ya_watu;
+    d64 idadi_d = t->idadi_ya_watu;
     kama (idadi_d < 1.0) { idadi_d = 1000000.0; }
 
-    N32 tech = t->kielezo_cha_teknolojia;
-    N32 econ = t->kielezo_cha_uchumi;
-    D64 tech_d = tech; D64 econ_d = econ;
-    D64 kipengele_cha_tekno = 1.0 + tech_d * 0.002;
-    D64 kipengele_cha_uchumi = 1.0 + econ_d * 0.002;
+    n32 tech = t->kielezo_cha_teknolojia;
+    n32 econ = t->kielezo_cha_uchumi;
+    d64 tech_d = tech; d64 econ_d = econ;
+    d64 kipengele_cha_tekno = 1.0 + tech_d * 0.002;
+    d64 kipengele_cha_uchumi = 1.0 + econ_d * 0.002;
 
-    D64 pato_msingi = vipande_ardhi_d * 0.5 * kipengele_cha_tekno * kipengele_cha_uchumi;
-    D64 jumla_rasilimali_d = rp->jumla;
-    D64 zawadi_ya_rasilimali = jumla_rasilimali_d * 0.01;
-    D64 pato = pato_msingi + zawadi_ya_rasilimali;
+    d64 pato_msingi = vipande_ardhi_d * 0.5 * kipengele_cha_tekno * kipengele_cha_uchumi;
+    d64 jumla_rasilimali_d = rp->jumla;
+    d64 zawadi_ya_rasilimali = jumla_rasilimali_d * 0.01;
+    d64 pato = pato_msingi + zawadi_ya_rasilimali;
     kama (pato < 1.0) { pato = 1.0; }
 
     t->uchumi.pato_ghafi = pato;
     t->uchumi.pato_kwa_kila_mtu = pato * 1000000.0 / idadi_d;
     t->uchumi.ukuaji_wa_pato = 0.01 + econ_d * 0.0001;
     t->uchumi.mfumuko = 0.02;
-    D64 kigawe = kipengele_cha_uchumi + 0.5;
+    d64 kigawe = kipengele_cha_uchumi + 0.5;
     t->uchumi.ukosefu_wa_kazi = 0.04 + (1.0 / kigawe) * 0.04;
     t->uchumi.nguvukazi = idadi_d * 0.45;
     t->uchumi.mshahara_wa_wastani = 20000.0 + pato * 0.5;
@@ -1019,7 +1019,7 @@ W0 dunia_taifa_hesabu_uchumi(TaifaNchi* t, DuniaRamani* ramani, DuniaRasilimaliR
     t->uchumi.uzalishaji_wa_chakula = vipande_ardhi_d * wastani_wa_rutuba * 500.0 * kipengele_cha_tekno;
     t->uchumi.matumizi_ya_chakula = idadi_d * 2500.0 * 365.0 / 1000000.0;
 
-    D64 rasilimali_nishati_d = rp->mafuta + rp->gesi_asilia + rp->makaa;
+    d64 rasilimali_nishati_d = rp->mafuta + rp->gesi_asilia + rp->makaa;
     achilia rp;
     t->uchumi.uzalishaji_wa_nishati = vipande_ardhi_d * 0.1 * kipengele_cha_tekno + rasilimali_nishati_d * 0.5;
     kama (t->uchumi.uzalishaji_wa_nishati < 1.0) { t->uchumi.uzalishaji_wa_nishati = 1.0; }
@@ -1032,7 +1032,7 @@ W0 dunia_taifa_hesabu_uchumi(TaifaNchi* t, DuniaRamani* ramani, DuniaRasilimaliR
     t->uchumi.mapato_ya_kodi = pato * 0.2;
 }
 
-W0 dunia_taifa_hesabu_uchumi_wote(TaifaMfumo* m, DuniaRamani* ramani,
+w0 dunia_taifa_hesabu_uchumi_wote(TaifaMfumo* m, DuniaRamani* ramani,
                                      DuniaRasilimaliRamani* rm, TaifaUchumi* jumla_nje) {
     kama (m == 0 || ramani == 0) { rudisha; }
     kama (jumla_nje != 0) {
@@ -1046,10 +1046,10 @@ W0 dunia_taifa_hesabu_uchumi_wote(TaifaMfumo* m, DuniaRamani* ramani,
         jumla_nje->vipande_vya_maji = 0;
     }
 
-    D64 jumla_ya_pato = 0.0;
-    N32 mataifa_yenye_ardhi = 0;
+    d64 jumla_ya_pato = 0.0;
+    n32 mataifa_yenye_ardhi = 0;
 
-    N32 i = 0;
+    n32 i = 0;
     wakati (i < m->idadi) {
         TaifaNchi* t = m->mataifa[i];
         dunia_taifa_hesabu_uchumi(t, ramani, rm);
@@ -1061,7 +1061,7 @@ W0 dunia_taifa_hesabu_uchumi_wote(TaifaMfumo* m, DuniaRamani* ramani,
     }
 
     kama (jumla_nje != 0 && mataifa_yenye_ardhi > 0) {
-        D64 idadi_d = mataifa_yenye_ardhi;
+        d64 idadi_d = mataifa_yenye_ardhi;
         jumla_nje->pato_ghafi = jumla_ya_pato;
         jumla_nje->pato_kwa_kila_mtu = jumla_ya_pato / idadi_d;
         jumla_nje->mfumuko = 0.02;

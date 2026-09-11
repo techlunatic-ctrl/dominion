@@ -6,7 +6,7 @@
 // pow()/log() za libc zimebadilishwa na civ_kuinua/civ_logasili
 // (msingi_civ.swa, ziliongezwa kikao hiki kama suluhisho la
 // lugha-swa/swa#183). civ_knowledge_advance ya asili inapokea
-// double* na kuibadilisha KWA MAREJEO -- D64* haiwezi kufunguliwa
+// double* na kuibadilisha KWA MAREJEO -- d64* haiwezi kufunguliwa
 // kabisa (lugha-swa/swa#181), kwa hiyo maarifa_endeleza inapokea
 // THAMANI ya sasa na kurudisha THAMANI MPYA badala ya kubadilisha
 // kupitia kielekezi; mwitaji anaandika matokeo kwenye field moja
@@ -18,46 +18,46 @@
 husisha { msingi/msingi_civ.swa }
 
 muundo MaarifaHali {
-    D64 sayansi;
-    D64 uhandisi;
-    D64 utamaduni;
-    D64 tiba;
-    D64 hisabati;
-    D64 kilimo;
-    D64 madini;
-    D64 usafiri_wa_baharini;
+    d64 sayansi;
+    d64 uhandisi;
+    d64 utamaduni;
+    d64 tiba;
+    d64 hisabati;
+    d64 kilimo;
+    d64 madini;
+    d64 usafiri_wa_baharini;
 };
 
 muundo MaarifaUtafiti {
     MaarifaHali sasa;
-    D64 hazina_ya_pointi_za_utafiti;
-    D64 kiwango_cha_utafiti;
+    d64 hazina_ya_pointi_za_utafiti;
+    d64 kiwango_cha_utafiti;
 };
 
-D64 maarifa_gharama(D64 kiwango_cha_sasa, D64 gharama_ya_msingi, D64 kipeo) {
-    D64 kiwango = kiwango_cha_sasa;
+d64 maarifa_gharama(d64 kiwango_cha_sasa, d64 gharama_ya_msingi, d64 kipeo) {
+    d64 kiwango = kiwango_cha_sasa;
     kama (kiwango < 0.0) { kiwango = 0.0; }
     rudisha gharama_ya_msingi * civ_kuinua(1.0 + kiwango, kipeo);
 }
 
-D64 maarifa_endeleza(D64 kiwango_cha_awali, D64 pointi_za_utafiti,
-                       D64 gharama_ya_msingi, D64 kipeo) {
+d64 maarifa_endeleza(d64 kiwango_cha_awali, d64 pointi_za_utafiti,
+                       d64 gharama_ya_msingi, d64 kipeo) {
     kama (pointi_za_utafiti <= 0.0) { rudisha kiwango_cha_awali; }
 
-    D64 maarifa = kiwango_cha_awali;
-    D64 iliyobaki = pointi_za_utafiti;
-    D64 jumla_iliyoendelea = 0.0;
-    N32 hatua = 0;
+    d64 maarifa = kiwango_cha_awali;
+    d64 iliyobaki = pointi_za_utafiti;
+    d64 jumla_iliyoendelea = 0.0;
+    n32 hatua = 0;
 
     wakati (iliyobaki > 0.0 && hatua < 10000) {
-        D64 gharama = maarifa_gharama(maarifa, gharama_ya_msingi, kipeo);
+        d64 gharama = maarifa_gharama(maarifa, gharama_ya_msingi, kipeo);
 
         kama (iliyobaki >= gharama) {
             maarifa = maarifa + 1.0;
             iliyobaki = iliyobaki - gharama;
             jumla_iliyoendelea = jumla_iliyoendelea + 1.0;
         } sivyo {
-            D64 sehemu = iliyobaki / gharama;
+            d64 sehemu = iliyobaki / gharama;
             maarifa = maarifa + sehemu;
             jumla_iliyoendelea = jumla_iliyoendelea + sehemu;
             iliyobaki = 0.0;
@@ -72,32 +72,32 @@ D64 maarifa_endeleza(D64 kiwango_cha_awali, D64 pointi_za_utafiti,
     rudisha maarifa;
 }
 
-D64 maarifa_kizidishi(D64 maarifa_thamani, D64 mizani) {
-    D64 m = maarifa_thamani;
+d64 maarifa_kizidishi(d64 maarifa_thamani, d64 mizani) {
+    d64 m = maarifa_thamani;
     kama (m < 0.0) { m = 0.0; }
-    D64 s = mizani;
+    d64 s = mizani;
     kama (s <= 0.0) { s = 1.0; }
     rudisha 1.0 + civ_logasili(1.0 + m / s);
 }
 
-D64 maarifa_faida_ya_hisabati(D64 kiwango_cha_hisabati) {
+d64 maarifa_faida_ya_hisabati(d64 kiwango_cha_hisabati) {
     kama (kiwango_cha_hisabati <= 0.0) { rudisha 1.0; }
-    D64 upunguzaji = civ_logasili(1.0 + kiwango_cha_hisabati / 200.0) * 0.15;
+    d64 upunguzaji = civ_logasili(1.0 + kiwango_cha_hisabati / 200.0) * 0.15;
     rudisha 1.0 - finya_d64(upunguzaji, 0.0, 0.4);
 }
 
-D64 maarifa_kiwango_cha_utafiti(MaarifaUtafiti* utafiti, N32 idadi_ya_watu, N32 maktaba) {
+d64 maarifa_kiwango_cha_utafiti(MaarifaUtafiti* utafiti, n32 idadi_ya_watu, n32 maktaba) {
     kama (utafiti == 0) { rudisha 0.0; }
-    D64 idadi_d = idadi_ya_watu;
-    D64 utafiti_wa_watu = idadi_d * 0.01;
-    D64 maktaba_d = maktaba;
-    D64 kizidishi_cha_maktaba = 1.0 + maktaba_d * 0.2;
-    D64 faida_ya_hisabati = maarifa_faida_ya_hisabati(utafiti->sasa.hisabati);
-    D64 faida_ya_utamaduni = maarifa_kizidishi(utafiti->sasa.utamaduni, 200.0);
+    d64 idadi_d = idadi_ya_watu;
+    d64 utafiti_wa_watu = idadi_d * 0.01;
+    d64 maktaba_d = maktaba;
+    d64 kizidishi_cha_maktaba = 1.0 + maktaba_d * 0.2;
+    d64 faida_ya_hisabati = maarifa_faida_ya_hisabati(utafiti->sasa.hisabati);
+    d64 faida_ya_utamaduni = maarifa_kizidishi(utafiti->sasa.utamaduni, 200.0);
     rudisha utafiti_wa_watu * kizidishi_cha_maktaba * faida_ya_hisabati * faida_ya_utamaduni;
 }
 
-CivMatokeo maarifa_sasisha(MaarifaUtafiti* utafiti, N32 idadi_ya_watu, N32 maktaba) {
+CivMatokeo maarifa_sasisha(MaarifaUtafiti* utafiti, n32 idadi_ya_watu, n32 maktaba) {
     CivMatokeo m;
     kama (utafiti == 0) {
         m.hitilafu = CIV_HITILAFU_KIELEKEZI_TUPU;
@@ -109,9 +109,9 @@ CivMatokeo maarifa_sasisha(MaarifaUtafiti* utafiti, N32 idadi_ya_watu, N32 makta
     utafiti->hazina_ya_pointi_za_utafiti = utafiti->hazina_ya_pointi_za_utafiti + utafiti->kiwango_cha_utafiti;
 
     kama (utafiti->hazina_ya_pointi_za_utafiti > 0.0) {
-        D64 upunguzaji_wa_hisabati = maarifa_faida_ya_hisabati(utafiti->sasa.hisabati);
-        D64 gharama_yenye_ufanisi = 100.0 * upunguzaji_wa_hisabati;
-        D64 kwa_kila_uwanja = utafiti->hazina_ya_pointi_za_utafiti / 8.0;
+        d64 upunguzaji_wa_hisabati = maarifa_faida_ya_hisabati(utafiti->sasa.hisabati);
+        d64 gharama_yenye_ufanisi = 100.0 * upunguzaji_wa_hisabati;
+        d64 kwa_kila_uwanja = utafiti->hazina_ya_pointi_za_utafiti / 8.0;
 
         utafiti->sasa.sayansi = maarifa_endeleza(utafiti->sasa.sayansi, kwa_kila_uwanja, gharama_yenye_ufanisi, 1.8);
         utafiti->sasa.uhandisi = maarifa_endeleza(utafiti->sasa.uhandisi, kwa_kila_uwanja, gharama_yenye_ufanisi, 1.8);
@@ -130,7 +130,7 @@ CivMatokeo maarifa_sasisha(MaarifaUtafiti* utafiti, N32 idadi_ya_watu, N32 makta
     rudisha m;
 }
 
-W0 maarifa_anzisha(MaarifaUtafiti* utafiti) {
+w0 maarifa_anzisha(MaarifaUtafiti* utafiti) {
     utafiti->sasa.sayansi = 1.0;
     utafiti->sasa.uhandisi = 1.0;
     utafiti->sasa.utamaduni = 1.0;
@@ -149,6 +149,6 @@ MaarifaUtafiti* maarifa_unda() {
     rudisha utafiti;
 }
 
-W0 maarifa_uharibu(MaarifaUtafiti* utafiti) {
+w0 maarifa_uharibu(MaarifaUtafiti* utafiti) {
     achilia utafiti;
 }
