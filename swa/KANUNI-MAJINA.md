@@ -125,3 +125,15 @@ kumethibitishwa dhidi ya kifaa halisi cha kibodi (`/dev/input/event3`)
 -- kufungua, kusoma bila kuzuia, na EAGAIN vimefanya kazi; tukio
 halisi la kubonyeza kitufe halikujaribiwa moja kwa moja (hakuna
 mtu wa kubonyeza wakati wa jaribio la kiotomatiki).
+
+## Nidhamu ya "callee kabla ya caller" -- SI LAZIMA TENA
+
+`gharama/kagua-mpangilio.py` (kigunduzi cha wito wa mbele hatarishi,
+kilichoandikwa mwanzoni mwa mradi huu kama ulinzi dhidi ya
+lugha-swa/swa#180) kimeondolewa. #180 imerekebishwa upstream (2026-09-11,
+PR #212 -- usajili wa pitio la pili la saini za kazi zote KABLA ya
+kukagua miili yoyote). Msimbo uliopo tayari unaofuata nidhamu ya
+"panga kazi kwa mpangilio wa callee kabla ya caller" HAUHITAJI kupangwa
+upya -- ni sahihi kama ulivyo -- lakini msimbo MPYA hauhitaji tena
+kufuata nidhamu hiyo kwa mkono: mkusanyaji sasa unakataa kwa sauti
+wito wa mbele wenye idadi mbaya ya hoja, wakati wowote wa kukusanya.
