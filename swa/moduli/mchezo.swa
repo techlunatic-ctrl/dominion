@@ -971,3 +971,157 @@ W0 mchezo_uharibu(Mchezo* g) {
     mchezo_zima(g);
     achilia g;
 }
+
+// ---------------------------------------------------------------
+// Uhifadhi/upakiaji wa hali ya mchezo (state_persistence.c) —
+// tafsiri ya kwanza HALISI (si tu injini_uhifadhi iliyopo tayari
+// kama sehemu isiyotumika).
+//
+// WIGO WA KIMAKUSUDI: injini_uhifadhi_hifadhi/pakia (uhifadhi.swa)
+// ni primitives za baiti ghafi tu (andika/soma bafa+ukubwa) -- si
+// serializer halisi. MchezoHifadhiData hapa chini ni muundo BAPA
+// (hakuna vielekezi, hakuna miundo iliyowekwa ndani, hakuna
+// safu/array) unaohifadhiwa/kupakiwa KAMA BAITI GHAFI moja kwa
+// moja -- hii inaepuka mapungufu matatu yaliyothibitishwa kikao
+// hiki: #186 (field ya kielekezi cha muundo ndani ya muundo
+// haihifadhi sahihi), hakuna umbizaji wa D64/float ndani ya
+// mfuatano_umbiza (hivyo maandishi/text serialization ya nambari
+// za desimali haiwezekani sasa), na kuepuka safu zenye ukubwa
+// maalum ndani ya muundo (haziwezi kuchanganuliwa).
+//
+// Tumeamua KUHIFADHI/KUPAKIA SHAMBA HALISI ZENYE "pata"/"weka"
+// zilizothibitishwa TU -- si ripoti zilizotokana (derived reports)
+// ambazo hazina njia ya kurudishwa kwenye hali hai (mfano: UchumiMkuuRipoti
+// ni matokeo ya hesabu, si hali ghafi -- soko->kiwango_cha_kodi na
+// soko->matumizi_ya_serikali ndizo pekee zenye "weka" kwenye
+// uchumi_mkuu.swa). Hii inaruhusu jaribio la round-trip HALISI:
+// unda -> badilisha -> hifadhi -> pakia kwenye kitu kipya -> linganisha
+// shamba kwa shamba -- si tu "haikuanguka".
+//
+// Mifumo mingine (idadi ya watu, ramani, taifa, jeshi, n.k.) BADO
+// HAIJAJUMUISHWA kwenye uhifadhi -- ni pengo linalojulikana wazi,
+// si kosa la bahati mbaya. Kupanua MchezoHifadhiData kwa mifumo
+// zaidi ni kazi ijayo, si sehemu ya toleo hili la kwanza.
+muundo MchezoHifadhiData {
+    N32 hali_ya_mchezo;
+    N32 zamu_ya_sasa;
+    N32 inafanya_kazi;
+    N32 imesimamishwa;
+
+    N32 usanidi_mwaka_wa_kuanza;
+    N32 usanidi_ugumu;
+    N32 usanidi_washa_mantiki_isiyo_wazi;
+    N32 usanidi_washa_ufuatiliaji_wa_utegemezi;
+    N32 usanidi_muda_wa_hifadhi_otomatiki;
+    N32 usanidi_kiwango_cha_juu_cha_kumbukumbu_matukio;
+
+    D64 uchumi_mkuu_kiwango_cha_kodi;
+    D64 uchumi_mkuu_matumizi_ya_serikali;
+};
+
+N8* mchezo_hifadhi_data_kama_baiti(MchezoHifadhiData* d) { rudisha d; }
+MchezoHifadhiData* mchezo_hifadhi_data_kutoka_baiti(N8* b) { rudisha b; }
+
+W0 mchezo_hifadhi_data_jaza(Mchezo* g, MchezoHifadhiData* d) {
+    d->hali_ya_mchezo = g->hali_ya_mchezo;
+    d->zamu_ya_sasa = g->zamu_ya_sasa;
+    d->inafanya_kazi = g->inafanya_kazi;
+    d->imesimamishwa = g->imesimamishwa;
+
+    d->usanidi_mwaka_wa_kuanza = g->usanidi.mwaka_wa_kuanza;
+    d->usanidi_ugumu = g->usanidi.ugumu;
+    d->usanidi_washa_mantiki_isiyo_wazi = g->usanidi.washa_mantiki_isiyo_wazi;
+    d->usanidi_washa_ufuatiliaji_wa_utegemezi = g->usanidi.washa_ufuatiliaji_wa_utegemezi;
+    d->usanidi_muda_wa_hifadhi_otomatiki = g->usanidi.muda_wa_hifadhi_otomatiki;
+    d->usanidi_kiwango_cha_juu_cha_kumbukumbu_matukio = g->usanidi.kiwango_cha_juu_cha_kumbukumbu_matukio;
+
+    UchumiMkuuMfumo* uchumi = mchezo_pata_uchumi_mkuu(g);
+    kama (uchumi != 0) {
+        d->uchumi_mkuu_kiwango_cha_kodi = uchumi->kiwango_cha_kodi;
+        d->uchumi_mkuu_matumizi_ya_serikali = uchumi->matumizi_ya_serikali;
+    }
+}
+
+W0 mchezo_hifadhi_data_tumia(Mchezo* g, MchezoHifadhiData* d) {
+    g->hali_ya_mchezo = d->hali_ya_mchezo;
+    g->zamu_ya_sasa = d->zamu_ya_sasa;
+    g->inafanya_kazi = d->inafanya_kazi;
+    g->imesimamishwa = d->imesimamishwa;
+
+    g->usanidi.mwaka_wa_kuanza = d->usanidi_mwaka_wa_kuanza;
+    g->usanidi.ugumu = d->usanidi_ugumu;
+    g->usanidi.washa_mantiki_isiyo_wazi = d->usanidi_washa_mantiki_isiyo_wazi;
+    g->usanidi.washa_ufuatiliaji_wa_utegemezi = d->usanidi_washa_ufuatiliaji_wa_utegemezi;
+    g->usanidi.muda_wa_hifadhi_otomatiki = d->usanidi_muda_wa_hifadhi_otomatiki;
+    g->usanidi.kiwango_cha_juu_cha_kumbukumbu_matukio = d->usanidi_kiwango_cha_juu_cha_kumbukumbu_matukio;
+
+    UchumiMkuuMfumo* uchumi = mchezo_pata_uchumi_mkuu(g);
+    kama (uchumi != 0) {
+        uchumi_mkuu_weka_kiwango_cha_kodi(uchumi, d->uchumi_mkuu_kiwango_cha_kodi);
+        uchumi_mkuu_weka_matumizi_ya_serikali(uchumi, d->uchumi_mkuu_matumizi_ya_serikali);
+    }
+}
+
+// Huhifadhi hali ya sasa ya g kwenye jina_la_faili (ndani ya saraka
+// ya injini_uhifadhi ya g, mfano "saves/jina_la_faili").
+CivMatokeo mchezo_hifadhi(Mchezo* g, N8* jina_la_faili) {
+    CivMatokeo r;
+    r.hitilafu = CIV_SAWA;
+    r.ujumbe = 0;
+    kama (g == 0 || jina_la_faili == 0) {
+        r.hitilafu = CIV_HITILAFU_KIELEKEZI_TUPU;
+        r.ujumbe = "Mchezo au jina la faili ni tupu";
+        rudisha r;
+    }
+    InjiniUhifadhi* sp = mchezo_pata_uhifadhi(g);
+    kama (sp == 0) {
+        r.hitilafu = CIV_HITILAFU_HALI_MBAYA;
+        r.ujumbe = "Injini ya uhifadhi haijaanzishwa";
+        rudisha r;
+    }
+
+    MchezoHifadhiData* d = tenga(ukubwa(MchezoHifadhiData));
+    mchezo_hifadhi_data_jaza(g, d);
+    N8* baiti = mchezo_hifadhi_data_kama_baiti(d);
+    r = injini_uhifadhi_hifadhi(sp, jina_la_faili, baiti, ukubwa(MchezoHifadhiData));
+    achilia d;
+    rudisha r;
+}
+
+// Hupakia hali kutoka jina_la_faili na kuiweka moja kwa moja kwenye
+// g (shamba na shamba, kupitia mchezo_hifadhi_data_tumia).
+CivMatokeo mchezo_pakia(Mchezo* g, N8* jina_la_faili) {
+    CivMatokeo r;
+    r.hitilafu = CIV_SAWA;
+    r.ujumbe = 0;
+    kama (g == 0 || jina_la_faili == 0) {
+        r.hitilafu = CIV_HITILAFU_KIELEKEZI_TUPU;
+        r.ujumbe = "Mchezo au jina la faili ni tupu";
+        rudisha r;
+    }
+    InjiniUhifadhi* sp = mchezo_pata_uhifadhi(g);
+    kama (sp == 0) {
+        r.hitilafu = CIV_HITILAFU_HALI_MBAYA;
+        r.ujumbe = "Injini ya uhifadhi haijaanzishwa";
+        rudisha r;
+    }
+
+    // MUHIMU: faili_soma_yote (msingi/maktaba/faili.swa) inahifadhi
+    // baiti moja ya mwisho ya "uwezo" kwa ajili ya NUL (imeundwa kwa
+    // ajili ya mfuatano wa maandishi) -- hivyo ikitolewa uwezo sawa
+    // na ukubwa halisi wa data, itasoma baiti MOJA PUNGUFU kimya kimya
+    // (imethibitishwa kwa jaribio: shamba la mwisho la D64 lilipotea
+    // baiti yake ya mwisho). Tunatoa nafasi ya ziada ya baiti 1 ili
+    // data yote ya MchezoHifadhiData isomwe kikamilifu.
+    N64 uwezo_wa_kupakia = ukubwa(MchezoHifadhiData) + 1;
+    N8* baiti = tenga(uwezo_wa_kupakia);
+    r = injini_uhifadhi_pakia(sp, jina_la_faili, baiti, uwezo_wa_kupakia);
+    kama (r.hitilafu != CIV_SAWA) {
+        achilia baiti;
+        rudisha r;
+    }
+    MchezoHifadhiData* d = mchezo_hifadhi_data_kutoka_baiti(baiti);
+    mchezo_hifadhi_data_tumia(g, d);
+    achilia baiti;
+    rudisha r;
+}
