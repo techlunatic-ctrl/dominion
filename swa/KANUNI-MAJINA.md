@@ -92,3 +92,36 @@ ya mgongano na moduli mahususi.
    kuwa kazi hiyo inapaswa kuhamishwa kwenye msingi wa pamoja
    (`swa/msingi/`), si kuachwa kwenye moduli zote mbili kwa majina
    tofauti kidogo.
+
+## Onyesho/kifaa (rendering/windowing) -- eneo JIPYA, si tafsiri ya `src/core/`
+
+Safu ya uchoraji/onyesho na ingizo (kibodi/kipanya) SI tafsiri ya
+faili yoyote ya C iliyopo (SDL3 ilitumika hapo, imeondolewa kabisa --
+angalia sheria ya mradi: hakuna utegemezi wa lugha/maktaba nyingine
+yoyote). Ni safu mpya kabisa inayozungumza moja kwa moja na kernel ya
+Linux kupitia DRM/KMS (`/dev/dri/cardN`) na evdev (`/dev/input/eventN`)
+kwa ioctl/syscalls ghafi -- HAKUNA X11, HAKUNA Wayland, HAKUNA
+compositor ya mtu wa kati.
+
+| Saraka | Kiambishi | Wajibu |
+|---|---|---|
+| `swa/moduli/onyesho/` | `onyesho_` | DRM/KMS: kufungua kifaa, kupata rasilimali/connector/modi, kuunda na kuramanisha dumb buffer, ADDFB/SETCRTC |
+| `swa/moduli/onyesho/` (mchoro.swa) | `mchoro_` | Vitendo vya uchoraji 2D juu ya framebuffer YOYOTE (fill-rect, mstari, blit) -- havitegemei DRM moja kwa moja, vinafanya kazi juu ya bafa yoyote ya XRGB8888 |
+| `swa/moduli/onyesho/` (baiti_ghafi.swa) | `weka_`/`pata_`/`anwani` | Kusoma/kuandika u16/u32/u64 (little-endian) kwenye bafa ya N8* kwa offset halisi -- msingi wa kuwakilisha miundo ya ioctl ya kernel bila kutegemea mpangilio wa `muundo` ya Swa (angalia maoni ya faili kwa sababu kamili) |
+| `swa/moduli/kifaa/` | `kifaa_` | Kusoma matukio ghafi ya kibodi/kipanya kutoka `/dev/input/eventN` (`struct input_event`) |
+
+Hali ya sasa (2026-09-11): mfululizo mzima wa DRM/KMS umejaribiwa
+dhidi ya kifaa HALISI (`/dev/dri/card1`, amdgpu) -- kufungua,
+GETRESOURCES, GETCONNECTOR (connector ya ndani ya eDP imegunduliwa,
+kimeungwa=1, modi bora 2560x1440), GETENCODER->CRTC, na CREATE_DUMB
+(pitch/ukubwa sahihi kabisa) VYOTE vinafanya kazi na thamani HALISI
+zilizothibitishwa. Hatua ya mmap ya dumb buffer (na kwa hiyo SETCRTC)
+inakataliwa na EACCES kwa sababu compositor ya Wayland inayoendesha
+kikao hiki tayari ni "DRM master" wa onyesho -- hii ni TABIA SAHIHI
+ya kernel (kifaa kimoja, bwana mmoja kwa wakati mmoja), SI kasoro ya
+msimbo. Vitendo vya uchoraji (`mchoro.swa`) vimethibitishwa kikamilifu
+dhidi ya bafa ya synthetic. Kusoma ingizo (`kifaa/ingizo.swa`)
+kumethibitishwa dhidi ya kifaa halisi cha kibodi (`/dev/input/event3`)
+-- kufungua, kusoma bila kuzuia, na EAGAIN vimefanya kazi; tukio
+halisi la kubonyeza kitufe halikujaribiwa moja kwa moja (hakuna
+mtu wa kubonyeza wakati wa jaribio la kiotomatiki).
