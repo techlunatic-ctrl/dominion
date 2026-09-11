@@ -9,21 +9,21 @@
 
 husisha { msingi/msingi_civ.swa }
 
-N32 MIUNDOMBINU_BARABARA = 0;
-N32 MIUNDOMBINU_RELI = 1;
-N32 MIUNDOMBINU_BANDARI = 2;
-N32 MIUNDOMBINU_UWANJA_WA_NDEGE = 3;
-N32 MIUNDOMBINU_GRIDI_YA_UMEME = 4;
-N32 MIUNDOMBINU_MAWASILIANO = 5;
-N32 MIUNDOMBINU_MAJI = 6;
-N32 MIUNDOMBINU_IDADI = 7;
+n32 MIUNDOMBINU_BARABARA = 0;
+n32 MIUNDOMBINU_RELI = 1;
+n32 MIUNDOMBINU_BANDARI = 2;
+n32 MIUNDOMBINU_UWANJA_WA_NDEGE = 3;
+n32 MIUNDOMBINU_GRIDI_YA_UMEME = 4;
+n32 MIUNDOMBINU_MAWASILIANO = 5;
+n32 MIUNDOMBINU_MAJI = 6;
+n32 MIUNDOMBINU_IDADI = 7;
 
 muundo MiundombinuMtandao {
-    N32 aina;
-    D64 ufikiaji;               // coverage
-    D64 hali_ya_mtandao;                    // condition
-    D64 gharama_ya_matengenezo;
-    D64 maendeleo_ya_ujenzi;
+    n32 aina;
+    d64 ufikiaji;               // coverage
+    d64 hali_ya_mtandao;                    // condition
+    d64 gharama_ya_matengenezo;
+    d64 maendeleo_ya_ujenzi;
 };
 
 muundo MiundombinuMfumo {
@@ -32,13 +32,13 @@ muundo MiundombinuMfumo {
     MiundombinuMtandao mtandao_4; MiundombinuMtandao mtandao_5;
     MiundombinuMtandao mtandao_6;
 
-    D64 ubora_wa_jumla;
-    D64 kizidishi_cha_gharama_ya_usafiri;
-    D64 ufanisi_wa_mnyororo_wa_ugavi;
-    D64 mzigo_jumla_wa_matengenezo;
+    d64 ubora_wa_jumla;
+    d64 kizidishi_cha_gharama_ya_usafiri;
+    d64 ufanisi_wa_mnyororo_wa_ugavi;
+    d64 mzigo_jumla_wa_matengenezo;
 };
 
-MiundombinuMtandao* miundombinu_pata_mtandao(MiundombinuMfumo* inf, N32 aina) {
+MiundombinuMtandao* miundombinu_pata_mtandao(MiundombinuMfumo* inf, n32 aina) {
     kama (aina == 0) { rudisha &inf->mtandao_0; }
     kama (aina == 1) { rudisha &inf->mtandao_1; }
     kama (aina == 2) { rudisha &inf->mtandao_2; }
@@ -50,7 +50,7 @@ MiundombinuMtandao* miundombinu_pata_mtandao(MiundombinuMfumo* inf, N32 aina) {
 
 MiundombinuMfumo* miundombinu_unda() {
     MiundombinuMfumo* inf = tenga(ukubwa(MiundombinuMfumo));
-    N32 i = 0;
+    n32 i = 0;
     wakati (i < MIUNDOMBINU_IDADI) {
         MiundombinuMtandao* n = miundombinu_pata_mtandao(inf, i);
         n->aina = i;
@@ -70,19 +70,19 @@ MiundombinuMfumo* miundombinu_unda() {
     rudisha inf;
 }
 
-W0 miundombinu_uharibu(MiundombinuMfumo* inf) {
+w0 miundombinu_uharibu(MiundombinuMfumo* inf) {
     achilia inf;
 }
 
-W0 miundombinu_sasisha(MiundombinuMfumo* inf, D64 muda, D64 mgao_wa_bajeti,
-                         D64 idadi_ya_watu, D64 ukubwa_wa_jiografia) {
-    D64 kwa_kila_mtandao = mgao_wa_bajeti / MIUNDOMBINU_IDADI;
+w0 miundombinu_sasisha(MiundombinuMfumo* inf, d64 muda, d64 mgao_wa_bajeti,
+                         d64 idadi_ya_watu, d64 ukubwa_wa_jiografia) {
+    d64 kwa_kila_mtandao = mgao_wa_bajeti / MIUNDOMBINU_IDADI;
 
-    N32 i = 0;
+    n32 i = 0;
     wakati (i < MIUNDOMBINU_IDADI) {
         MiundombinuMtandao* n = miundombinu_pata_mtandao(inf, i);
 
-        D64 uchakavu = idadi_ya_watu * 0.00001;
+        d64 uchakavu = idadi_ya_watu * 0.00001;
         n->hali_ya_mtandao = n->hali_ya_mtandao - uchakavu * 0.1;
         kama (n->hali_ya_mtandao < 0.0) { n->hali_ya_mtandao = 0.0; }
 
@@ -125,7 +125,7 @@ W0 miundombinu_sasisha(MiundombinuMfumo* inf, D64 muda, D64 mgao_wa_bajeti,
     }
 }
 
-W0 miundombinu_wekeza(MiundombinuMfumo* inf, N32 aina, D64 kiasi) {
+w0 miundombinu_wekeza(MiundombinuMfumo* inf, n32 aina, d64 kiasi) {
     kama (aina >= MIUNDOMBINU_IDADI || kiasi <= 0.0) { rudisha; }
     MiundombinuMtandao* n = miundombinu_pata_mtandao(inf, aina);
     n->maendeleo_ya_ujenzi = n->maendeleo_ya_ujenzi + kiasi * 0.001;
@@ -133,10 +133,10 @@ W0 miundombinu_wekeza(MiundombinuMfumo* inf, N32 aina, D64 kiasi) {
     kama (n->hali_ya_mtandao > 1.0) { n->hali_ya_mtandao = 1.0; }
 }
 
-D64 miundombinu_ufanisi_wa_biashara(MiundombinuMfumo* inf) {
+d64 miundombinu_ufanisi_wa_biashara(MiundombinuMfumo* inf) {
     rudisha inf->ufanisi_wa_mnyororo_wa_ugavi;
 }
 
-D64 miundombinu_gharama_ya_usafirishaji(MiundombinuMfumo* inf, D64 umbali) {
+d64 miundombinu_gharama_ya_usafirishaji(MiundombinuMfumo* inf, d64 umbali) {
     rudisha umbali * 0.01 * inf->kizidishi_cha_gharama_ya_usafiri;
 }

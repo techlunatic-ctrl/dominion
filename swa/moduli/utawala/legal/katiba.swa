@@ -12,53 +12,53 @@
 //
 // time_t (saa ya mfumo) haipo kwenye Swa (hakuna wakati.swa,
 // libc-tegemezi, angalia SOMA.md) — nafasi za tarehe (enacted_date,
-// last_amendment) zimebadilishwa kuwa kaunta ya N32 inayoongezeka kwa
+// last_amendment) zimebadilishwa kuwa kaunta ya n32 inayoongezeka kwa
 // kila mwito wa utawala_katiba_sasisha (mbadala mbaya lakini wa
 // kutosha kwa ulinganisho wa "hivi karibuni zaidi ya X").
 
 husisha { msingi/msingi_civ.swa }
 husisha { msingi/maktaba/mfuatano.swa }
 
-N32 UTAWALA_KANUNI_WIGO_MAHALI = 0;
-N32 UTAWALA_KANUNI_WIGO_MKOA = 1;
-N32 UTAWALA_KANUNI_WIGO_TAIFA = 2;
-N32 UTAWALA_KANUNI_WIGO_KIMATAIFA = 3;
+n32 UTAWALA_KANUNI_WIGO_MAHALI = 0;
+n32 UTAWALA_KANUNI_WIGO_MKOA = 1;
+n32 UTAWALA_KANUNI_WIGO_TAIFA = 2;
+n32 UTAWALA_KANUNI_WIGO_KIMATAIFA = 3;
 
-N32 UTAWALA_KANUNI_AINA_SHERIA = 0;
-N32 UTAWALA_KANUNI_AINA_HAKI = 1;
-N32 UTAWALA_KANUNI_AINA_TARATIBU = 2;
-N32 UTAWALA_KANUNI_AINA_DESTURI = 3;
+n32 UTAWALA_KANUNI_AINA_SHERIA = 0;
+n32 UTAWALA_KANUNI_AINA_HAKI = 1;
+n32 UTAWALA_KANUNI_AINA_TARATIBU = 2;
+n32 UTAWALA_KANUNI_AINA_DESTURI = 3;
 
-N32 UTAWALA_KATIBA_KANUNI_UPEO = 8;
+n32 UTAWALA_KATIBA_KANUNI_UPEO = 8;
 
 muundo UtawalaKanuni {
-    N8* kitambulisho;
-    N8* jina;
-    N8* maelezo;
-    N32 wigo;
-    N32 aina;
-    N8* jukumu_la_mamlaka;
-    D64 mamlaka_inayohitajika;
-    N8* sifa_lengwa;
-    D64 thamani_ya_marekebisho;
-    N32 inafanya_kazi;
-    N32 tarehe_ya_kuwekwa;
+    n8* kitambulisho;
+    n8* jina;
+    n8* maelezo;
+    n32 wigo;
+    n32 aina;
+    n8* jukumu_la_mamlaka;
+    d64 mamlaka_inayohitajika;
+    n8* sifa_lengwa;
+    d64 thamani_ya_marekebisho;
+    n32 inafanya_kazi;
+    n32 tarehe_ya_kuwekwa;
 };
 
 muundo UtawalaKatiba {
-    N8* kitambulisho;
-    N8* jina;
+    n8* kitambulisho;
+    n8* jina;
     UtawalaKanuni kanuni_0; UtawalaKanuni kanuni_1; UtawalaKanuni kanuni_2;
     UtawalaKanuni kanuni_3; UtawalaKanuni kanuni_4; UtawalaKanuni kanuni_5;
     UtawalaKanuni kanuni_6; UtawalaKanuni kanuni_7;
-    N32 idadi_ya_kanuni;
-    D64 kizingiti_cha_marekebisho;
-    N8* mwili_wa_marekebisho;
-    N32 marekebisho_ya_mwisho;
-    N32 saa_ya_ndani;
+    n32 idadi_ya_kanuni;
+    d64 kizingiti_cha_marekebisho;
+    n8* mwili_wa_marekebisho;
+    n32 marekebisho_ya_mwisho;
+    n32 saa_ya_ndani;
 };
 
-UtawalaKanuni* utawala_katiba_pata_kanuni(UtawalaKatiba* c, N32 idx) {
+UtawalaKanuni* utawala_katiba_pata_kanuni(UtawalaKatiba* c, n32 idx) {
     kama (idx == 0) { rudisha &c->kanuni_0; }
     kama (idx == 1) { rudisha &c->kanuni_1; }
     kama (idx == 2) { rudisha &c->kanuni_2; }
@@ -69,7 +69,7 @@ UtawalaKanuni* utawala_katiba_pata_kanuni(UtawalaKatiba* c, N32 idx) {
     rudisha &c->kanuni_7;
 }
 
-UtawalaKatiba* utawala_katiba_unda(N8* jina) {
+UtawalaKatiba* utawala_katiba_unda(n8* jina) {
     UtawalaKatiba* c = tenga(ukubwa(UtawalaKatiba));
     c->kitambulisho = "const_0";
     c->jina = jina;
@@ -81,11 +81,11 @@ UtawalaKatiba* utawala_katiba_unda(N8* jina) {
     rudisha c;
 }
 
-W0 utawala_katiba_uharibu(UtawalaKatiba* c) {
+w0 utawala_katiba_uharibu(UtawalaKatiba* c) {
     achilia c;
 }
 
-UtawalaKanuni* utawala_kanuni_unda(N8* jina, N32 wigo, N32 aina) {
+UtawalaKanuni* utawala_kanuni_unda(n8* jina, n32 wigo, n32 aina) {
     UtawalaKanuni* r = tenga(ukubwa(UtawalaKanuni));
     r->kitambulisho = "rule_0";
     r->jina = jina;
@@ -101,7 +101,7 @@ UtawalaKanuni* utawala_kanuni_unda(N8* jina, N32 wigo, N32 aina) {
     rudisha r;
 }
 
-W0 utawala_kanuni_uharibu(UtawalaKanuni* r) {
+w0 utawala_kanuni_uharibu(UtawalaKanuni* r) {
     achilia r;
 }
 
@@ -137,7 +137,7 @@ CivMatokeo utawala_katiba_ongeza_kanuni(UtawalaKatiba* c, UtawalaKanuni* kanuni)
     rudisha m;
 }
 
-CivMatokeo utawala_katiba_ondoa_kanuni(UtawalaKatiba* c, N8* kitambulisho_cha_kanuni) {
+CivMatokeo utawala_katiba_ondoa_kanuni(UtawalaKatiba* c, n8* kitambulisho_cha_kanuni) {
     CivMatokeo m;
     kama (c == 0 || kitambulisho_cha_kanuni == 0) {
         m.hitilafu = CIV_HITILAFU_HOJA_MBAYA;
@@ -145,11 +145,11 @@ CivMatokeo utawala_katiba_ondoa_kanuni(UtawalaKatiba* c, N8* kitambulisho_cha_ka
         rudisha m;
     }
 
-    N32 i = 0;
+    n32 i = 0;
     wakati (i < c->idadi_ya_kanuni) {
         UtawalaKanuni* r = utawala_katiba_pata_kanuni(c, i);
         kama (linganisha_mfuatano(r->kitambulisho, kitambulisho_cha_kanuni) == 0) {
-            N32 j = i;
+            n32 j = i;
             wakati (j < c->idadi_ya_kanuni - 1) {
                 UtawalaKanuni* lengwa = utawala_katiba_pata_kanuni(c, j);
                 UtawalaKanuni* kutoka = utawala_katiba_pata_kanuni(c, j + 1);
@@ -179,9 +179,9 @@ CivMatokeo utawala_katiba_ondoa_kanuni(UtawalaKatiba* c, N8* kitambulisho_cha_ka
     rudisha m;
 }
 
-UtawalaKanuni* utawala_katiba_tafuta_kanuni(UtawalaKatiba* c, N8* kitambulisho_cha_kanuni) {
+UtawalaKanuni* utawala_katiba_tafuta_kanuni(UtawalaKatiba* c, n8* kitambulisho_cha_kanuni) {
     kama (c == 0 || kitambulisho_cha_kanuni == 0) { rudisha 0; }
-    N32 i = 0;
+    n32 i = 0;
     wakati (i < c->idadi_ya_kanuni) {
         UtawalaKanuni* r = utawala_katiba_pata_kanuni(c, i);
         kama (linganisha_mfuatano(r->kitambulisho, kitambulisho_cha_kanuni) == 0) { rudisha r; }
@@ -190,22 +190,22 @@ UtawalaKanuni* utawala_katiba_tafuta_kanuni(UtawalaKatiba* c, N8* kitambulisho_c
     rudisha 0;
 }
 
-N32 utawala_kanuni_ni_halali_kwenye_wigo(UtawalaKanuni* kanuni, N32 wigo_wa_muktadha) {
+n32 utawala_kanuni_ni_halali_kwenye_wigo(UtawalaKanuni* kanuni, n32 wigo_wa_muktadha) {
     kama (kanuni == 0) { rudisha 0; }
     kama (wigo_wa_muktadha == UTAWALA_KANUNI_WIGO_MAHALI) { rudisha 1; }
     kama (kanuni->wigo == wigo_wa_muktadha) { rudisha 1; }
     rudisha 0;
 }
 
-N32 utawala_katiba_pendekeza_marekebisho(UtawalaKatiba* c, N8* kitambulisho_cha_kanuni,
-                                            N8* maandishi_mapya, D64 uungwaji_mkono) {
+n32 utawala_katiba_pendekeza_marekebisho(UtawalaKatiba* c, n8* kitambulisho_cha_kanuni,
+                                            n8* maandishi_mapya, d64 uungwaji_mkono) {
     kama (c == 0 || kitambulisho_cha_kanuni == 0) { rudisha 0; }
     kama (uungwaji_mkono >= c->kizingiti_cha_marekebisho) { rudisha 1; }
     rudisha 0;
 }
 
-N32 utawala_katiba_thibitisha_marekebisho(UtawalaKatiba* c, N8* kitambulisho_cha_kanuni,
-                                             D64 uungwaji_wa_kibunge) {
+n32 utawala_katiba_thibitisha_marekebisho(UtawalaKatiba* c, n8* kitambulisho_cha_kanuni,
+                                             d64 uungwaji_wa_kibunge) {
     kama (c == 0 || kitambulisho_cha_kanuni == 0) { rudisha 0; }
     kama (uungwaji_wa_kibunge < c->kizingiti_cha_marekebisho) { rudisha 0; }
     c->saa_ya_ndani = c->saa_ya_ndani + 1;
@@ -213,10 +213,10 @@ N32 utawala_katiba_thibitisha_marekebisho(UtawalaKatiba* c, N8* kitambulisho_cha
     rudisha 1;
 }
 
-N32 utawala_katiba_hesabu_ya_marekebisho(UtawalaKatiba* c) {
+n32 utawala_katiba_hesabu_ya_marekebisho(UtawalaKatiba* c) {
     kama (c == 0) { rudisha 0; }
-    N32 hesabu = 0;
-    N32 i = 0;
+    n32 hesabu = 0;
+    n32 i = 0;
     wakati (i < c->idadi_ya_kanuni) {
         UtawalaKanuni* r = utawala_katiba_pata_kanuni(c, i);
         kama (r->thamani_ya_marekebisho != 0.0) { hesabu = hesabu + 1; }
@@ -225,8 +225,8 @@ N32 utawala_katiba_hesabu_ya_marekebisho(UtawalaKatiba* c) {
     rudisha hesabu;
 }
 
-W0 utawala_katiba_rekebisha_kanuni(UtawalaKatiba* c, N8* kitambulisho_cha_kanuni,
-                                     N8* maelezo_mapya, D64 thamani_mpya) {
+w0 utawala_katiba_rekebisha_kanuni(UtawalaKatiba* c, n8* kitambulisho_cha_kanuni,
+                                     n8* maelezo_mapya, d64 thamani_mpya) {
     kama (c == 0 || kitambulisho_cha_kanuni == 0) { rudisha; }
     UtawalaKanuni* r = utawala_katiba_tafuta_kanuni(c, kitambulisho_cha_kanuni);
     kama (r == 0) { rudisha; }

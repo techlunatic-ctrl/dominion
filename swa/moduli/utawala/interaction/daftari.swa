@@ -3,32 +3,32 @@
 // Daftari la vidokezo la mchezaji.
 //
 // Kiambishi: utawala_daftari_ — angalia ../../../KANUNI-MAJINA.md.
-// notes[] (safu inayokua ya C) imekuwa safu ya N64* ya vielekezi
+// notes[] (safu inayokua ya C) imekuwa safu ya n64* ya vielekezi
 // vya UtawalaKidokezo* (angalia lugha-swa/swa#185, mfano halisi:
 // dini.swa). Kitambulisho cha kidokezo (kilichoundwa na
-// snprintf("NOTE_%zu")) kimekuwa N32 inayoongezeka (kaunta) badala
+// snprintf("NOTE_%zu")) kimekuwa n32 inayoongezeka (kaunta) badala
 // ya mfuatano — mtindo uleule uliotumika kwenye biashara_nje.swa
 // kwa id ya njia.
 
 husisha { msingi/msingi_civ.swa }
 
-N32 UTAWALA_DAFTARI_UWEZO_AWALI = 32;
+n32 UTAWALA_DAFTARI_UWEZO_AWALI = 32;
 
 muundo UtawalaKidokezo {
-    N32 kitambulisho;
-    N8* kichwa;
-    N8* maudhui;
-    N64 muda;
+    n32 kitambulisho;
+    n8* kichwa;
+    n8* maudhui;
+    n64 muda;
 };
 
 muundo UtawalaDaftari {
-    N64* vidokezo;   // safu ya vielekezi vya UtawalaKidokezo* (#185)
-    N32 idadi;
-    N32 uwezo;
-    N32 kaunta_ya_kitambulisho;
+    n64* vidokezo;   // safu ya vielekezi vya UtawalaKidokezo* (#185)
+    n32 idadi;
+    n32 uwezo;
+    n32 kaunta_ya_kitambulisho;
 };
 
-UtawalaKidokezo* utawala_daftari_pata(UtawalaDaftari* d, N32 idx) {
+UtawalaKidokezo* utawala_daftari_pata(UtawalaDaftari* d, n32 idx) {
     rudisha d->vidokezo[idx];
 }
 
@@ -37,16 +37,16 @@ UtawalaDaftari* utawala_daftari_unda() {
     d->uwezo = UTAWALA_DAFTARI_UWEZO_AWALI;
     d->idadi = 0;
     d->kaunta_ya_kitambulisho = 0;
-    d->vidokezo = tenga(ukubwa(N64) * d->uwezo);
+    d->vidokezo = tenga(ukubwa(n64) * d->uwezo);
     rudisha d;
 }
 
-W0 utawala_daftari_uharibu(UtawalaDaftari* d) {
+w0 utawala_daftari_uharibu(UtawalaDaftari* d) {
     achilia d->vidokezo;
     achilia d;
 }
 
-CivMatokeo utawala_daftari_ongeza_kidokezo(UtawalaDaftari* d, N8* kichwa, N8* maudhui) {
+CivMatokeo utawala_daftari_ongeza_kidokezo(UtawalaDaftari* d, n8* kichwa, n8* maudhui) {
     CivMatokeo m;
     m.hitilafu = CIV_SAWA;
     m.ujumbe = 0;
@@ -62,9 +62,9 @@ CivMatokeo utawala_daftari_ongeza_kidokezo(UtawalaDaftari* d, N8* kichwa, N8* ma
         // huu unatumika sasa kwenye utawala/serikali.swa yenye struct
         // 40+). Ukuzi wa mkono kupitia tenga + kunakili unaepuka njia
         // ya msimbo iliyoathirika bila kubadilisha tabia.
-        N32 uwezo_mpya = d->uwezo * 2;
-        N64* vidokezo_mpya = tenga(ukubwa(N64) * uwezo_mpya);
-        N32 vi = 0;
+        n32 uwezo_mpya = d->uwezo * 2;
+        n64* vidokezo_mpya = tenga(ukubwa(n64) * uwezo_mpya);
+        n32 vi = 0;
         wakati (vi < d->idadi) {
             vidokezo_mpya[vi] = d->vidokezo[vi];
             vi = vi + 1;
@@ -83,7 +83,7 @@ CivMatokeo utawala_daftari_ongeza_kidokezo(UtawalaDaftari* d, N8* kichwa, N8* ma
     rudisha m;
 }
 
-CivMatokeo utawala_daftari_ondoa_kidokezo(UtawalaDaftari* d, N32 kitambulisho) {
+CivMatokeo utawala_daftari_ondoa_kidokezo(UtawalaDaftari* d, n32 kitambulisho) {
     CivMatokeo m;
     m.hitilafu = CIV_HITILAFU_HAIJAPATIKANA;
     m.ujumbe = "Kidokezo hakikupatikana";
@@ -92,11 +92,11 @@ CivMatokeo utawala_daftari_ondoa_kidokezo(UtawalaDaftari* d, N32 kitambulisho) {
         m.ujumbe = "Daftari tupu";
         rudisha m;
     }
-    N32 i = 0;
+    n32 i = 0;
     wakati (i < d->idadi) {
         UtawalaKidokezo* n = utawala_daftari_pata(d, i);
         kama (n->kitambulisho == kitambulisho) {
-            N32 j = i;
+            n32 j = i;
             wakati (j < d->idadi - 1) {
                 d->vidokezo[j] = d->vidokezo[j + 1];
                 j = j + 1;
@@ -111,9 +111,9 @@ CivMatokeo utawala_daftari_ondoa_kidokezo(UtawalaDaftari* d, N32 kitambulisho) {
     rudisha m;
 }
 
-UtawalaKidokezo* utawala_daftari_tafuta_kidokezo(UtawalaDaftari* d, N32 kitambulisho) {
+UtawalaKidokezo* utawala_daftari_tafuta_kidokezo(UtawalaDaftari* d, n32 kitambulisho) {
     kama (d == 0) { rudisha 0; }
-    N32 i = 0;
+    n32 i = 0;
     wakati (i < d->idadi) {
         UtawalaKidokezo* n = utawala_daftari_pata(d, i);
         kama (n->kitambulisho == kitambulisho) { rudisha n; }

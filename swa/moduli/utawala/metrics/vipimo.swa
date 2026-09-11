@@ -15,21 +15,21 @@ husisha { moduli/utamaduni/kitambulisho.swa }
 husisha { moduli/utamaduni/itikadi.swa }
 
 muundo UtawalaVipimoAfya {
-    D64 kielezo_cha_utulivu;
-    D64 kielezo_cha_mshikamano;
-    D64 kielezo_cha_rushwa;
-    D64 kielezo_cha_ukali;
+    d64 kielezo_cha_utulivu;
+    d64 kielezo_cha_mshikamano;
+    d64 kielezo_cha_rushwa;
+    d64 kielezo_cha_ukali;
 
-    D64 kasi_ya_mageuzi;
-    D64 kielezo_cha_kidunia;    // secularism: 0=dini, 1=kidunia
-    D64 kielezo_cha_uhai;        // vitality
-    D64 mshikamano_wa_kiuchumi;
-    D64 heshima_ya_kimataifa;
-    D64 kielezo_cha_pato;        // gdp
-    D64 utulivu_wa_viwanda;
+    d64 kasi_ya_mageuzi;
+    d64 kielezo_cha_kidunia;    // secularism: 0=dini, 1=kidunia
+    d64 kielezo_cha_uhai;        // vitality
+    d64 mshikamano_wa_kiuchumi;
+    d64 heshima_ya_kimataifa;
+    d64 kielezo_cha_pato;        // gdp
+    d64 utulivu_wa_viwanda;
 
-    N8* cheo_kikuu;               // dominant_title
-    N8* kitambulisho_cha_taifa;   // national_identity_id
+    n8* cheo_kikuu;               // dominant_title
+    n8* kitambulisho_cha_taifa;   // national_identity_id
 };
 
 UtawalaVipimoAfya utawala_vipimo_hesabu_afya(UtawaliHali* serikali,
@@ -71,7 +71,7 @@ UtawalaVipimoAfya utawala_vipimo_hesabu_afya(UtawaliHali* serikali,
     rudisha afya;
 }
 
-W0 utawala_vipimo_onyesha(UtawalaVipimoAfya* afya) {
+w0 utawala_vipimo_onyesha(UtawalaVipimoAfya* afya) {
     kama (afya == 0) { rudisha; }
     andika("\n--- RIPOTI YA AFYA YA JAMII ---\n", 0,0,0,0,0,0);
     andika("Utambulisho wa Taifa: %s\n", afya->kitambulisho_cha_taifa, 0,0,0,0,0);
@@ -79,7 +79,7 @@ W0 utawala_vipimo_onyesha(UtawalaVipimoAfya* afya) {
     andika("------------------------------\n", 0,0,0,0,0,0);
 }
 
-D64 utawala_vipimo_sasisha_athari_ya_kisheria(UtawalaVipimoAfya* afya, N8* kitambulisho_cha_huluki, N32 ngazi) {
+d64 utawala_vipimo_sasisha_athari_ya_kisheria(UtawalaVipimoAfya* afya, n8* kitambulisho_cha_huluki, n32 ngazi) {
     kama (afya == 0 || kitambulisho_cha_huluki == 0) { rudisha 0.0; }
     // BANNED=3, TERRORIST=4 kwenye C ya asili
     kama (ngazi >= 3) {

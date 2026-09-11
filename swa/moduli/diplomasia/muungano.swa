@@ -14,19 +14,19 @@
 husisha { msingi/msingi_civ.swa }
 husisha { msingi/maktaba/mfuatano.swa }
 
-N32 MUUNGANO_HATUA_USHIRIKIANO_WA_SOKO = 0;
-N32 MUUNGANO_HATUA_UMOJA_WA_SARAFU = 1;
-N32 MUUNGANO_HATUA_SHIRIKISHO_LA_KISIASA = 2;
-N32 MUUNGANO_HATUA_UUNGANISHAJI_KAMILI = 3;
+n32 MUUNGANO_HATUA_USHIRIKIANO_WA_SOKO = 0;
+n32 MUUNGANO_HATUA_UMOJA_WA_SARAFU = 1;
+n32 MUUNGANO_HATUA_SHIRIKISHO_LA_KISIASA = 2;
+n32 MUUNGANO_HATUA_UUNGANISHAJI_KAMILI = 3;
 
 muundo MuunganoMatokeo {
-    N8* jina_jipya_la_taifa;
-    N32 hatua;
-    D64 athari_ya_utulivu;
-    N32 mafanikio;
+    n8* jina_jipya_la_taifa;
+    n32 hatua;
+    d64 athari_ya_utulivu;
+    n32 mafanikio;
 };
 
-MuunganoMatokeo muungano_pendekeza(N8* taifa_a, N8* taifa_b, N32 lengo) {
+MuunganoMatokeo muungano_pendekeza(n8* taifa_a, n8* taifa_b, n32 lengo) {
     MuunganoMatokeo matokeo;
     matokeo.jina_jipya_la_taifa = 0;
     matokeo.hatua = lengo;
@@ -35,9 +35,9 @@ MuunganoMatokeo muungano_pendekeza(N8* taifa_a, N8* taifa_b, N32 lengo) {
 
     kama (taifa_a != 0 && taifa_b != 0) {
         matokeo.mafanikio = 1;
-        N8* jina = tenga(96);
+        n8* jina = tenga(96);
         unganisha_mfuatano(jina, taifa_a, "-");
-        N8* jina_kamili = tenga(96);
+        n8* jina_kamili = tenga(96);
         unganisha_mfuatano(jina_kamili, jina, taifa_b);
         matokeo.jina_jipya_la_taifa = jina_kamili;
         matokeo.athari_ya_utulivu = 0.1;
@@ -52,7 +52,7 @@ MuunganoMatokeo muungano_pendekeza(N8* taifa_a, N8* taifa_b, N32 lengo) {
     rudisha matokeo;
 }
 
-CivMatokeo muungano_unganisha_uchumi(N8* taifa_a, N8* taifa_b) {
+CivMatokeo muungano_unganisha_uchumi(n8* taifa_a, n8* taifa_b) {
     andika("Kuunganisha masoko ya %s na %s kuwa kundi moja la biashara.\n", taifa_a, taifa_b, 0,0,0,0);
     CivMatokeo r;
     r.hitilafu = CIV_SAWA;
@@ -60,7 +60,7 @@ CivMatokeo muungano_unganisha_uchumi(N8* taifa_a, N8* taifa_b) {
     rudisha r;
 }
 
-CivMatokeo muungano_unda_sarafu_ya_pamoja(N8* jina, N8* taifa_a, N8* taifa_b) {
+CivMatokeo muungano_unda_sarafu_ya_pamoja(n8* jina, n8* taifa_a, n8* taifa_b) {
     andika("Sarafu mpya ya pamoja '%s' imeanzishwa kati ya %s na %s.\n", jina, taifa_a, taifa_b, 0,0,0);
     CivMatokeo r;
     r.hitilafu = CIV_SAWA;

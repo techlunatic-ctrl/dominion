@@ -9,18 +9,18 @@
 husisha { msingi/msingi_civ.swa }
 
 muundo MakaziMfumo {
-    N32 vitengo_jumla;
-    N32 vitengo_vilivyokaliwa;
-    N32 vitengo_wazi;
-    N32 vinavyojengwa;
-    D64 bei_ya_wastani;
-    D64 kodi_ya_wastani;
-    D64 uwiano_wa_bei_kwa_mapato;
-    D64 kiwango_cha_umiliki_wa_nyumba;
-    D64 ukuaji_wa_miji;
-    D64 kiwango_cha_ujenzi;
-    D64 kiwango_cha_ubomoaji;
-    N32 mgogoro_wa_makazi;   // 0/1
+    n32 vitengo_jumla;
+    n32 vitengo_vilivyokaliwa;
+    n32 vitengo_wazi;
+    n32 vinavyojengwa;
+    d64 bei_ya_wastani;
+    d64 kodi_ya_wastani;
+    d64 uwiano_wa_bei_kwa_mapato;
+    d64 kiwango_cha_umiliki_wa_nyumba;
+    d64 ukuaji_wa_miji;
+    d64 kiwango_cha_ujenzi;
+    d64 kiwango_cha_ubomoaji;
+    n32 mgogoro_wa_makazi;   // 0/1
 };
 
 MakaziMfumo* makazi_unda() {
@@ -40,18 +40,18 @@ MakaziMfumo* makazi_unda() {
     rudisha h;
 }
 
-W0 makazi_uharibu(MakaziMfumo* h) {
+w0 makazi_uharibu(MakaziMfumo* h) {
     achilia h;
 }
 
-W0 makazi_sasisha(MakaziMfumo* h, D64 muda, N32 idadi_ya_watu, D64 mapato_ya_wastani,
-                    D64 kiwango_cha_riba, D64 kiashiria_cha_gharama_ya_ujenzi) {
-    N32 vitengo_vinavyohitajika = idadi_ya_watu / 3;
-    N32 uhaba = vitengo_vinavyohitajika - h->vitengo_jumla;
+w0 makazi_sasisha(MakaziMfumo* h, d64 muda, n32 idadi_ya_watu, d64 mapato_ya_wastani,
+                    d64 kiwango_cha_riba, d64 kiashiria_cha_gharama_ya_ujenzi) {
+    n32 vitengo_vinavyohitajika = idadi_ya_watu / 3;
+    n32 uhaba = vitengo_vinavyohitajika - h->vitengo_jumla;
 
-    D64 mahitaji_ya_ujenzi = 0.0;
+    d64 mahitaji_ya_ujenzi = 0.0;
     kama (uhaba > 0) {
-        D64 uhaba_d = uhaba;
+        d64 uhaba_d = uhaba;
         mahitaji_ya_ujenzi = uhaba_d * 0.1;
     }
     mahitaji_ya_ujenzi = mahitaji_ya_ujenzi * (1.0 - kiwango_cha_riba * 2.0);
@@ -59,12 +59,12 @@ W0 makazi_sasisha(MakaziMfumo* h, D64 muda, N32 idadi_ya_watu, D64 mapato_ya_was
     kama (mahitaji_ya_ujenzi < 0.0) { mahitaji_ya_ujenzi = 0.0; }
 
     h->kiwango_cha_ujenzi = mahitaji_ya_ujenzi;
-    N32 vinavyojengwa_n = mahitaji_ya_ujenzi;
+    n32 vinavyojengwa_n = mahitaji_ya_ujenzi;
     h->vinavyojengwa = vinavyojengwa_n;
 
-    D64 jumla_d = h->vitengo_jumla;
+    d64 jumla_d = h->vitengo_jumla;
     h->kiwango_cha_ubomoaji = jumla_d * 0.02;
-    N32 kubomolewa_n = h->kiwango_cha_ubomoaji;
+    n32 kubomolewa_n = h->kiwango_cha_ubomoaji;
     h->vitengo_jumla = h->vitengo_jumla + vinavyojengwa_n - kubomolewa_n;
     kama (h->vitengo_jumla < 100) { h->vitengo_jumla = 100; }
 
@@ -75,13 +75,13 @@ W0 makazi_sasisha(MakaziMfumo* h, D64 muda, N32 idadi_ya_watu, D64 mapato_ya_was
     }
     h->vitengo_wazi = h->vitengo_jumla - h->vitengo_vilivyokaliwa;
 
-    D64 kiwango_cha_uwazi = 0.0;
+    d64 kiwango_cha_uwazi = 0.0;
     kama (h->vitengo_jumla > 0) {
-        D64 wazi_d = h->vitengo_wazi;
-        D64 jumla2_d = h->vitengo_jumla;
+        d64 wazi_d = h->vitengo_wazi;
+        d64 jumla2_d = h->vitengo_jumla;
         kiwango_cha_uwazi = wazi_d / jumla2_d;
     }
-    D64 shinikizo_la_bei = 0.0;
+    d64 shinikizo_la_bei = 0.0;
     kama (kiwango_cha_uwazi < 0.05) { shinikizo_la_bei = 0.05; }
     sivyo { kama (kiwango_cha_uwazi > 0.15) { shinikizo_la_bei = 0.0 - 0.02; } }
 
@@ -94,7 +94,7 @@ W0 makazi_sasisha(MakaziMfumo* h, D64 muda, N32 idadi_ya_watu, D64 mapato_ya_was
         h->uwiano_wa_bei_kwa_mapato = 10.0;
     }
 
-    D64 uwezekano = 0.0;
+    d64 uwezekano = 0.0;
     kama (h->uwiano_wa_bei_kwa_mapato < 3.0) {
         uwezekano = 1.0;
     } sivyo { kama (h->uwiano_wa_bei_kwa_mapato > 8.0) {
@@ -115,18 +115,18 @@ W0 makazi_sasisha(MakaziMfumo* h, D64 muda, N32 idadi_ya_watu, D64 mapato_ya_was
     }
 }
 
-D64 makazi_uwezekano_wa_kumudu(MakaziMfumo* h) {
+d64 makazi_uwezekano_wa_kumudu(MakaziMfumo* h) {
     kama (h->uwiano_wa_bei_kwa_mapato < 3.0) { rudisha 1.0; }
     kama (h->uwiano_wa_bei_kwa_mapato > 10.0) { rudisha 0.0; }
     rudisha 1.0 - (h->uwiano_wa_bei_kwa_mapato - 3.0) / 7.0;
 }
 
-N32 makazi_vitengo_vinavyohitajika(MakaziMfumo* h) {
-    N32 pengo = h->vitengo_jumla - h->vitengo_vilivyokaliwa;
+n32 makazi_vitengo_vinavyohitajika(MakaziMfumo* h) {
+    n32 pengo = h->vitengo_jumla - h->vitengo_vilivyokaliwa;
     kama (pengo < 0) { rudisha h->vitengo_vilivyokaliwa - h->vitengo_jumla; }
     rudisha 0;
 }
 
-D64 makazi_mahitaji_ya_ujenzi(MakaziMfumo* h) {
+d64 makazi_mahitaji_ya_ujenzi(MakaziMfumo* h) {
     rudisha h->kiwango_cha_ujenzi;
 }

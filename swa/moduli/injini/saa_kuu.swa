@@ -22,11 +22,11 @@
 husisha { msingi/msingi_civ.swa }
 
 muundo InjiniSaaKuu {
-    N32 mwaka_wa_ulimwengu;
-    N32 siku_ya_ulimwengu;
-    N32 nambari_ya_zamu;
-    N32 zamu_kwa_mwaka;
-    D64 maendeleo_ya_siku;
+    n32 mwaka_wa_ulimwengu;
+    n32 siku_ya_ulimwengu;
+    n32 nambari_ya_zamu;
+    n32 zamu_kwa_mwaka;
+    d64 maendeleo_ya_siku;
 };
 
 InjiniSaaKuu* injini_saa_unda() {
@@ -39,16 +39,16 @@ InjiniSaaKuu* injini_saa_unda() {
     rudisha te;
 }
 
-W0 injini_saa_uharibu(InjiniSaaKuu* te) {
+w0 injini_saa_uharibu(InjiniSaaKuu* te) {
     achilia te;
 }
 
-W0 injini_saa_songesha_zamu(InjiniSaaKuu* te) {
+w0 injini_saa_songesha_zamu(InjiniSaaKuu* te) {
     kama (te == 0) { rudisha; }
     te->nambari_ya_zamu = te->nambari_ya_zamu + 1;
     te->maendeleo_ya_siku = 0.0;
 
-    N32 siku_kwa_zamu = 365 / te->zamu_kwa_mwaka;
+    n32 siku_kwa_zamu = 365 / te->zamu_kwa_mwaka;
     te->siku_ya_ulimwengu = te->siku_ya_ulimwengu + siku_kwa_zamu;
 
     wakati (te->siku_ya_ulimwengu >= 365) {
@@ -57,6 +57,6 @@ W0 injini_saa_songesha_zamu(InjiniSaaKuu* te) {
     }
 }
 
-N32 injini_saa_mwaka_wa_kalenda(InjiniSaaKuu* te, N32 mwaka_wa_enzi) {
+n32 injini_saa_mwaka_wa_kalenda(InjiniSaaKuu* te, n32 mwaka_wa_enzi) {
     rudisha te->mwaka_wa_ulimwengu - mwaka_wa_enzi;
 }

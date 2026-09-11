@@ -5,31 +5,31 @@
 // Kiambishi: benki_ — angalia ../../KANUNI-MAJINA.md.
 // loans[] (safu inayokua ya C) imekuwa BENKI_MKOPO_IDADI=32 vigezo
 // vyenye majina + kazi ya kupata. id (jina la mkopo, lililoundwa kwa
-// snprintf "LOAN_%d") limekuwa nambari ya kiwakilishi (N32) badala ya
+// snprintf "LOAN_%d") limekuwa nambari ya kiwakilishi (n32) badala ya
 // mfuatano, kwa kuwa hakuna umbizo la mfuatano+nambari (snprintf)
 // linalopatikana kwa urahisi. pow() (kwa malipo ya kila mwezi
 // yaliyorekebishwa) imetekelezwa kama kazi ya ndani ya kipeo cha
-// nambari kamili (hakuna D64 pow, angalia lugha-swa/swa#183).
+// nambari kamili (hakuna d64 pow, angalia lugha-swa/swa#183).
 
 husisha { msingi/msingi_civ.swa }
 
-N32 BENKI_HATARI_CHINI = 0;
-N32 BENKI_HATARI_WASTANI = 1;
-N32 BENKI_HATARI_JUU = 2;
-N32 BENKI_HATARI_MBAYA = 3;
-N32 BENKI_MKOPO_IDADI = 32;
+n32 BENKI_HATARI_CHINI = 0;
+n32 BENKI_HATARI_WASTANI = 1;
+n32 BENKI_HATARI_JUU = 2;
+n32 BENKI_HATARI_MBAYA = 3;
+n32 BENKI_MKOPO_IDADI = 32;
 
 muundo BenkiMkopo {
-    N32 nambari_ya_mkopo;
-    N8* mkopaji;
-    D64 kiasi_asili;
-    D64 kilichobaki;
-    D64 kiwango_cha_riba;
-    D64 malipo_ya_mwezi;
-    N32 miezi_ya_muda;
-    N32 miezi_iliyobaki;
-    N32 hatari;
-    N32 inafanya_vizuri;
+    n32 nambari_ya_mkopo;
+    n8* mkopaji;
+    d64 kiasi_asili;
+    d64 kilichobaki;
+    d64 kiwango_cha_riba;
+    d64 malipo_ya_mwezi;
+    n32 miezi_ya_muda;
+    n32 miezi_iliyobaki;
+    n32 hatari;
+    n32 inafanya_vizuri;
 };
 
 muundo BenkiMfumo {
@@ -42,17 +42,17 @@ muundo BenkiMfumo {
     BenkiMkopo m_24; BenkiMkopo m_25; BenkiMkopo m_26; BenkiMkopo m_27;
     BenkiMkopo m_28; BenkiMkopo m_29; BenkiMkopo m_30; BenkiMkopo m_31;
 
-    D64 uwiano_wa_akiba;
-    D64 kiwango_cha_msingi_cha_riba;
-    D64 ugavi_wa_fedha;
-    D64 akiba_zilizohifadhiwa;
-    D64 ujazo_wa_mikopo;
-    D64 kiwango_cha_kutolipa;
-    N32 idadi_ya_mikopo;
-    D64 kizidishi_cha_mkopo;
+    d64 uwiano_wa_akiba;
+    d64 kiwango_cha_msingi_cha_riba;
+    d64 ugavi_wa_fedha;
+    d64 akiba_zilizohifadhiwa;
+    d64 ujazo_wa_mikopo;
+    d64 kiwango_cha_kutolipa;
+    n32 idadi_ya_mikopo;
+    d64 kizidishi_cha_mkopo;
 };
 
-BenkiMkopo* benki_pata_mkopo(BenkiMfumo* b, N32 idx) {
+BenkiMkopo* benki_pata_mkopo(BenkiMfumo* b, n32 idx) {
     kama (idx == 0) { rudisha &b->m_0; }
     kama (idx == 1) { rudisha &b->m_1; }
     kama (idx == 2) { rudisha &b->m_2; }
@@ -87,9 +87,9 @@ BenkiMkopo* benki_pata_mkopo(BenkiMfumo* b, N32 idx) {
     rudisha &b->m_31;
 }
 
-D64 benki_kipeo_d64(D64 msingi, N32 kipeo) {
-    D64 matokeo = 1.0;
-    N32 i = 0;
+d64 benki_kipeo_d64(d64 msingi, n32 kipeo) {
+    d64 matokeo = 1.0;
+    n32 i = 0;
     wakati (i < kipeo) {
         matokeo = matokeo * msingi;
         i = i + 1;
@@ -97,22 +97,22 @@ D64 benki_kipeo_d64(D64 msingi, N32 kipeo) {
     rudisha matokeo;
 }
 
-D64 benki_malipo_ya_awali(N32 hatari) {
+d64 benki_malipo_ya_awali(n32 hatari) {
     kama (hatari == BENKI_HATARI_CHINI) { rudisha 0.005; }
     kama (hatari == BENKI_HATARI_WASTANI) { rudisha 0.02; }
     kama (hatari == BENKI_HATARI_JUU) { rudisha 0.06; }
     rudisha 0.15;
 }
 
-D64 benki_kiwango_cha_mkopo(BenkiMfumo* b, N32 hatari) {
+d64 benki_kiwango_cha_mkopo(BenkiMfumo* b, n32 hatari) {
     rudisha b->kiwango_cha_msingi_cha_riba + benki_malipo_ya_awali(hatari);
 }
 
-D64 benki_kiwango_cha_akiba(BenkiMfumo* b) {
+d64 benki_kiwango_cha_akiba(BenkiMfumo* b) {
     rudisha b->kiwango_cha_msingi_cha_riba * 0.6;
 }
 
-D64 benki_kizidishi_cha_fedha(BenkiMfumo* b) {
+d64 benki_kizidishi_cha_fedha(BenkiMfumo* b) {
     rudisha b->kizidishi_cha_mkopo;
 }
 
@@ -129,25 +129,25 @@ BenkiMfumo* benki_unda() {
     rudisha b;
 }
 
-W0 benki_uharibu(BenkiMfumo* b) {
+w0 benki_uharibu(BenkiMfumo* b) {
     achilia b;
 }
 
-W0 benki_lipa_mikopo(BenkiMfumo* b, D64 muda) {
-    N32 i = 0;
+w0 benki_lipa_mikopo(BenkiMfumo* b, d64 muda) {
+    n32 i = 0;
     wakati (i < b->idadi_ya_mikopo) {
         BenkiMkopo* mkopo = benki_pata_mkopo(b, i);
         kama (mkopo->inafanya_vizuri != 0 && mkopo->kilichobaki > 0.0) {
-            D64 nafasi_ya_kutolipa = 0.0;
+            d64 nafasi_ya_kutolipa = 0.0;
             kama (mkopo->hatari == BENKI_HATARI_CHINI) { nafasi_ya_kutolipa = 0.002; }
             sivyo { kama (mkopo->hatari == BENKI_HATARI_WASTANI) { nafasi_ya_kutolipa = 0.01; }
             sivyo { kama (mkopo->hatari == BENKI_HATARI_JUU) { nafasi_ya_kutolipa = 0.03; }
             sivyo { nafasi_ya_kutolipa = 0.08; } } }
             nafasi_ya_kutolipa = nafasi_ya_kutolipa + b->kiwango_cha_kutolipa * 0.1;
 
-            N32 kura = civ_nasibu_chini_ya(1000);
-            D64 kura_d = kura;
-            D64 uwezekano = kura_d / 1000.0;
+            n32 kura = civ_nasibu_chini_ya(1000);
+            d64 kura_d = kura;
+            d64 uwezekano = kura_d / 1000.0;
             kama (uwezekano < nafasi_ya_kutolipa) {
                 mkopo->inafanya_vizuri = 0;
                 b->ujazo_wa_mikopo = b->ujazo_wa_mikopo - mkopo->kilichobaki;
@@ -165,9 +165,9 @@ W0 benki_lipa_mikopo(BenkiMfumo* b, D64 muda) {
     }
 }
 
-W0 benki_sasisha(BenkiMfumo* b, D64 muda, D64 kiwango_cha_mfumuko, D64 ukuaji_wa_pato,
-                   D64 kiwango_cha_ukosefu_wa_kazi, D64 uwiano_wa_matumizi_ya_serikali) {
-    D64 kiwango_lengwa = 0.04;
+w0 benki_sasisha(BenkiMfumo* b, d64 muda, d64 kiwango_cha_mfumuko, d64 ukuaji_wa_pato,
+                   d64 kiwango_cha_ukosefu_wa_kazi, d64 uwiano_wa_matumizi_ya_serikali) {
+    d64 kiwango_lengwa = 0.04;
 
     kama (kiwango_cha_mfumuko > 0.06) {
         kiwango_lengwa = kiwango_lengwa + (kiwango_cha_mfumuko - 0.03) * 0.8;
@@ -204,7 +204,7 @@ W0 benki_sasisha(BenkiMfumo* b, D64 muda, D64 kiwango_cha_mfumuko, D64 ukuaji_wa
     benki_lipa_mikopo(b, muda);
 }
 
-BenkiMkopo* benki_toa_mkopo(BenkiMfumo* b, N8* mkopaji, D64 kiasi, N32 miezi_ya_muda) {
+BenkiMkopo* benki_toa_mkopo(BenkiMfumo* b, n8* mkopaji, d64 kiasi, n32 miezi_ya_muda) {
     kama (mkopaji == 0 || kiasi <= 0.0 || miezi_ya_muda <= 0) { rudisha 0; }
     kama (b->idadi_ya_mikopo >= BENKI_MKOPO_IDADI) { rudisha 0; }
 
@@ -217,21 +217,21 @@ BenkiMkopo* benki_toa_mkopo(BenkiMfumo* b, N8* mkopaji, D64 kiasi, N32 miezi_ya_
     mkopo->miezi_iliyobaki = miezi_ya_muda;
     mkopo->inafanya_vizuri = 1;
 
-    D64 kizingiti_juu = b->ugavi_wa_fedha * 0.001;
-    D64 kizingiti_wastani = b->ugavi_wa_fedha * 0.0001;
+    d64 kizingiti_juu = b->ugavi_wa_fedha * 0.001;
+    d64 kizingiti_wastani = b->ugavi_wa_fedha * 0.0001;
     kama (kiasi > kizingiti_juu) { mkopo->hatari = BENKI_HATARI_JUU; }
     sivyo { kama (kiasi > kizingiti_wastani) { mkopo->hatari = BENKI_HATARI_WASTANI; }
     sivyo { mkopo->hatari = BENKI_HATARI_CHINI; } }
 
     mkopo->kiwango_cha_riba = benki_kiwango_cha_mkopo(b, mkopo->hatari);
 
-    N32 miezi_d = miezi_ya_muda;
-    D64 miezi_dd = miezi_d;
+    n32 miezi_d = miezi_ya_muda;
+    d64 miezi_dd = miezi_d;
     kama (mkopo->kiwango_cha_riba > 0.0) {
-        D64 kiwango_cha_mwezi = mkopo->kiwango_cha_riba / 12.0;
-        D64 msingi = 1.0 + kiwango_cha_mwezi;
-        D64 juu = benki_kipeo_d64(msingi, miezi_ya_muda);
-        D64 dhehebu = 1.0 - (1.0 / juu);
+        d64 kiwango_cha_mwezi = mkopo->kiwango_cha_riba / 12.0;
+        d64 msingi = 1.0 + kiwango_cha_mwezi;
+        d64 juu = benki_kipeo_d64(msingi, miezi_ya_muda);
+        d64 dhehebu = 1.0 - (1.0 / juu);
         kama (dhehebu > 0.0) {
             mkopo->malipo_ya_mwezi = kiasi * kiwango_cha_mwezi / dhehebu;
         } sivyo {
@@ -246,9 +246,9 @@ BenkiMkopo* benki_toa_mkopo(BenkiMfumo* b, N8* mkopaji, D64 kiasi, N32 miezi_ya_
     rudisha mkopo;
 }
 
-D64 benki_mkopo_unaopatikana(BenkiMfumo* b) {
-    D64 mkopo_wa_juu = b->akiba_zilizohifadhiwa * b->kizidishi_cha_mkopo;
-    D64 unaopatikana = mkopo_wa_juu - b->ujazo_wa_mikopo;
+d64 benki_mkopo_unaopatikana(BenkiMfumo* b) {
+    d64 mkopo_wa_juu = b->akiba_zilizohifadhiwa * b->kizidishi_cha_mkopo;
+    d64 unaopatikana = mkopo_wa_juu - b->ujazo_wa_mikopo;
     kama (unaopatikana > 0.0) { rudisha unaopatikana; }
     rudisha 0.0;
 }

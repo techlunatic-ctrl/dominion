@@ -8,31 +8,31 @@
 
 husisha { msingi/msingi_civ.swa }
 
-N32 UVUMBUZI_SEKTA_IDADI = 8;
+n32 UVUMBUZI_SEKTA_IDADI = 8;
 
 muundo UvumbuziSekta {
-    N8* jina;
-    D64 matumizi_ya_utafiti;
-    D64 kiwango_cha_uvumbuzi;
-    D64 usambazaji_wa_teknolojia;
-    N32 hataza_zinazofanya_kazi;
-    N32 kampuni_changa;
+    n8* jina;
+    d64 matumizi_ya_utafiti;
+    d64 kiwango_cha_uvumbuzi;
+    d64 usambazaji_wa_teknolojia;
+    n32 hataza_zinazofanya_kazi;
+    n32 kampuni_changa;
 };
 
 muundo UvumbuziMfumo {
     UvumbuziSekta s_0; UvumbuziSekta s_1; UvumbuziSekta s_2; UvumbuziSekta s_3;
     UvumbuziSekta s_4; UvumbuziSekta s_5; UvumbuziSekta s_6; UvumbuziSekta s_7;
 
-    N32 idadi_ya_sekta;
-    D64 utafiti_jumla;
-    D64 utafiti_kwa_pato;
-    D64 kiashiria_cha_uvumbuzi;
-    D64 ubiasharaji_wa_teknolojia;
-    D64 uzalishaji_wa_hataza;
-    D64 kiwango_cha_uundwaji_wa_kampuni_changa;
+    n32 idadi_ya_sekta;
+    d64 utafiti_jumla;
+    d64 utafiti_kwa_pato;
+    d64 kiashiria_cha_uvumbuzi;
+    d64 ubiasharaji_wa_teknolojia;
+    d64 uzalishaji_wa_hataza;
+    d64 kiwango_cha_uundwaji_wa_kampuni_changa;
 };
 
-UvumbuziSekta* uvumbuzi_pata_sekta(UvumbuziMfumo* ie, N32 idx) {
+UvumbuziSekta* uvumbuzi_pata_sekta(UvumbuziMfumo* ie, n32 idx) {
     kama (idx == 0) { rudisha &ie->s_0; }
     kama (idx == 1) { rudisha &ie->s_1; }
     kama (idx == 2) { rudisha &ie->s_2; }
@@ -53,11 +53,11 @@ UvumbuziMfumo* uvumbuzi_unda() {
     rudisha ie;
 }
 
-W0 uvumbuzi_uharibu(UvumbuziMfumo* ie) {
+w0 uvumbuzi_uharibu(UvumbuziMfumo* ie) {
     achilia ie;
 }
 
-W0 uvumbuzi_ongeza_sekta(UvumbuziMfumo* ie, N8* jina) {
+w0 uvumbuzi_ongeza_sekta(UvumbuziMfumo* ie, n8* jina) {
     kama (ie->idadi_ya_sekta >= UVUMBUZI_SEKTA_IDADI) { rudisha; }
     UvumbuziSekta* s = uvumbuzi_pata_sekta(ie, ie->idadi_ya_sekta);
     s->jina = jina;
@@ -70,13 +70,13 @@ W0 uvumbuzi_ongeza_sekta(UvumbuziMfumo* ie, N8* jina) {
 }
 
 muundo UvumbuziMazingira {
-    D64 elimu;
-    D64 imani_ya_biashara;
-    D64 kiwango_cha_kanuni;
-    D64 upatikanaji_wa_mtaji;
+    d64 elimu;
+    d64 imani_ya_biashara;
+    d64 kiwango_cha_kanuni;
+    d64 upatikanaji_wa_mtaji;
 };
 
-W0 uvumbuzi_sasisha(UvumbuziMfumo* ie, D64 muda, D64 pato, UvumbuziMazingira* m) {
+w0 uvumbuzi_sasisha(UvumbuziMfumo* ie, d64 muda, d64 pato, UvumbuziMazingira* m) {
     ie->utafiti_kwa_pato = 0.01 + m->elimu * 0.03 + m->imani_ya_biashara * 0.01;
     ie->utafiti_jumla = pato * ie->utafiti_kwa_pato;
 
@@ -90,17 +90,17 @@ W0 uvumbuzi_sasisha(UvumbuziMfumo* ie, D64 muda, D64 pato, UvumbuziMazingira* m)
     ie->kiwango_cha_uundwaji_wa_kampuni_changa = m->upatikanaji_wa_mtaji * 0.4
         + ie->ubiasharaji_wa_teknolojia * 0.3;
 
-    N32 i = 0;
+    n32 i = 0;
     wakati (i < ie->idadi_ya_sekta) {
         UvumbuziSekta* s = uvumbuzi_pata_sekta(ie, i);
 
-        N32 idadi_p1 = ie->idadi_ya_sekta + 1;
-        D64 idadi_p1_d = idadi_p1;
+        n32 idadi_p1 = ie->idadi_ya_sekta + 1;
+        d64 idadi_p1_d = idadi_p1;
         s->matumizi_ya_utafiti = ie->utafiti_jumla / idadi_p1_d;
 
         s->kiwango_cha_uvumbuzi = s->matumizi_ya_utafiti * ie->uzalishaji_wa_hataza
             * (0.5 + m->elimu);
-        N32 hataza_mpya = s->kiwango_cha_uvumbuzi * 10.0;
+        n32 hataza_mpya = s->kiwango_cha_uvumbuzi * 10.0;
         s->hataza_zinazofanya_kazi = s->hataza_zinazofanya_kazi + hataza_mpya;
 
         s->usambazaji_wa_teknolojia = s->usambazaji_wa_teknolojia
@@ -116,10 +116,10 @@ W0 uvumbuzi_sasisha(UvumbuziMfumo* ie, D64 muda, D64 pato, UvumbuziMazingira* m)
     kama (ie->kiashiria_cha_uvumbuzi > 1.0) { ie->kiashiria_cha_uvumbuzi = 1.0; }
 }
 
-D64 uvumbuzi_faida_ya_uzalishaji(UvumbuziMfumo* ie) {
+d64 uvumbuzi_faida_ya_uzalishaji(UvumbuziMfumo* ie) {
     rudisha ie->kiashiria_cha_uvumbuzi * 0.05;
 }
 
-D64 uvumbuzi_kiwango_cha_usambazaji_wa_teknolojia(UvumbuziMfumo* ie) {
+d64 uvumbuzi_kiwango_cha_usambazaji_wa_teknolojia(UvumbuziMfumo* ie) {
     rudisha ie->ubiasharaji_wa_teknolojia;
 }
