@@ -47,8 +47,48 @@
 // nguvukazi, sera, kodi, bajeti, bidhaa, benki, kilimo, uchimbaji,
 // miundombinu, viwanda, nishati, uchumi_makazi (housing), ardhi,
 // mtaji, biashara_ndani, biashara_nje, uvumbuzi, soko_haramu, vita.
+//
+// NYONGEZA (wimbi la tano, 2026-09-11): utamaduni (mifumo 5:
+// kitambulisho, kuenea, itikadi, uigaji, dini), matukio_tukio (event
+// manager), wakala (NPC engine), injini_okestra (orchestrator halisi
+// ya DFS -- IMEUNGANISHWA KAMA KIPENGELE KINACHOFIKIKA, SI kama
+// njia kuu ya usambazaji wa mchezo_sasisha: mchezo_sasisha tayari
+// ina mnyororo tajiri wa thamani halisi kati ya awamu za uchumi
+// (GDP->nguvukazi->kodi->...) ambao kiolesura rahisi cha okestra
+// (jina + system_addr + update_fn(addr,dt) TU) hakiwezi kuwakilisha
+// bila kupoteza minyororo hiyo -- kuihamishia huko sasa ingekuwa
+// hatari ya kurudi nyuma bila faida halisi), injini_saa_kuu
+// (kalenda ya mwaka/siku/zamu, TOFAUTI na muda_addr ambayo ni
+// time_manager.c/injini/muda.swa yenye wasikilizaji), injini_uhifadhi
+// (save/load helper, saraka chaguo-msingi "saves" -- HAIJAUNGANISHWA
+// kwenye mzunguko wa auto-save, angalia sehemu ya "vilivyoachwa kwa
+// makusudi"), injini_utendaji (ufuatiliaji wa utendaji -- imeundwa na
+// inafikika, LAKINI haijaunganishwa kurekodi vipimo kwenye
+// mchezo_sasisha kwa sababu haina chanzo cha saa ya ukuta iliyounganishwa
+// bado -- faili lake mwenyewe linasema wazi mwitaji ndiye anayepaswa
+// kupima muda, si kazi ya ndani).
+//
+// hadithi.swa (story_events.c) HAIKUUNGANISHWA kama field ya Mchezo
+// kwa makusudi: haina muundo wa "mfumo" wa kudumu unaotengwa mara
+// moja (tenga+unda) -- ni mkondo wa kazi za mara moja za "kuzaliwa
+// kwa mchezaji mpya" zinazofanya kazi juu ya
+// MatukioJamiiYaMchezaji inayomilikiwa na mwitaji, si state
+// inayoendelea ya mchezo. Inatumika moja kwa moja kutoka nje ya
+// mchezo.swa wakati wa kuanzisha mchezo mpya, si sehemu ya
+// mzunguko wa Mchezo/sasisha.
 
 husisha { msingi/msingi_civ.swa }
+husisha { moduli/utamaduni/kitambulisho.swa }
+husisha { moduli/utamaduni/kuenea.swa }
+husisha { moduli/utamaduni/itikadi.swa }
+husisha { moduli/utamaduni/uigaji.swa }
+husisha { moduli/utamaduni/dini.swa }
+husisha { moduli/matukio/tukio.swa }
+husisha { moduli/wakala/wakala.swa }
+husisha { moduli/injini/okestra.swa }
+husisha { moduli/injini/saa_kuu.swa }
+husisha { moduli/injini/uhifadhi.swa }
+husisha { moduli/injini/utendaji.swa }
 husisha { moduli/injini/muda.swa }
 husisha { moduli/idadi_ya_watu/idadi_ya_watu.swa }
 husisha { moduli/utawala/serikali.swa }
@@ -77,6 +117,12 @@ husisha { moduli/uchumi/biashara_nje.swa }
 husisha { moduli/uchumi/uvumbuzi.swa }
 husisha { moduli/uchumi/soko_haramu.swa }
 husisha { moduli/uchumi/vita.swa }
+husisha { moduli/jeshi/kitengo.swa }
+husisha { moduli/jeshi/mapigano.swa }
+husisha { moduli/jeshi/ushindi.swa }
+husisha { moduli/siasa/kikundi.swa }
+husisha { moduli/teknolojia/teknolojia.swa }
+husisha { moduli/maarifa/maarifa.swa }
 
 N32 MCHEZO_HALI_KUANDAA = 0;
 N32 MCHEZO_HALI_INAENDESHA = 1;
@@ -149,6 +195,31 @@ muundo Mchezo {
     N64 uvumbuzi_addr;
     N64 soko_haramu_addr;
     N64 vita_addr;
+
+    // Nyongeza ya wimbi la tano: utamaduni, matukio, wakala, injini_*.
+    N64 utamaduni_kitambulisho_addr;
+    N64 utamaduni_kuenea_addr;
+    N64 utamaduni_itikadi_addr;
+    N64 utamaduni_uigaji_addr;
+    N64 utamaduni_dini_addr;
+    N64 matukio_addr;
+    N64 wakala_addr;
+    N64 injini_okestra_addr;
+    N64 injini_saa_kuu_addr;
+    N64 injini_uhifadhi_addr;
+    N64 injini_utendaji_addr;
+
+    // Nyongeza (wimbi la tano, sehemu ya pili): jeshi (units/combat/
+    // conquest), siasa_kikundi (factions), teknolojia, maarifa
+    // (research). `wakala` (NPC engine) ILIACHWA HAPA KWA MAKUSUDI —
+    // tayari imeongezwa na kazi nyingine sambamba (angalia
+    // wakala_addr juu) ili kuepuka mgongano wa marudio.
+    N64 jeshi_vitengo_addr;
+    N64 mapigano_addr;
+    N64 ushindi_addr;
+    N64 kikundi_addr;
+    N64 teknolojia_addr;
+    N64 maarifa_addr;
 };
 
 InjiniMudaMfumo* mchezo_pata_muda(Mchezo* g) { rudisha g->muda_addr; }
@@ -235,6 +306,57 @@ W0 mchezo_weka_soko_haramu(Mchezo* g, SokoHaramuMfumo* v) { g->soko_haramu_addr 
 VitaMfumo* mchezo_pata_vita(Mchezo* g) { rudisha g->vita_addr; }
 W0 mchezo_weka_vita(Mchezo* g, VitaMfumo* v) { g->vita_addr = v; }
 
+UtamaduniKitambulishoMfumo* mchezo_pata_utamaduni_kitambulisho(Mchezo* g) { rudisha g->utamaduni_kitambulisho_addr; }
+W0 mchezo_weka_utamaduni_kitambulisho(Mchezo* g, UtamaduniKitambulishoMfumo* v) { g->utamaduni_kitambulisho_addr = v; }
+
+UtamaduniKuenea* mchezo_pata_utamaduni_kuenea(Mchezo* g) { rudisha g->utamaduni_kuenea_addr; }
+W0 mchezo_weka_utamaduni_kuenea(Mchezo* g, UtamaduniKuenea* v) { g->utamaduni_kuenea_addr = v; }
+
+UtamaduniItikadiMfumo* mchezo_pata_utamaduni_itikadi(Mchezo* g) { rudisha g->utamaduni_itikadi_addr; }
+W0 mchezo_weka_utamaduni_itikadi(Mchezo* g, UtamaduniItikadiMfumo* v) { g->utamaduni_itikadi_addr = v; }
+
+UtamaduniUigajiTracker* mchezo_pata_utamaduni_uigaji(Mchezo* g) { rudisha g->utamaduni_uigaji_addr; }
+W0 mchezo_weka_utamaduni_uigaji(Mchezo* g, UtamaduniUigajiTracker* v) { g->utamaduni_uigaji_addr = v; }
+
+UtamaduniDiniMfumo* mchezo_pata_utamaduni_dini(Mchezo* g) { rudisha g->utamaduni_dini_addr; }
+W0 mchezo_weka_utamaduni_dini(Mchezo* g, UtamaduniDiniMfumo* v) { g->utamaduni_dini_addr = v; }
+
+MatukioTukioMfumo* mchezo_pata_matukio(Mchezo* g) { rudisha g->matukio_addr; }
+W0 mchezo_weka_matukio(Mchezo* g, MatukioTukioMfumo* v) { g->matukio_addr = v; }
+
+WakalaInjini* mchezo_pata_wakala(Mchezo* g) { rudisha g->wakala_addr; }
+W0 mchezo_weka_wakala(Mchezo* g, WakalaInjini* v) { g->wakala_addr = v; }
+
+InjiniOkestra* mchezo_pata_okestra(Mchezo* g) { rudisha g->injini_okestra_addr; }
+W0 mchezo_weka_okestra(Mchezo* g, InjiniOkestra* v) { g->injini_okestra_addr = v; }
+
+InjiniSaaKuu* mchezo_pata_saa_kuu(Mchezo* g) { rudisha g->injini_saa_kuu_addr; }
+W0 mchezo_weka_saa_kuu(Mchezo* g, InjiniSaaKuu* v) { g->injini_saa_kuu_addr = v; }
+
+InjiniUhifadhi* mchezo_pata_uhifadhi(Mchezo* g) { rudisha g->injini_uhifadhi_addr; }
+W0 mchezo_weka_uhifadhi(Mchezo* g, InjiniUhifadhi* v) { g->injini_uhifadhi_addr = v; }
+
+InjiniUtendaji* mchezo_pata_utendaji(Mchezo* g) { rudisha g->injini_utendaji_addr; }
+W0 mchezo_weka_utendaji(Mchezo* g, InjiniUtendaji* v) { g->injini_utendaji_addr = v; }
+
+JeshiVitengoMfumo* mchezo_pata_jeshi_vitengo(Mchezo* g) { rudisha g->jeshi_vitengo_addr; }
+W0 mchezo_weka_jeshi_vitengo(Mchezo* g, JeshiVitengoMfumo* v) { g->jeshi_vitengo_addr = v; }
+
+MapiganoMfumo* mchezo_pata_mapigano(Mchezo* g) { rudisha g->mapigano_addr; }
+W0 mchezo_weka_mapigano(Mchezo* g, MapiganoMfumo* v) { g->mapigano_addr = v; }
+
+UshindiMfumo* mchezo_pata_ushindi(Mchezo* g) { rudisha g->ushindi_addr; }
+W0 mchezo_weka_ushindi(Mchezo* g, UshindiMfumo* v) { g->ushindi_addr = v; }
+
+SiasaKikundiMfumo* mchezo_pata_kikundi(Mchezo* g) { rudisha g->kikundi_addr; }
+W0 mchezo_weka_kikundi(Mchezo* g, SiasaKikundiMfumo* v) { g->kikundi_addr = v; }
+
+TeknolojiaMfumo* mchezo_pata_teknolojia(Mchezo* g) { rudisha g->teknolojia_addr; }
+W0 mchezo_weka_teknolojia(Mchezo* g, TeknolojiaMfumo* v) { g->teknolojia_addr = v; }
+
+MaarifaUtafiti* mchezo_pata_maarifa(Mchezo* g) { rudisha g->maarifa_addr; }
+W0 mchezo_weka_maarifa(Mchezo* g, MaarifaUtafiti* v) { g->maarifa_addr = v; }
+
 W0 mchezo_usanidi_chaguomsingi(MchezoUsanidi* u) {
     kama (u == 0) { rudisha; }
     u->jina = "Ustaarabu Mpya";
@@ -281,6 +403,23 @@ Mchezo* mchezo_unda() {
     g->uvumbuzi_addr = 0;
     g->soko_haramu_addr = 0;
     g->vita_addr = 0;
+    g->utamaduni_kitambulisho_addr = 0;
+    g->utamaduni_kuenea_addr = 0;
+    g->utamaduni_itikadi_addr = 0;
+    g->utamaduni_uigaji_addr = 0;
+    g->utamaduni_dini_addr = 0;
+    g->matukio_addr = 0;
+    g->wakala_addr = 0;
+    g->injini_okestra_addr = 0;
+    g->injini_saa_kuu_addr = 0;
+    g->injini_uhifadhi_addr = 0;
+    g->injini_utendaji_addr = 0;
+    g->jeshi_vitengo_addr = 0;
+    g->mapigano_addr = 0;
+    g->ushindi_addr = 0;
+    g->kikundi_addr = 0;
+    g->teknolojia_addr = 0;
+    g->maarifa_addr = 0;
     g->utendaji.idadi_ya_sasisho = 0;
     g->utendaji.muda_wa_wastani_wa_sasisho = 0.0;
     g->utendaji.muda_wa_mwisho_wa_sasisho = 0.0;
@@ -358,6 +497,65 @@ CivMatokeo mchezo_anzisha(Mchezo* g, MchezoUsanidi* usanidi) {
     mchezo_weka_uvumbuzi(g, uvumbuzi_unda());
     mchezo_weka_soko_haramu(g, soko_haramu_unda());
     mchezo_weka_vita(g, vita_unda());
+
+    // Utamaduni (mifumo 5), matukio, wakala, injini_* — nyongeza ya
+    // wimbi la tano. Mifumo yote inaundwa TUPU (hakuna vitambulisho/
+    // itikadi/dini vya awali vilivyowekwa) — ni miundombinu tayari
+    // kupokea data halisi ya kitamaduni pale itakapounganishwa.
+    mchezo_weka_utamaduni_kitambulisho(g, utamaduni_kitambulisho_mfumo_unda());
+    mchezo_weka_utamaduni_kuenea(g, utamaduni_kuenea_unda());
+    mchezo_weka_utamaduni_itikadi(g, utamaduni_itikadi_mfumo_unda());
+    mchezo_weka_utamaduni_uigaji(g, utamaduni_uigaji_tracker_unda());
+    mchezo_weka_utamaduni_dini(g, utamaduni_dini_mfumo_unda());
+    mchezo_weka_matukio(g, matukio_tukio_mfumo_unda());
+    mchezo_weka_wakala(g, wakala_injini_unda());
+    mchezo_weka_okestra(g, injini_okestra_unda());
+    mchezo_weka_saa_kuu(g, injini_saa_unda());
+    mchezo_weka_uhifadhi(g, injini_uhifadhi_unda("saves"));
+    mchezo_weka_utendaji(g, injini_utendaji_unda());
+
+    // Jeshi (units/combat/conquest), siasa_kikundi (factions),
+    // teknolojia, maarifa (research) — nyongeza ya wimbi la tano,
+    // sehemu ya pili.
+    mchezo_weka_jeshi_vitengo(g, jeshi_vitengo_unda());
+    mchezo_weka_mapigano(g, mapigano_mfumo_unda());
+    mchezo_weka_ushindi(g, ushindi_mfumo_unda());
+
+    // siasa_kikundi_mfumo_unda() na teknolojia_unda() zinarudisha
+    // muundo KWA THAMANI (si kielekezi) — badala ya kujaribu
+    // `*kielekezi = thamani;` (njia ambayo haijawahi kujaribiwa
+    // kikao hiki kwa miundo hii mikubwa), tunatenga kwenye rundo na
+    // kunakili field kwa field, mtindo ulioothibitishwa salama.
+    SiasaKikundiMfumo kikundi_v = siasa_kikundi_mfumo_unda();
+    SiasaKikundiMfumo* kikundi_p = tenga(ukubwa(SiasaKikundiMfumo));
+    kikundi_p->vikundi = kikundi_v.vikundi;
+    kikundi_p->idadi = kikundi_v.idadi;
+    kikundi_p->uwezo = kikundi_v.uwezo;
+    mchezo_weka_kikundi(g, kikundi_p);
+
+    TeknolojiaMfumo tek_v = teknolojia_unda();
+    TeknolojiaMfumo* tek_p = tenga(ukubwa(TeknolojiaMfumo));
+    tek_p->bajeti_jumla = tek_v.bajeti_jumla;
+    tek_p->kiwango = tek_v.kiwango;
+    tek_p->cheo_duniani = tek_v.cheo_duniani;
+    tek_p->wastani_duniani = tek_v.wastani_duniani;
+    tek_p->kiwango_jumla = tek_v.kiwango_jumla;
+    tek_p->cheo_jumla = tek_v.cheo_jumla;
+    tek_p->mgao_0 = tek_v.mgao_0; tek_p->mgao_1 = tek_v.mgao_1;
+    tek_p->mgao_2 = tek_v.mgao_2; tek_p->mgao_3 = tek_v.mgao_3;
+    tek_p->mgao_4 = tek_v.mgao_4; tek_p->mgao_5 = tek_v.mgao_5;
+    tek_p->mgao_6 = tek_v.mgao_6; tek_p->mgao_7 = tek_v.mgao_7;
+    tek_p->mgao_8 = tek_v.mgao_8; tek_p->mgao_9 = tek_v.mgao_9;
+    tek_p->mgao_10 = tek_v.mgao_10; tek_p->mgao_11 = tek_v.mgao_11;
+    tek_p->kasi_0 = tek_v.kasi_0; tek_p->kasi_1 = tek_v.kasi_1;
+    tek_p->kasi_2 = tek_v.kasi_2; tek_p->kasi_3 = tek_v.kasi_3;
+    tek_p->kasi_4 = tek_v.kasi_4; tek_p->kasi_5 = tek_v.kasi_5;
+    tek_p->kasi_6 = tek_v.kasi_6; tek_p->kasi_7 = tek_v.kasi_7;
+    tek_p->kasi_8 = tek_v.kasi_8; tek_p->kasi_9 = tek_v.kasi_9;
+    tek_p->kasi_10 = tek_v.kasi_10; tek_p->kasi_11 = tek_v.kasi_11;
+    mchezo_weka_teknolojia(g, tek_p);
+
+    mchezo_weka_maarifa(g, maarifa_unda());
 
     g->hali_ya_mchezo = MCHEZO_HALI_INAENDESHA;
     g->inafanya_kazi = 1;
@@ -583,6 +781,52 @@ W0 mchezo_sasisha(Mchezo* g) {
         diplomasia_sasisha_mahusiano(diplomasia, zamu_d);
     }
 
+    // Utamaduni: kuenea na uigaji vyote hufanya kazi juu ya mfumo
+    // mzima wa vitambulisho (kitambulisho_addr) -- itikadi/dini
+    // hazina kazi ya "sasisha zote" ya kiwango cha mfumo (zinaundwa
+    // tayari kupokea vitu vya kibinafsi baadaye), kwa hiyo hazipigi
+    // simu hapa (kupiga simu kwenye mfumo tupu kusingekuwa na athari
+    // yoyote).
+    UtamaduniKitambulishoMfumo* kitambulisho_mfumo = mchezo_pata_utamaduni_kitambulisho(g);
+    UtamaduniKuenea* kuenea = mchezo_pata_utamaduni_kuenea(g);
+    kama (kuenea != 0 && kitambulisho_mfumo != 0) {
+        utamaduni_kuenea_chakata(kuenea, kitambulisho_mfumo, dt);
+    }
+    UtamaduniUigajiTracker* uigaji = mchezo_pata_utamaduni_uigaji(g);
+    kama (uigaji != 0 && kitambulisho_mfumo != 0) {
+        utamaduni_uigaji_tracker_sasisha(uigaji, kitambulisho_mfumo, dt);
+    }
+
+    MatukioTukioMfumo* matukio = mchezo_pata_matukio(g);
+    kama (matukio != 0) {
+        matukio_tukio_sasisha(matukio, dt);
+    }
+
+    // Jeshi (units/combat) hazina "sasisha zote" ya kiwango cha
+    // mfumo — mapigano ni ya tukio (event-driven, simulisha vita
+    // moja mahususi), vitengo ni ya kitendo (ajiri/imarisha kwa
+    // ombi) — zote mbili ni sahihi kubaki bila wito hapa, ni
+    // kwa makusudi, si pengo.
+    UshindiMfumo* ushindi = mchezo_pata_ushindi(g);
+    kama (ushindi != 0) {
+        ushindi_sasisha(ushindi, dt);
+    }
+
+    SiasaKikundiMfumo* kikundi = mchezo_pata_kikundi(g);
+    kama (kikundi != 0) {
+        siasa_kikundi_mfumo_sasisha(kikundi, dt);
+    }
+
+    TeknolojiaMfumo* teknolojia = mchezo_pata_teknolojia(g);
+    kama (teknolojia != 0) {
+        teknolojia_sasisha(teknolojia, dt);
+    }
+
+    MaarifaUtafiti* maarifa = mchezo_pata_maarifa(g);
+    kama (maarifa != 0) {
+        maarifa_sasisha(maarifa, idadi_ya_watu_n, 1);
+    }
+
     g->utendaji.idadi_ya_sasisho = g->utendaji.idadi_ya_sasisho + 1;
 }
 
@@ -594,6 +838,18 @@ CivMatokeo mchezo_maliza_zamu(Mchezo* g) {
         rudisha r;
     }
     g->zamu_ya_sasa = g->zamu_ya_sasa + 1;
+
+    // Saa kuu (mwaka/siku) na wakala (maamuzi ya NPC) ni HALISI YA
+    // ZAMU (per-turn), si ya kila mzunguko wa dt kama mchezo_sasisha
+    // -- huitwa hapa, si kwenye mchezo_sasisha.
+    InjiniSaaKuu* saa = mchezo_pata_saa_kuu(g);
+    kama (saa != 0) { injini_saa_songesha_zamu(saa); }
+
+    WakalaInjini* wakala = mchezo_pata_wakala(g);
+    kama (wakala != 0 && saa != 0) {
+        wakala_injini_sasisha_zamu(wakala, saa->mwaka_wa_ulimwengu, saa->siku_ya_ulimwengu);
+    }
+
     andika("[MCHEZO] Zamu imekamilika, zamu mpya: %d\n", g->zamu_ya_sasa, 0,0,0,0,0);
     r.hitilafu = CIV_SAWA;
     r.ujumbe = 0;
@@ -670,6 +926,37 @@ W0 mchezo_zima(Mchezo* g) {
     kama (soko_haramu != 0) { soko_haramu_uharibu(soko_haramu); }
     VitaMfumo* vita = mchezo_pata_vita(g);
     kama (vita != 0) { vita_uharibu(vita); }
+
+    // Mifumo 5 ya utamaduni (kitambulisho, kuenea, itikadi, uigaji,
+    // dini) HAIKUUHARIBIWA hapa KWA MAKUSUDI -- hakuna hata mmoja
+    // wao anayetoa kazi ya "_uharibu"/"_mfumo_uharibu" (imethibitishwa
+    // kwa kusoma faili zao halisi) -- ni pengo lililopo tayari kwenye
+    // moduli hizo tano zenyewe, si kosa jipya la mchezo.swa.
+    MatukioTukioMfumo* matukio_zima = mchezo_pata_matukio(g);
+    kama (matukio_zima != 0) { matukio_tukio_mfumo_uharibu(matukio_zima); }
+    WakalaInjini* wakala_zima = mchezo_pata_wakala(g);
+    kama (wakala_zima != 0) { wakala_injini_uharibu(wakala_zima); }
+    InjiniOkestra* okestra_zima = mchezo_pata_okestra(g);
+    kama (okestra_zima != 0) { injini_okestra_uharibu(okestra_zima); }
+    InjiniSaaKuu* saa_zima = mchezo_pata_saa_kuu(g);
+    kama (saa_zima != 0) { injini_saa_uharibu(saa_zima); }
+    InjiniUhifadhi* uhifadhi_zima = mchezo_pata_uhifadhi(g);
+    kama (uhifadhi_zima != 0) { injini_uhifadhi_uharibu(uhifadhi_zima); }
+    InjiniUtendaji* utendaji_zima = mchezo_pata_utendaji(g);
+    kama (utendaji_zima != 0) { injini_utendaji_uharibu(utendaji_zima); }
+
+    JeshiVitengoMfumo* jeshi_vitengo = mchezo_pata_jeshi_vitengo(g);
+    kama (jeshi_vitengo != 0) { jeshi_vitengo_uharibu(jeshi_vitengo); }
+    MapiganoMfumo* mapigano = mchezo_pata_mapigano(g);
+    kama (mapigano != 0) { mapigano_mfumo_uharibu(mapigano); }
+    UshindiMfumo* ushindi_zima = mchezo_pata_ushindi(g);
+    kama (ushindi_zima != 0) { ushindi_mfumo_uharibu(ushindi_zima); }
+    SiasaKikundiMfumo* kikundi_zima = mchezo_pata_kikundi(g);
+    kama (kikundi_zima != 0) { siasa_kikundi_mfumo_uharibu(kikundi_zima); }
+    TeknolojiaMfumo* teknolojia_zima = mchezo_pata_teknolojia(g);
+    kama (teknolojia_zima != 0) { teknolojia_uharibu(teknolojia_zima); }
+    MaarifaUtafiti* maarifa_zima = mchezo_pata_maarifa(g);
+    kama (maarifa_zima != 0) { maarifa_uharibu(maarifa_zima); }
 }
 
 W0 mchezo_uharibu(Mchezo* g) {
