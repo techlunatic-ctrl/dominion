@@ -458,11 +458,18 @@ CivMatokeo mchezo_anzisha(Mchezo* g, MchezoUsanidi* usanidi) {
     mchezo_weka_akili(g, akili_mfumo_unda());
     mchezo_weka_diplomasia(g, diplomasia_unda());
 
-    // Taifa (nation.c): mfumo + mataifa 8 ya awali (procedural
-    // fallback, hakuna upakiaji wa data ya nje bado), yakidai eneo
-    // kutoka ramani iliyokwisha undwa juu.
+    // Taifa (nation.c): mfumo wa mataifa, yakidai eneo kutoka ramani
+    // iliyokwisha undwa juu. Tunatumia njia ya data (anzisha_kutoka_data)
+    // badala ya chaguo_msingi moja kwa moja: Mchezo bado hana DuniaMipakaKisiasa
+    // wala DuniaMataifaData halisi (hazijawekwa bado kwenye mzunguko wa
+    // mchezo), hivyo tunapitisha 0/0 -- kazi yenyewe tayari ina ukaguzi
+    // sahihi (mipaka == 0 -> chaguo_msingi), hivyo tabia ya sasa ni sawa
+    // na kabla. Ukiwa na mipaka ya kisiasa halisi baadaye, njia hii
+    // itatumia data halisi bila mabadiliko zaidi hapa.
     TaifaMfumo* taifa = dunia_taifa_mfumo_unda();
-    dunia_taifa_mfumo_anzisha_chaguo_msingi(taifa);
+    DuniaMataifaData* mataifa_data_bado_hakuna = 0;
+    DuniaMipakaKisiasa* mipaka_kisiasa_bado_hakuna = 0;
+    dunia_taifa_mfumo_anzisha_kutoka_data(taifa, mataifa_data_bado_hakuna, mipaka_kisiasa_bado_hakuna);
     mchezo_weka_taifa(g, taifa);
     DuniaRamani* ramani_kwa_taifa = mchezo_pata_ramani(g);
     kama (ramani_kwa_taifa != 0) {
