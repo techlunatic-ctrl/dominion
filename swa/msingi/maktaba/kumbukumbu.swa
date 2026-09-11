@@ -65,6 +65,17 @@ N64 sys_munmap(N8* anwani, N64 urefu) {
     rudisha wito_wa_mfumo(11, anwani, urefu, 0, 0, 0, 0);
 }
 
+// ioctl(2) -- wito ghafi wa mfumo namba 16. Hoja ya tatu ni kielekezi
+// cha muundo wa hoja (au 0 ikiwa ioctl hii haihitaji muundo) --
+// kimsingi ni N8* ya "bafa ghafi" ambayo kernel husoma/kuandika kwa
+// mpangilio wa baiti unaotegemea ombi (req) lenyewe. Iliongezwa kwa
+// ajili ya DRM/KMS (onyesho.swa) -- ioctl ndiyo njia pekee ya
+// kuzungumza na /dev/dri/cardN, hakuna wito mwingine wa mfumo wa
+// kuweka modi ya onyesho.
+N64 sys_ioctl(N64 faili, N64 ombi, N8* hoja) {
+    rudisha wito_wa_mfumo(16, faili, ombi, hoja, 0, 0, 0);
+}
+
 // ==========================================================
 // Uchapishaji — andika_n64 / andika_mfuatano / andika_baiti
 // Hizi ndizo kazi zinazoitwa na builtin ya andika katika mzalishaji.
