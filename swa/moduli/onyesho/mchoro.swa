@@ -1,0 +1,99 @@
+husisha { moduli/onyesho/baiti_ghafi.swa }
+
+// mchoro.swa -- vitendo vya msingi vya uchoraji 2D juu ya framebuffer
+// YOYOTE ya XRGB8888 (bafa ya N8*, pitch ya baiti kwa kila mstari wa
+// pikseli -- inaweza kuwa dumb buffer halisi ya DRM (angalia drm.swa)
+// AU bafa ya kawaida ya tenga() kwa madhumuni ya jaribio/nje ya
+// skrini). Haihitaji GPU/shader kabisa -- mchezo halisi wa C
+// ulitumia SDL_Renderer 2D pekee (fill-rect/line/texture-blit),
+// kamwe si API ya GPU ya moja kwa moja, kwa hiyo hakuna kinachopotea
+// kwa kutumia CPU pekee hapa.
+
+W0 mchoro_weka_pikseli(N8* fb, N64 pitch, N64 x, N64 y, N64 rangi) {
+    N64 off = (y * pitch) + (x * 4);
+    weka_u32(fb, off, rangi);
+}
+
+N64 mchoro_pata_pikseli(N8* fb, N64 pitch, N64 x, N64 y) {
+    N64 off = (y * pitch) + (x * 4);
+    rudisha pata_u32(fb, off);
+}
+
+// Jaza mstatili (x,y,w,h) na rangi moja, ukikata (clip) kwenye mipaka
+// ya canvas_w x canvas_h.
+W0 mchoro_piga_mstatili(N8* fb, N64 pitch, N64 canvas_w, N64 canvas_h, N64 x, N64 y, N64 w, N64 h, N64 rangi) {
+    N64 x0 = x;
+    kama (x0 < 0) { x0 = 0; }
+    N64 y0 = y;
+    kama (y0 < 0) { y0 = 0; }
+    N64 x1 = x + w;
+    kama (x1 > canvas_w) { x1 = canvas_w; }
+    N64 y1 = y + h;
+    kama (y1 > canvas_h) { y1 = canvas_h; }
+
+    N64 j = y0;
+    wakati (j < y1) {
+        N64 i = x0;
+        wakati (i < x1) {
+            mchoro_weka_pikseli(fb, pitch, i, j, rangi);
+            i = i + 1;
+        }
+        j = j + 1;
+    }
+}
+
+// Mstari kwa alogorithimu ya Bresenham (integer pekee, hakuna D64) --
+// imekatwa (clip) pikseli moja moja dhidi ya mipaka ya canvas.
+W0 mchoro_chora_mstari(N8* fb, N64 pitch, N64 canvas_w, N64 canvas_h, N64 x0, N64 y0, N64 x1, N64 y1, N64 rangi) {
+    N64 dx = x1 - x0;
+    kama (dx < 0) { dx = 0 - dx; }
+    N64 dy = y1 - y0;
+    kama (dy < 0) { dy = 0 - dy; }
+    N64 sx = 0 - 1;
+    kama (x0 < x1) { sx = 1; }
+    N64 sy = 0 - 1;
+    kama (y0 < y1) { sy = 1; }
+    N64 err = dx - dy;
+    N64 x = x0;
+    N64 y = y0;
+
+    wakati (1) {
+        kama (x >= 0 && x < canvas_w && y >= 0 && y < canvas_h) {
+            mchoro_weka_pikseli(fb, pitch, x, y, rangi);
+        }
+        kama (x == x1 && y == y1) { vunja; }
+        N64 e2 = 2 * err;
+        kama (e2 > (0 - dy)) {
+            err = err - dy;
+            x = x + sx;
+        }
+        kama (e2 < dx) {
+            err = err + dx;
+            y = y + sy;
+        }
+    }
+}
+
+// Nakili mstatili wa pikseli kutoka bafa ya chanzo (mfano: sprite/
+// bitmap font ndogo iliyowekwa kwenye kumbukumbu) hadi kwenye
+// framebuffer lengwa, kwenye nafasi (x,y), ukikata dhidi ya mipaka
+// ya lengwa. Hii ndiyo msingi wa uchoraji wa sprite/maandishi ya
+// baadaye.
+W0 mchoro_bandika(N8* fb, N64 pitch, N64 canvas_w, N64 canvas_h, N64 x, N64 y, N8* chanzo, N64 chanzo_pitch, N64 cw, N64 ch) {
+    N64 j = 0;
+    wakati (j < ch) {
+        N64 dy = y + j;
+        kama (dy >= 0 && dy < canvas_h) {
+            N64 i = 0;
+            wakati (i < cw) {
+                N64 dx = x + i;
+                kama (dx >= 0 && dx < canvas_w) {
+                    N64 px = mchoro_pata_pikseli(chanzo, chanzo_pitch, i, j);
+                    mchoro_weka_pikseli(fb, pitch, dx, dy, px);
+                }
+                i = i + 1;
+            }
+        }
+        j = j + 1;
+    }
+}
