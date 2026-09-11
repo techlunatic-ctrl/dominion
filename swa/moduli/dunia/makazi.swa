@@ -200,10 +200,23 @@ CivMatokeo dunia_makazi_jaribu_kuunda(DuniaMakaziMsimamizi* m, D64 x, D64 y,
         i = i + 1;
     }
 
+    // URUDIAJI WA MUUNDO (restructuring): chanzo cha C
+    // (civ_attempt_settlement_spawn, settlement_manager.c) kilirudisha
+    // {CIV_OK, "Not suitable"} kwa eneo lisilofaa -- CIV_OK ni msimbo
+    // ULE ULE wa mafanikio halisi, hivyo mwitaji hawezi kutofautisha
+    // "imeundwa" na "imekataliwa" kwa kuangalia .error pekee. Katika C
+    // hilo lilikuwa hitilafu tulivu (goal progress/kumbukumbu isiyo
+    // sahihi); kwenye Swa lingesababisha KUANGUKA (segfault) kwa
+    // mwitaji yeyote anayetumia matokeo kupata makazi mapya kutoka
+    // kwenye msimamizi (mfano: akili_mkakati_shughulikia_upanuzi
+    // ikiweka eneo_id baada ya kuundwa). Imerekebishwa hapa kurudisha
+    // CIV_HITILAFU_HALI_MBAYA -- msimbo ule ule unaotumika kwenye
+    // tawi la "karibu sana na makazi mengine" hapo juu -- ili .hitilafu
+    // pekee itoshe kutofautisha mafanikio na kukataliwa.
     D64 ufaafu = dunia_makazi_hesabu_ufaafu_wa_eneo(x, y);
     kama (ufaafu <= 0.7) {
         CivMatokeo r;
-        r.hitilafu = CIV_SAWA;
+        r.hitilafu = CIV_HITILAFU_HALI_MBAYA;
         r.ujumbe = "eneo halifai";
         rudisha r;
     }
