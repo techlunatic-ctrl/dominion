@@ -137,3 +137,63 @@ kukagua miili yoyote). Msimbo uliopo tayari unaofuata nidhamu ya
 upya -- ni sahihi kama ulivyo -- lakini msimbo MPYA hauhitaji tena
 kufuata nidhamu hiyo kwa mkono: mkusanyaji sasa unakataa kwa sauti
 wito wa mbele wenye idadi mbaya ya hoja, wakati wowote wa kukusanya.
+
+## Uthibitisho dhidi ya Awamu D (lugha-swa/swa#279) -- 2026-09-27
+
+lugha-swa/swa#279 ("Awamu D") iliondoa kabisa uungwaji mkono wa
+herufi kubwa za aina za msingi (N32/N64/D64/B1/W0 n.k. hazitambuliwi
+tena KABISA) kwenye stage1, ikimaliza mradi wa uhamiaji wa herufi
+ndogo ulioanza na lugha-swa/swa#225. Kabla ya #279 kuungana
+(2026-09-26), tayari commit 271ce40 (2026-09-12, PR #1 ya hazina hii)
+ilikuwa imehamisha faili zote 111 za .swa za mradi huu kwenda herufi
+ndogo -- kwa hiyo hazina hii ilikuwa TAYARI salama dhidi ya #279 kabla
+haijaungana.
+
+Uthibitisho uliofanywa baada ya #279 kuungana (dhidi ya stage1 mpya
+kabisa iliyojengwa kutoka lugha-swa/swa main ya 2026-09-26, mnyororo
+kamili mbegu->msuluhishi->stage1, si binary ya zamani):
+
+- Grep ya `swa/` yote: HAKUNA `\bN8\b`..`\bW64\b` (herufi kubwa)
+  kwenye msimbo halisi -- tukio pekee lililopatikana ni maandishi ya
+  KANUNI-MAJINA.md yenyewe (mfano wa maelezo, si msimbo).
+- Ukaguzi wa migongano ya jina la kigezo dhidi ya aina mpya za herufi
+  ndogo (familia zote 19: n8/n16/n32/n64, a8/a16/a32/a64, d32/d64,
+  b1/b8/b16/b32/b64, w0/w8/w16/w32/w64): vigezo viwili tu
+  vilivyopatikana vikigongana kwa jina --
+  `swa/msingi/maktaba/bin_soma.swa` na
+  `swa/moduli/onyesho/jaribio_mchoro.swa`, vyote viwili vina kigezo
+  cha ndani kiitwacho `b1`. Vimethibitishwa TARAJIWA (havihitaji
+  kubadilishwa jina): hazitumiki ndani ya muktadha wa aina (`ukubwa(x)`
+  / `tenga(x...)` / tamko la aina), na kuendesha kwa mkono kunathibitisha
+  thamani sahihi (bin_soma: v16=513, v32=67305985; jaribio_mchoro.swa:
+  PASS) dhidi ya stage1 mpya.
+- `swa/moduli/mchezo.swa` na `swa/moduli/dunia/taifa.swa`
+  (sehemu mbili nzito zilizotajwa) zinakusanya bila hitilafu yoyote
+  dhidi ya stage1 mpya.
+- Programu ya majaribio iliyoendesha `mchezo_unda()`, mizunguko 5 ya
+  `idadi_ya_watu_sasisha`, mizunguko 5 ya `uchumi_mkuu_sasisha`, na
+  `dunia_taifa_mfumo_dai_maeneo_yote` (ikiwemo kudai kipande kimoja
+  cha ardhi HALISI kwenye ramani) ilitoa matokeo YANAYOFANANA KABISA
+  (diff tupu, herufi kwa herufi) kati ya stage1 iliyojengwa KABLA ya
+  #279 (commit d3bb984, inayounga mkono herufi zote mbili) na stage1
+  iliyojengwa BAADA ya #279 (herufi ndogo pekee).
+
+### Mdudu ULIOKUWEPO TAYARI uliogunduliwa (nje ya wigo wa uhamiaji huu)
+
+`utawala_serikali_unda()` (`swa/moduli/utawala/serikali.swa`)
+inaporomoka (SIGSEGV) pale `tenga(ukubwa(UtawalaSerikali))`
+inaporudisha kielekezi cha 0 (NULL) -- ijapokuwa `mmap()` yenyewe
+inafaulu (imethibitishwa kwa `strace`). Hii HAITOKEI ikiwa
+`serikali.swa` inakusanywa peke yake (kitengo kidogo cha ukusanyaji);
+INATOKEA TU wakati imekusanywa kama sehemu ya graph NZIMA ya
+`mchezo.swa` (miundo 215+ ya `husisha` inayofuatana). Imethibitishwa
+kutokea SAWA KABISA (mahali pamoja, tabia moja) dhidi ya stage1 ya
+KABLA na BAADA ya #279 -- kwa hiyo SI athari ya uhamiaji wa herufi
+ndogo wala ya #279 yenyewe, ni mdudu wa kina zaidi (labda kikomo
+kingine cha jedwali la ndani la mkusanyaji, kinachofanana na
+#189/#192/#197 zilizotangulia, lakini kwa kiwango kikubwa zaidi cha
+miundo) unaostahili uchunguzi tofauti, WA NJE ya kazi hii. Kwa sasa
+`mchezo_anzisha()` kamili (inayoita `utawala_serikali_unda`) haiwezi
+kuendeshwa kikamilifu ikiwa imekusanywa pamoja na graph nzima ya
+mchezo.swa -- programu za majaribio zilizotumika hapo juu ziliepuka
+njia hii kwa makusudi kwa kuunda mifumo moja moja moja kwa moja.
