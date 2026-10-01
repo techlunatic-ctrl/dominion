@@ -3,10 +3,28 @@
 //
 // Kiambishi: mchezo_ — angalia ../KANUNI-MAJINA.md.
 //
+// HITILAFU YA MKUSANYAJI INAYOJULIKANA (lugha-swa/swa#292, 2026-10-01):
+// mchezo_anzisha() na mchezo_sasisha() huanguka (SIGSEGV ya kimya,
+// hakuna kosa la kukusanya) PALE faili hili likiunganishwa (husisha)
+// KIKAMILIFU (moduli ~45, kazi ~925) kupitia stage1 -- imethibitishwa
+// kutokea HATA na mchezo.swa KABLA ya mabadiliko yoyote ya kikao hiki
+// (si kosa jipya, ni pengo la zamani lililofichika kwa sababu hakuna
+// jaribio lililokuwa likiita mchezo_anzisha() moja kwa moja hadi
+// sasa). Bisection inaonyesha hitilafu inaonekana kuhusiana na idadi
+// ya JUMLA ya kazi kwenye kitengo kimoja cha utafsiri ikivuka kiwango
+// karibu na 440-444 (si moduli mahususi "mbovu") -- angalia issue
+// kamili kwa maelezo ya uzalishaji upya na majaribio ya bisection.
+// Mpaka itakaporekebishwa: kazi za pata/weka za faili hili (zinazoitwa
+// moja kwa moja bila kupitia mchezo_anzisha) na mifumo ya mtu binafsi
+// (uchumi_mkuu.swa, serikali.swa, n.k.) zote bado zinafanya kazi
+// SAWASAWA zikijaribiwa peke yake au kwa mchanganyiko mdogo wa
+// moduli -- angalia swa/moduli/jaribio_mchezo.swa kwa jaribio
+// lililoandikwa kuzunguka pengo hili.
+//
 // MUHIMU — WIGO WA TAFSIRI HII (SI TAFSIRI KAMILI, LAKINI SASA
 // PANA ZAIDI KULIKO TOLEO LA KWANZA LA MFUPA MKUU):
 // civ_game_t ya asili ina zaidi ya viashiria 45 vya mifumo midogo.
-// Toleo hili linaunganisha mifumo 28 kati ya hizo (badala ya 7 za
+// Toleo hili linaunganisha mifumo 31 kati ya hizo (badala ya 7 za
 // awali): tabaka saba za msingi (wakati, idadi ya watu, utawala,
 // dunia, makazi/settlement, akili bandia, diplomasia) NA nguzo
 // nzima ya uchumi (moduli 20 — macro, nguvukazi, sera, kodi,
@@ -42,11 +60,25 @@
 //   - map_view.c/flag_system.c (SDL/picha) — nje ya wigo wa mradi
 //     mzima kwa sasa.
 //
-// Mifumo iliyounganishwa (28): muda, idadi_ya_watu, serikali,
+// Mifumo iliyounganishwa (31): muda, idadi_ya_watu, serikali,
 // ramani, makazi (settlement), akili, diplomasia, taifa, uchumi_mkuu,
 // nguvukazi, sera, kodi, bajeti, bidhaa, benki, kilimo, uchimbaji,
 // miundombinu, viwanda, nishati, uchumi_makazi (housing), ardhi,
-// mtaji, biashara_ndani, biashara_nje, uvumbuzi, soko_haramu, vita.
+// mtaji, biashara_ndani, biashara_nje, uvumbuzi, soko_haramu, vita,
+// mipaka_hai (dynamic borders), majanga (disasters), eneo (territory).
+//
+// NYONGEZA (wimbi la sita, 2026-10-01): dunia_mpaka_hai (tafsiri ya
+// dynamic_borders.c, Awamu 6/7 ya civ_game_update ya asili -- mivutano
+// ya mipaka kati ya maeneo), mazingira_majanga (tafsiri ya
+// disaster_system.c, Awamu 9 -- matetemeko/mafuriko/ukame/n.k.
+// yanayosababishwa kinasibu na kuathiri eneo), dunia_eneo (tafsiri ya
+// territory.c, Awamu 7 -- mikoa ya eneo yenye poligoni, nguvu ya
+// udhibiti). Hizi tatu tayari zilikuwa zimetafsiriwa kikamilifu
+// (_unda/_sasisha/_uharibu zipo) lakini HAZIKUWA zimeunganishwa
+// kwenye Mchezo/mchezo_sasisha -- kazi ya kikao hiki ilikuwa
+// kuziunganisha tu, si kuzitafsiri upya. Hazihitaji hoja kutoka
+// mifumo mingine (ni mifumo huru), hivyo huitwa na dt tu, bila
+// mnyororo wa thamani kama nguzo ya uchumi.
 //
 // NYONGEZA (wimbi la tano, 2026-09-11): utamaduni (mifumo 5:
 // kitambulisho, kuenea, itikadi, uigaji, dini), matukio_tukio (event
@@ -123,6 +155,9 @@ husisha { moduli/jeshi/ushindi.swa }
 husisha { moduli/siasa/kikundi.swa }
 husisha { moduli/teknolojia/teknolojia.swa }
 husisha { moduli/maarifa/maarifa.swa }
+husisha { moduli/dunia/mipaka_hai.swa }
+husisha { moduli/mazingira/majanga.swa }
+husisha { moduli/dunia/eneo.swa }
 
 n32 MCHEZO_HALI_KUANDAA = 0;
 n32 MCHEZO_HALI_INAENDESHA = 1;
@@ -220,6 +255,13 @@ muundo Mchezo {
     n64 kikundi_addr;
     n64 teknolojia_addr;
     n64 maarifa_addr;
+
+    // Nyongeza (wimbi la sita): mipaka_hai (dynamic borders), majanga
+    // (disasters), eneo (territory) -- angalia maelezo ya wigo juu ya
+    // faili.
+    n64 mipaka_hai_addr;
+    n64 majanga_addr;
+    n64 eneo_addr;
 };
 
 InjiniMudaMfumo* mchezo_pata_muda(Mchezo* g) { rudisha g->muda_addr; }
@@ -357,6 +399,15 @@ w0 mchezo_weka_teknolojia(Mchezo* g, TeknolojiaMfumo* v) { g->teknolojia_addr = 
 MaarifaUtafiti* mchezo_pata_maarifa(Mchezo* g) { rudisha g->maarifa_addr; }
 w0 mchezo_weka_maarifa(Mchezo* g, MaarifaUtafiti* v) { g->maarifa_addr = v; }
 
+DuniaMipakaHai* mchezo_pata_mipaka_hai(Mchezo* g) { rudisha g->mipaka_hai_addr; }
+w0 mchezo_weka_mipaka_hai(Mchezo* g, DuniaMipakaHai* v) { g->mipaka_hai_addr = v; }
+
+MazingiraMajangaMfumo* mchezo_pata_majanga(Mchezo* g) { rudisha g->majanga_addr; }
+w0 mchezo_weka_majanga(Mchezo* g, MazingiraMajangaMfumo* v) { g->majanga_addr = v; }
+
+DuniaEneoMsimamizi* mchezo_pata_eneo(Mchezo* g) { rudisha g->eneo_addr; }
+w0 mchezo_weka_eneo(Mchezo* g, DuniaEneoMsimamizi* v) { g->eneo_addr = v; }
+
 w0 mchezo_usanidi_chaguomsingi(MchezoUsanidi* u) {
     kama (u == 0) { rudisha; }
     u->jina = "Ustaarabu Mpya";
@@ -420,6 +471,9 @@ Mchezo* mchezo_unda() {
     g->kikundi_addr = 0;
     g->teknolojia_addr = 0;
     g->maarifa_addr = 0;
+    g->mipaka_hai_addr = 0;
+    g->majanga_addr = 0;
+    g->eneo_addr = 0;
     g->utendaji.idadi_ya_sasisho = 0;
     g->utendaji.muda_wa_wastani_wa_sasisho = 0.0;
     g->utendaji.muda_wa_mwisho_wa_sasisho = 0.0;
@@ -563,6 +617,12 @@ CivMatokeo mchezo_anzisha(Mchezo* g, MchezoUsanidi* usanidi) {
     mchezo_weka_teknolojia(g, tek_p);
 
     mchezo_weka_maarifa(g, maarifa_unda());
+
+    // Nyongeza (wimbi la sita): mipaka_hai, majanga, eneo -- mifumo
+    // huru, hazihitaji hoja kutoka kwa mifumo mingine kuundwa.
+    mchezo_weka_mipaka_hai(g, dunia_mpaka_hai_unda());
+    mchezo_weka_majanga(g, mazingira_majanga_unda());
+    mchezo_weka_eneo(g, dunia_eneo_msimamizi_unda());
 
     g->hali_ya_mchezo = MCHEZO_HALI_INAENDESHA;
     g->inafanya_kazi = 1;
@@ -834,7 +894,43 @@ w0 mchezo_sasisha(Mchezo* g) {
         maarifa_sasisha(maarifa, idadi_ya_watu_n, 1);
     }
 
+    // Mipaka hai, majanga, eneo -- IMEHAMISHWA kwenye kazi TOFAUTI
+    // (mchezo_sasisha_mifumo_huru, chini ya kazi hii) KWA MAKUSUDI, si
+    // uzembe: mchezo_sasisha ilikuwa TAYARI karibu sana na kikomo cha
+    // mkusanyaji (lugha-swa/swa: uzalishaji.swa, `var_jina_off[64]`,
+    // ujumbe wa kosa "vigezo vya ndani vimezidi 64" -- angalia maoni
+    // ya kernel_rekebisha_rela kwenye uzalishaji.swa kwa mfano mwingine
+    // uliokumbana na tatizo hili hili wakati wa kujijenga kwa mkusanyaji
+    // mwenyewe). Kuongeza vigezo vitatu zaidi vya ndani
+    // (mipaka_hai/majanga/eneo) HAPA MOJA KWA MOJA kulivunja mkusanyiko
+    // (imethibitishwa kwa vitendo: jaribio la kwanza la muunganisho huu
+    // lilishindwa na KOSA hiyo mara nne). Kuita kazi ndogo kutoka hapa
+    // haiongezi vigezo vya ndani vya mchezo_sasisha yenyewe.
+    mchezo_sasisha_mifumo_huru(g, dt);
+
     g->utendaji.idadi_ya_sasisho = g->utendaji.idadi_ya_sasisho + 1;
+}
+
+// mchezo_sasisha_mifumo_huru: sasisha ya mifumo isiyotegemea
+// mnyororo wa thamani wa nguzo ya uchumi (mipaka_hai, majanga, eneo)
+// -- angalia maoni kwenye mchezo_sasisha juu ya KWA NINI hii iko
+// kwenye kazi TOFAUTI (kikomo cha "vigezo vya ndani 64" cha
+// mkusanyaji).
+w0 mchezo_sasisha_mifumo_huru(Mchezo* g, d64 dt) {
+    DuniaMipakaHai* mipaka_hai = mchezo_pata_mipaka_hai(g);
+    kama (mipaka_hai != 0) {
+        dunia_mpaka_hai_sasisha(mipaka_hai, dt);
+    }
+
+    MazingiraMajangaMfumo* majanga = mchezo_pata_majanga(g);
+    kama (majanga != 0) {
+        mazingira_majanga_sasisha(majanga, dt);
+    }
+
+    DuniaEneoMsimamizi* eneo = mchezo_pata_eneo(g);
+    kama (eneo != 0) {
+        dunia_eneo_msimamizi_sasisha(eneo, dt);
+    }
 }
 
 CivMatokeo mchezo_maliza_zamu(Mchezo* g) {
@@ -964,6 +1060,13 @@ w0 mchezo_zima(Mchezo* g) {
     kama (teknolojia_zima != 0) { teknolojia_uharibu(teknolojia_zima); }
     MaarifaUtafiti* maarifa_zima = mchezo_pata_maarifa(g);
     kama (maarifa_zima != 0) { maarifa_uharibu(maarifa_zima); }
+
+    DuniaMipakaHai* mipaka_hai_zima = mchezo_pata_mipaka_hai(g);
+    kama (mipaka_hai_zima != 0) { dunia_mpaka_hai_uharibu(mipaka_hai_zima); }
+    MazingiraMajangaMfumo* majanga_zima = mchezo_pata_majanga(g);
+    kama (majanga_zima != 0) { mazingira_majanga_uharibu(majanga_zima); }
+    DuniaEneoMsimamizi* eneo_zima = mchezo_pata_eneo(g);
+    kama (eneo_zima != 0) { dunia_eneo_msimamizi_uharibu(eneo_zima); }
 }
 
 w0 mchezo_uharibu(Mchezo* g) {
