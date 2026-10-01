@@ -60,7 +60,7 @@
 //   - map_view.c/flag_system.c (SDL/picha) — nje ya wigo wa mradi
 //     mzima kwa sasa.
 //
-// Mifumo iliyounganishwa (36): muda, idadi_ya_watu, serikali,
+// Mifumo iliyounganishwa (39): muda, idadi_ya_watu, serikali,
 // ramani, makazi (settlement), akili, diplomasia, taifa, uchumi_mkuu,
 // nguvukazi, sera, kodi, bajeti, bidhaa, benki, kilimo, uchimbaji,
 // miundombinu, viwanda, nishati, uchumi_makazi (housing), ardhi,
@@ -68,7 +68,24 @@
 // mipaka_hai (dynamic borders), majanga (disasters), eneo (territory),
 // uhai (population vitality), sarafu (currency), dunia_maajabu
 // (world wonders), jamii (emergent races), utawala_desturi
-// (custom/emergent governance).
+// (custom/emergent governance), utawala_mwingiliano (NPC
+// interaction), mhusika (mchezaji kama mtu), siasa_upinzani
+// (kiongozi wa upinzani wa kisiasa).
+//
+// NYONGEZA (wimbi la nane, 2026-10-01): utawala/interaction/
+// mwingiliano.swa (tafsiri ya interaction.c -- mfumo rahisi wa
+// mwingiliano kati ya NPC, meneja + mkutano mmoja wa awali
+// (binafsi, kiongozi kama mshiriki) huundwa na kusasishwa dt kila
+// mzunguko), mhusika/mhusika.swa (tafsiri ya character.c --
+// mchezaji kama mtu ndani ya dunia, muundo TULI unaoundwa mara moja
+// na asili ya kiutumishi -- hauna "sasisha zote" kwenye chanzo
+// asili, mabadiliko hutokea kwa matukio ya maisha), na
+// siasa/upinzani.swa (tafsiri ya political_rivalry.c -- kiongozi
+// mmoja wa upinzani anaundwa, pia hauna "sasisha zote", vitendo
+// hutokea kwa uamuzi wa mchezaji/AI). utawala_mwingiliano.swa
+// HAINA kazi ya "meneja_ongeza" kwenye moduli yenyewe -- mkutano wa
+// awali umeongezwa kwenye safu ya meneja moja kwa moja ndani ya
+// mchezo_anzisha (pengo dogo lililopo tayari, si kosa jipya).
 //
 // NYONGEZA (wimbi la saba, 2026-10-01): uhai.swa (tafsiri ya
 // population_vitality.c -- afya/magonjwa/elimu ya idadi ya watu,
@@ -185,6 +202,9 @@ husisha { moduli/uchumi/sarafu.swa }
 husisha { moduli/dunia/maajabu.swa }
 husisha { moduli/idadi_ya_watu/jamii.swa }
 husisha { moduli/utawala/desturi.swa }
+husisha { moduli/utawala/interaction/mwingiliano.swa }
+husisha { moduli/mhusika/mhusika.swa }
+husisha { moduli/siasa/upinzani.swa }
 
 n32 MCHEZO_HALI_KUANDAA = 0;
 n32 MCHEZO_HALI_INAENDESHA = 1;
@@ -299,6 +319,13 @@ muundo Mchezo {
     n64 maajabu_addr;
     n64 jamii_addr;
     n64 desturi_addr;
+
+    // Nyongeza (wimbi la nane): utawala_mwingiliano (NPC interaction
+    // manager), mhusika (mchezaji kama mtu), siasa_upinzani
+    // (kiongozi wa upinzani wa kisiasa).
+    n64 mwingiliano_addr;
+    n64 mhusika_addr;
+    n64 upinzani_addr;
 };
 
 InjiniMudaMfumo* mchezo_pata_muda(Mchezo* g) { rudisha g->muda_addr; }
@@ -460,6 +487,15 @@ w0 mchezo_weka_jamii(Mchezo* g, JamiiMsimamizi* v) { g->jamii_addr = v; }
 UtawalaDesturiMsimamizi* mchezo_pata_desturi(Mchezo* g) { rudisha g->desturi_addr; }
 w0 mchezo_weka_desturi(Mchezo* g, UtawalaDesturiMsimamizi* v) { g->desturi_addr = v; }
 
+UtawalaMwingilianoMeneja* mchezo_pata_mwingiliano(Mchezo* g) { rudisha g->mwingiliano_addr; }
+w0 mchezo_weka_mwingiliano(Mchezo* g, UtawalaMwingilianoMeneja* v) { g->mwingiliano_addr = v; }
+
+Mhusika* mchezo_pata_mhusika(Mchezo* g) { rudisha g->mhusika_addr; }
+w0 mchezo_weka_mhusika(Mchezo* g, Mhusika* v) { g->mhusika_addr = v; }
+
+SiasaMpinzani* mchezo_pata_upinzani(Mchezo* g) { rudisha g->upinzani_addr; }
+w0 mchezo_weka_upinzani(Mchezo* g, SiasaMpinzani* v) { g->upinzani_addr = v; }
+
 w0 mchezo_usanidi_chaguomsingi(MchezoUsanidi* u) {
     kama (u == 0) { rudisha; }
     u->jina = "Ustaarabu Mpya";
@@ -531,6 +567,9 @@ Mchezo* mchezo_unda() {
     g->maajabu_addr = 0;
     g->jamii_addr = 0;
     g->desturi_addr = 0;
+    g->mwingiliano_addr = 0;
+    g->mhusika_addr = 0;
+    g->upinzani_addr = 0;
     g->utendaji.idadi_ya_sasisho = 0;
     g->utendaji.muda_wa_wastani_wa_sasisho = 0.0;
     g->utendaji.muda_wa_mwisho_wa_sasisho = 0.0;
@@ -680,6 +719,30 @@ CivMatokeo mchezo_anzisha(Mchezo* g, MchezoUsanidi* usanidi) {
     mchezo_weka_mipaka_hai(g, dunia_mpaka_hai_unda());
     mchezo_weka_majanga(g, mazingira_majanga_unda());
     mchezo_weka_eneo(g, dunia_eneo_msimamizi_unda());
+
+    // Nyongeza (wimbi la nane): utawala_mwingiliano, mhusika,
+    // siasa_upinzani -- angalia maelezo ya wigo juu ya faili.
+    // utawala_mwingiliano.swa HAINA kazi ya "meneja_ongeza" (pengo
+    // dogo lililopo tayari kwenye moduli hiyo yenyewe, si kosa jipya
+    // la mchezo.swa) -- tunaandika kwenye safu ya meneja moja kwa
+    // moja (uwezo wake wa awali ni 16, hivyo faharisi 0 ni salama
+    // bila realloc), mtindo uleule unaotumika ndani ya
+    // utawala_desturi_msimamizi_ongeza.
+    UtawalaMwingilianoMeneja* mwingiliano_m = utawala_mwingiliano_meneja_unda();
+    UtawalaMwingiliano* mkutano = utawala_mwingiliano_unda(UTAWALA_MWINGILIANO_MKUTANO_BINAFSI);
+    utawala_mwingiliano_ongeza_mshiriki(mkutano, "kiongozi", "Mkuu wa Nchi", "sw");
+    utawala_mwingiliano_anza(mkutano);
+    mwingiliano_m->mwingiliano_zote[0] = mkutano;
+    mwingiliano_m->idadi = 1;
+    mchezo_weka_mwingiliano(g, mwingiliano_m);
+
+    Mhusika* mhusika_p = mhusika_unda(usanidi->jina);
+    mhusika_weka_asili(mhusika_p, MHUSIKA_ASILI_KIUTUMISHI);
+    mchezo_weka_mhusika(g, mhusika_p);
+
+    SiasaMpinzani* upinzani_p = tenga(ukubwa(SiasaMpinzani));
+    siasa_upinzani_anzisha_mpinzani(upinzani_p, "Kiongozi wa Upinzani");
+    mchezo_weka_upinzani(g, upinzani_p);
 
     // Nyongeza (wimbi la saba): uhai, sarafu, maajabu, jamii,
     // desturi -- angalia maelezo ya wigo juu ya faili.
@@ -1056,6 +1119,18 @@ w0 mchezo_sasisha_mifumo_huru(Mchezo* g, d64 dt) {
         UtawalaDesturi* desturi_kuu = utawala_desturi_msimamizi_pata(desturi_m, 0);
         utawala_desturi_sasisha(desturi_kuu, dt);
     }
+
+    // Nyongeza (wimbi la nane): utawala_mwingiliano pekee ina
+    // "_sasisha(m, dt)" -- mhusika na siasa_upinzani hazina kazi ya
+    // "sasisha zote"/dt kwenye chanzo asili (ni za tukio: mabadiliko
+    // ya mhusika hutokea kwa matukio ya maisha, kitendo cha upinzani
+    // hutokea kwa uamuzi wa mchezaji/AI -- sawa na jeshi/mapigano
+    // ambayo pia hayapigiwi simu hapa kimakusudi).
+    UtawalaMwingilianoMeneja* mwingiliano_m2 = mchezo_pata_mwingiliano(g);
+    kama (mwingiliano_m2 != 0 && mwingiliano_m2->idadi > 0) {
+        UtawalaMwingiliano* mkutano2 = utawala_mwingiliano_meneja_pata(mwingiliano_m2, 0);
+        utawala_mwingiliano_sasisha(mkutano2, dt);
+    }
 }
 
 // mchezo_zima_mifumo_huru: uharibifu wa mifumo ya wimbi la saba
@@ -1087,6 +1162,25 @@ w0 mchezo_zima_mifumo_huru(Mchezo* g) {
         }
         utawala_desturi_msimamizi_uharibu(desturi_zima);
     }
+
+    // Nyongeza (wimbi la nane): utawala_mwingiliano, mhusika,
+    // siasa_upinzani.
+    UtawalaMwingilianoMeneja* mwingiliano_zima = mchezo_pata_mwingiliano(g);
+    kama (mwingiliano_zima != 0) {
+        n32 j = 0;
+        wakati (j < mwingiliano_zima->idadi) {
+            UtawalaMwingiliano* mw = utawala_mwingiliano_meneja_pata(mwingiliano_zima, j);
+            utawala_mwingiliano_uharibu(mw);
+            j = j + 1;
+        }
+        utawala_mwingiliano_meneja_uharibu(mwingiliano_zima);
+    }
+
+    Mhusika* mhusika_zima = mchezo_pata_mhusika(g);
+    kama (mhusika_zima != 0) { mhusika_uharibu(mhusika_zima); }
+
+    SiasaMpinzani* upinzani_zima = mchezo_pata_upinzani(g);
+    kama (upinzani_zima != 0) { achilia upinzani_zima; }
 }
 
 CivMatokeo mchezo_maliza_zamu(Mchezo* g) {
