@@ -60,7 +60,7 @@
 //   - map_view.c/flag_system.c (SDL/picha) — nje ya wigo wa mradi
 //     mzima kwa sasa.
 //
-// Mifumo iliyounganishwa (39): muda, idadi_ya_watu, serikali,
+// Mifumo iliyounganishwa (40): muda, idadi_ya_watu, serikali,
 // ramani, makazi (settlement), akili, diplomasia, taifa, uchumi_mkuu,
 // nguvukazi, sera, kodi, bajeti, bidhaa, benki, kilimo, uchimbaji,
 // miundombinu, viwanda, nishati, uchumi_makazi (housing), ardhi,
@@ -70,7 +70,28 @@
 // (world wonders), jamii (emergent races), utawala_desturi
 // (custom/emergent governance), utawala_mwingiliano (NPC
 // interaction), mhusika (mchezaji kama mtu), siasa_upinzani
-// (kiongozi wa upinzani wa kisiasa).
+// (kiongozi wa upinzani wa kisiasa), mashirika (international
+// organizations).
+//
+// NYONGEZA (wimbi la tisa, 2026-10-01): diplomasia/mashirika.swa --
+// TAFSIRI MPYA kabisa (international_organizations.c), si
+// uunganishaji wa moduli iliyokuwepo tayari (tofauti na mawimbi
+// 6/7/8, ambayo yote yaliunganisha kazi iliyokuwa tayari
+// imetafsiriwa). Mashirika ya kimataifa (ushirikiano wa
+// kijeshi/kiuchumi/kisiasa/kisayansi kati ya mataifa mengi) na
+// maazimio yanayopigiwa kura ndani yake. Meneja + shirika moja la
+// awali (Jukwaa la Dunia, sawa na "UN", likiwa na taifa la mchezaji
+// kama mwanachama wa kwanza) huundwa na mchezo_anzisha. Chanzo cha C
+// (civ_org_create/destroy, add_member, propose_resolution,
+// manager_add/create/destroy) HAKINA kazi ya "sasisha zote"/dt --
+// mabadiliko hutokea kwa vitendo vya mchezaji (kuongeza mwanachama,
+// kupendekeza azimio), sawa na maajabu/jamii -- kwa hiyo haipigiwi
+// simu kwenye mchezo_sasisha_mifumo_huru. civ_org_remove_member,
+// civ_org_vote, na civ_org_manager_find zilitangazwa kwenye .h ya
+// asili LAKINI hazikuwahi kutekelezwa popote kwenye .c (imethibitishwa
+// kwa kutafuta mradi mzima wa C) -- hazikuletwa Swa kwa sababu hiyo
+// hiyo (hakuna la kutafsiri); shirika_msimamizi_tafuta imeongezwa
+// kama mbadala muhimu wa civ_org_manager_find inayokosekana.
 //
 // NYONGEZA (wimbi la nane, 2026-10-01): utawala/interaction/
 // mwingiliano.swa (tafsiri ya interaction.c -- mfumo rahisi wa
@@ -205,6 +226,7 @@ husisha { moduli/utawala/desturi.swa }
 husisha { moduli/utawala/interaction/mwingiliano.swa }
 husisha { moduli/mhusika/mhusika.swa }
 husisha { moduli/siasa/upinzani.swa }
+husisha { moduli/diplomasia/mashirika.swa }
 
 n32 MCHEZO_HALI_KUANDAA = 0;
 n32 MCHEZO_HALI_INAENDESHA = 1;
@@ -326,6 +348,12 @@ muundo Mchezo {
     n64 mwingiliano_addr;
     n64 mhusika_addr;
     n64 upinzani_addr;
+
+    // Nyongeza (wimbi la tisa): mashirika (international
+    // organizations) -- tafsiri MPYA kabisa, si uunganishaji wa
+    // moduli iliyokuwepo tayari (tofauti na mawimbi 7/8) -- angalia
+    // maelezo ya wigo juu ya faili.
+    n64 mashirika_addr;
 };
 
 InjiniMudaMfumo* mchezo_pata_muda(Mchezo* g) { rudisha g->muda_addr; }
@@ -496,6 +524,9 @@ w0 mchezo_weka_mhusika(Mchezo* g, Mhusika* v) { g->mhusika_addr = v; }
 SiasaMpinzani* mchezo_pata_upinzani(Mchezo* g) { rudisha g->upinzani_addr; }
 w0 mchezo_weka_upinzani(Mchezo* g, SiasaMpinzani* v) { g->upinzani_addr = v; }
 
+ShirikaMsimamizi* mchezo_pata_mashirika(Mchezo* g) { rudisha g->mashirika_addr; }
+w0 mchezo_weka_mashirika(Mchezo* g, ShirikaMsimamizi* v) { g->mashirika_addr = v; }
+
 w0 mchezo_usanidi_chaguomsingi(MchezoUsanidi* u) {
     kama (u == 0) { rudisha; }
     u->jina = "Ustaarabu Mpya";
@@ -570,6 +601,7 @@ Mchezo* mchezo_unda() {
     g->mwingiliano_addr = 0;
     g->mhusika_addr = 0;
     g->upinzani_addr = 0;
+    g->mashirika_addr = 0;
     g->utendaji.idadi_ya_sasisho = 0;
     g->utendaji.muda_wa_wastani_wa_sasisho = 0.0;
     g->utendaji.muda_wa_mwisho_wa_sasisho = 0.0;
@@ -771,6 +803,15 @@ CivMatokeo mchezo_anzisha(Mchezo* g, MchezoUsanidi* usanidi) {
     UtawalaDesturi* desturi_kuu = utawala_desturi_unda(usanidi->jina, usanidi->jina);
     utawala_desturi_msimamizi_ongeza(desturi_m, desturi_kuu);
     mchezo_weka_desturi(g, desturi_m);
+
+    // Nyongeza (wimbi la tisa): mashirika -- shirika moja la awali
+    // (jukwaa la dunia, sawa na "UN") huundwa likiwa na taifa la
+    // mchezaji kama mwanachama wa kwanza.
+    ShirikaMsimamizi* mashirika_m = shirika_msimamizi_unda();
+    Shirika* jukwaa_la_dunia = shirika_unda("org_jukwaa_la_dunia", "Jukwaa la Dunia", SHIRIKA_AINA_JUKWAA_LA_DUNIA);
+    shirika_ongeza_mwanachama(jukwaa_la_dunia, usanidi->jina);
+    shirika_msimamizi_ongeza(mashirika_m, jukwaa_la_dunia);
+    mchezo_weka_mashirika(g, mashirika_m);
 
     g->hali_ya_mchezo = MCHEZO_HALI_INAENDESHA;
     g->inafanya_kazi = 1;
@@ -1181,6 +1222,10 @@ w0 mchezo_zima_mifumo_huru(Mchezo* g) {
 
     SiasaMpinzani* upinzani_zima = mchezo_pata_upinzani(g);
     kama (upinzani_zima != 0) { achilia upinzani_zima; }
+
+    // Nyongeza (wimbi la tisa): mashirika.
+    ShirikaMsimamizi* mashirika_zima = mchezo_pata_mashirika(g);
+    kama (mashirika_zima != 0) { shirika_msimamizi_uharibu(mashirika_zima); }
 }
 
 CivMatokeo mchezo_maliza_zamu(Mchezo* g) {
