@@ -60,12 +60,34 @@
 //   - map_view.c/flag_system.c (SDL/picha) — nje ya wigo wa mradi
 //     mzima kwa sasa.
 //
-// Mifumo iliyounganishwa (31): muda, idadi_ya_watu, serikali,
+// Mifumo iliyounganishwa (36): muda, idadi_ya_watu, serikali,
 // ramani, makazi (settlement), akili, diplomasia, taifa, uchumi_mkuu,
 // nguvukazi, sera, kodi, bajeti, bidhaa, benki, kilimo, uchimbaji,
 // miundombinu, viwanda, nishati, uchumi_makazi (housing), ardhi,
 // mtaji, biashara_ndani, biashara_nje, uvumbuzi, soko_haramu, vita,
-// mipaka_hai (dynamic borders), majanga (disasters), eneo (territory).
+// mipaka_hai (dynamic borders), majanga (disasters), eneo (territory),
+// uhai (population vitality), sarafu (currency), dunia_maajabu
+// (world wonders), jamii (emergent races), utawala_desturi
+// (custom/emergent governance).
+//
+// NYONGEZA (wimbi la saba, 2026-10-01): uhai.swa (tafsiri ya
+// population_vitality.c -- afya/magonjwa/elimu ya idadi ya watu,
+// mfumo huru wenye _anzisha/_sasisha(dt) kama mipaka_hai/majanga/
+// eneo), sarafu.swa (tafsiri ya currency.c -- sehemu ya
+// civ_currency_t/civ_national_macro_state_t, kiwango cha
+// ubadilishaji/mfumuko kinacholishwa na matokeo HALISI ya
+// uchumi_mkuu baada ya sasisha yake -- GDP ukuaji, sehemu ya
+// viwanda kwenye pato, ukosefu wa kazi), dunia/maajabu.swa (tafsiri
+// ya wonders.c -- maajabu 6 ya dunia, msimamizi anaundwa na
+// anzishwa lakini HAUNA kazi ya "sasisha zote" kwenye chanzo asili,
+// kama itikadi/dini -- unapatikana/unabadilishwa na matukio ya
+// mchezaji, si mzunguko wa dt), idadi_ya_watu/jamii.swa (tafsiri ya
+// race_system.c -- jamii za kibiolojia zinazoibuka, msimamizi
+// anaundwa na jamii moja ya awali (Binadamu) inaibuka -- pia hauna
+// "sasisha zote", kuchanganya jamii ni tukio la mchezaji), na
+// utawala/desturi.swa (tafsiri ya custom_governance.c -- mfumo wa
+// utawala unaoibuka, msimamizi + serikali moja ya awali huundwa na
+// kusasishwa dt kila mzunguko kama mfumo huru).
 //
 // NYONGEZA (wimbi la sita, 2026-10-01): dunia_mpaka_hai (tafsiri ya
 // dynamic_borders.c, Awamu 6/7 ya civ_game_update ya asili -- mivutano
@@ -158,6 +180,11 @@ husisha { moduli/maarifa/maarifa.swa }
 husisha { moduli/dunia/mipaka_hai.swa }
 husisha { moduli/mazingira/majanga.swa }
 husisha { moduli/dunia/eneo.swa }
+husisha { moduli/idadi_ya_watu/uhai.swa }
+husisha { moduli/uchumi/sarafu.swa }
+husisha { moduli/dunia/maajabu.swa }
+husisha { moduli/idadi_ya_watu/jamii.swa }
+husisha { moduli/utawala/desturi.swa }
 
 n32 MCHEZO_HALI_KUANDAA = 0;
 n32 MCHEZO_HALI_INAENDESHA = 1;
@@ -262,6 +289,16 @@ muundo Mchezo {
     n64 mipaka_hai_addr;
     n64 majanga_addr;
     n64 eneo_addr;
+
+    // Nyongeza (wimbi la saba): uhai (population vitality), sarafu
+    // (currency), dunia_maajabu (world wonders), jamii (emergent
+    // races), utawala_desturi (custom/emergent governance) -- angalia
+    // maelezo ya wigo juu ya faili.
+    n64 uhai_addr;
+    n64 sarafu_addr;
+    n64 maajabu_addr;
+    n64 jamii_addr;
+    n64 desturi_addr;
 };
 
 InjiniMudaMfumo* mchezo_pata_muda(Mchezo* g) { rudisha g->muda_addr; }
@@ -408,6 +445,21 @@ w0 mchezo_weka_majanga(Mchezo* g, MazingiraMajangaMfumo* v) { g->majanga_addr = 
 DuniaEneoMsimamizi* mchezo_pata_eneo(Mchezo* g) { rudisha g->eneo_addr; }
 w0 mchezo_weka_eneo(Mchezo* g, DuniaEneoMsimamizi* v) { g->eneo_addr = v; }
 
+UhaiMfumo* mchezo_pata_uhai(Mchezo* g) { rudisha g->uhai_addr; }
+w0 mchezo_weka_uhai(Mchezo* g, UhaiMfumo* v) { g->uhai_addr = v; }
+
+Sarafu* mchezo_pata_sarafu(Mchezo* g) { rudisha g->sarafu_addr; }
+w0 mchezo_weka_sarafu(Mchezo* g, Sarafu* v) { g->sarafu_addr = v; }
+
+DuniaAjabuMsimamizi* mchezo_pata_maajabu(Mchezo* g) { rudisha g->maajabu_addr; }
+w0 mchezo_weka_maajabu(Mchezo* g, DuniaAjabuMsimamizi* v) { g->maajabu_addr = v; }
+
+JamiiMsimamizi* mchezo_pata_jamii(Mchezo* g) { rudisha g->jamii_addr; }
+w0 mchezo_weka_jamii(Mchezo* g, JamiiMsimamizi* v) { g->jamii_addr = v; }
+
+UtawalaDesturiMsimamizi* mchezo_pata_desturi(Mchezo* g) { rudisha g->desturi_addr; }
+w0 mchezo_weka_desturi(Mchezo* g, UtawalaDesturiMsimamizi* v) { g->desturi_addr = v; }
+
 w0 mchezo_usanidi_chaguomsingi(MchezoUsanidi* u) {
     kama (u == 0) { rudisha; }
     u->jina = "Ustaarabu Mpya";
@@ -474,6 +526,11 @@ Mchezo* mchezo_unda() {
     g->mipaka_hai_addr = 0;
     g->majanga_addr = 0;
     g->eneo_addr = 0;
+    g->uhai_addr = 0;
+    g->sarafu_addr = 0;
+    g->maajabu_addr = 0;
+    g->jamii_addr = 0;
+    g->desturi_addr = 0;
     g->utendaji.idadi_ya_sasisho = 0;
     g->utendaji.muda_wa_wastani_wa_sasisho = 0.0;
     g->utendaji.muda_wa_mwisho_wa_sasisho = 0.0;
@@ -623,6 +680,34 @@ CivMatokeo mchezo_anzisha(Mchezo* g, MchezoUsanidi* usanidi) {
     mchezo_weka_mipaka_hai(g, dunia_mpaka_hai_unda());
     mchezo_weka_majanga(g, mazingira_majanga_unda());
     mchezo_weka_eneo(g, dunia_eneo_msimamizi_unda());
+
+    // Nyongeza (wimbi la saba): uhai, sarafu, maajabu, jamii,
+    // desturi -- angalia maelezo ya wigo juu ya faili.
+    UhaiMfumo* uhai = tenga(ukubwa(UhaiMfumo));
+    uhai_anzisha(uhai);
+    mchezo_weka_uhai(g, uhai);
+
+    Sarafu* sarafu = tenga(ukubwa(Sarafu));
+    sarafu_anzisha(sarafu, usanidi->jina);
+    mchezo_weka_sarafu(g, sarafu);
+
+    mchezo_weka_maajabu(g, dunia_maajabu_msimamizi_unda());
+
+    // jamii_ibuka inaunda jamii moja ya awali (Binadamu) badala ya
+    // kuacha msimamizi tupu -- sawa na taifa (mataifa 8 ya
+    // "procedural fallback") na utamaduni (angalia maelezo mengine
+    // juu ya faili kuhusu mifumo inayoundwa tupu kimakusudi, hii si
+    // mojawapo yao kwa sababu mchezo bila jamii yoyote haufanyi kazi
+    // kimantiki).
+    JamiiMsimamizi* jamii = jamii_msimamizi_unda();
+    n8* eneo_asilia_bado_hakuna = 0;
+    jamii_ibuka(jamii, "Binadamu", eneo_asilia_bado_hakuna);
+    mchezo_weka_jamii(g, jamii);
+
+    UtawalaDesturiMsimamizi* desturi_m = utawala_desturi_msimamizi_unda();
+    UtawalaDesturi* desturi_kuu = utawala_desturi_unda(usanidi->jina, usanidi->jina);
+    utawala_desturi_msimamizi_ongeza(desturi_m, desturi_kuu);
+    mchezo_weka_desturi(g, desturi_m);
 
     g->hali_ya_mchezo = MCHEZO_HALI_INAENDESHA;
     g->inafanya_kazi = 1;
@@ -931,6 +1016,77 @@ w0 mchezo_sasisha_mifumo_huru(Mchezo* g, d64 dt) {
     kama (eneo != 0) {
         dunia_eneo_msimamizi_sasisha(eneo, dt);
     }
+
+    // Nyongeza (wimbi la saba): uhai, sarafu, desturi -- mifumo
+    // mengine miwili ya wimbi hili (maajabu, jamii) hazina kazi ya
+    // "sasisha zote" kwenye chanzo asili (sawa na itikadi/dini
+    // kwenye mchezo_sasisha), kwa hiyo hazipigi simu hapa kimakusudi.
+    UhaiMfumo* uhai = mchezo_pata_uhai(g);
+    kama (uhai != 0) {
+        uhai_sasisha(uhai, dt);
+    }
+
+    // sarafu inalishwa na matokeo HALISI ya uchumi_mkuu (ripoti ya
+    // mwisho iliyohesabiwa na mchezo_sasisha kabla ya kazi hii
+    // kuitwa) -- ukuaji wa GDP, sehemu ya pato la viwanda kwenye
+    // pato la jumla, na ukosefu wa kazi -- badala ya thamani za
+    // bandia, sawa na mnyororo wa thamani wa nguzo ya uchumi.
+    Sarafu* sarafu = mchezo_pata_sarafu(g);
+    UchumiMkuuMfumo* mkuu_kwa_sarafu = mchezo_pata_uchumi_mkuu(g);
+    kama (sarafu != 0 && mkuu_kwa_sarafu != 0) {
+        SarafuHaliYaTaifa* jumla = tenga(ukubwa(SarafuHaliYaTaifa));
+        jumla->uzalishaji_wa_taifa = mkuu_kwa_sarafu->ripoti_ya_mwisho.kiwango_cha_ukuaji;
+        jumla->uthabiti_wa_viwanda = 0.0;
+        kama (mkuu_kwa_sarafu->ripoti_ya_mwisho.pato_la_taifa > 0.0) {
+            jumla->uthabiti_wa_viwanda =
+                mkuu_kwa_sarafu->ripoti_ya_mwisho.pato_la_viwanda
+                / mkuu_kwa_sarafu->ripoti_ya_mwisho.pato_la_taifa;
+        }
+        jumla->kiashiria_cha_ukosefu_wa_kazi = mkuu_kwa_sarafu->ripoti_ya_mwisho.kiwango_cha_ukosefu_wa_kazi;
+        jumla->mzunguko_wa_sasa = SARAFU_MZUNGUKO_UKUAJI;
+        kama (mkuu_kwa_sarafu->hisia == UCHUMI_MKUU_HISIA_YA_KUSHUKA) {
+            jumla->mzunguko_wa_sasa = SARAFU_MZUNGUKO_MDOROHO;
+        }
+        sarafu_sasisha_thamani(sarafu, jumla);
+        achilia jumla;
+    }
+
+    UtawalaDesturiMsimamizi* desturi_m = mchezo_pata_desturi(g);
+    kama (desturi_m != 0 && desturi_m->idadi > 0) {
+        UtawalaDesturi* desturi_kuu = utawala_desturi_msimamizi_pata(desturi_m, 0);
+        utawala_desturi_sasisha(desturi_kuu, dt);
+    }
+}
+
+// mchezo_zima_mifumo_huru: uharibifu wa mifumo ya wimbi la saba
+// (uhai, sarafu, maajabu, jamii, desturi) -- kazi TOFAUTI na
+// mchezo_zima kwa sababu ile tayari ina vigezo vingi vya ndani
+// (mfumo mmoja kwa kila mfumo uliounganishwa, ~42+) -- angalia maoni
+// kwenye mchezo_sasisha_mifumo_huru juu ya kikomo hicho hicho cha
+// mkusanyaji.
+w0 mchezo_zima_mifumo_huru(Mchezo* g) {
+    UhaiMfumo* uhai_zima = mchezo_pata_uhai(g);
+    kama (uhai_zima != 0) { achilia uhai_zima; }
+
+    Sarafu* sarafu_zima = mchezo_pata_sarafu(g);
+    kama (sarafu_zima != 0) { achilia sarafu_zima; }
+
+    DuniaAjabuMsimamizi* maajabu_zima = mchezo_pata_maajabu(g);
+    kama (maajabu_zima != 0) { dunia_maajabu_msimamizi_uharibu(maajabu_zima); }
+
+    JamiiMsimamizi* jamii_zima = mchezo_pata_jamii(g);
+    kama (jamii_zima != 0) { jamii_msimamizi_uharibu(jamii_zima); }
+
+    UtawalaDesturiMsimamizi* desturi_zima = mchezo_pata_desturi(g);
+    kama (desturi_zima != 0) {
+        n32 i = 0;
+        wakati (i < desturi_zima->idadi) {
+            UtawalaDesturi* d = utawala_desturi_msimamizi_pata(desturi_zima, i);
+            utawala_desturi_uharibu(d);
+            i = i + 1;
+        }
+        utawala_desturi_msimamizi_uharibu(desturi_zima);
+    }
 }
 
 CivMatokeo mchezo_maliza_zamu(Mchezo* g) {
@@ -1067,6 +1223,8 @@ w0 mchezo_zima(Mchezo* g) {
     kama (majanga_zima != 0) { mazingira_majanga_uharibu(majanga_zima); }
     DuniaEneoMsimamizi* eneo_zima = mchezo_pata_eneo(g);
     kama (eneo_zima != 0) { dunia_eneo_msimamizi_uharibu(eneo_zima); }
+
+    mchezo_zima_mifumo_huru(g);
 }
 
 w0 mchezo_uharibu(Mchezo* g) {
