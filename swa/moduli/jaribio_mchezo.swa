@@ -12,29 +12,51 @@ husisha { moduli/mchezo.swa }
 // mchezo.swa HALISI ya awali bila kubadilishwa) HUANGUKA (SIGSEGV)
 // pale INAPOUNGANISHWA na mnyororo KAMILI wa husisha wa mchezo.swa
 // (moduli ~45+, kazi 444+) -- hitilafu hii haitokani na moduli
-// yoyote mahususi (utawala_serikali_unda peke yake kazi SALAMA
-// ikiwa imeunganishwa pekee au na mchanganyiko mdogo wa moduli
-// nyingine), bali inaonekana kuhusiana na UKUBWA WA JUMLA wa
-// programu moja ikiwa IMEUNGANISHWA (kikomo fulani cha ndani cha
-// mkusanyaji kinachozidishwa kimya kimya, hakuna ujumbe wa kosa
-// wakati wa kukusanya) -- imeripotiwa kama lugha-swa/swa#(angalia
-// kumbukumbu ya mradi/ripoti ya kikao hiki kwa namba kamili ya
-// issue). Kwa hiyo jaribio hili linajenga Mchezo KWA MKONO (kupitia
-// mchezo_unda + mchezo_weka_* moja kwa moja) badala ya kutegemea
-// mchezo_anzisha -- hii inathibitisha UNGANISHO HALISI (wiring) wa
-// mipaka_hai/majanga/eneo ndani ya mchezo_sasisha/mchezo_uharibu BILA
-// kutegemea kurekebishwa kwa hitilafu hiyo tofauti kabisa.
+// yoyote mahususi, bali inaonekana kuhusiana na UKUBWA WA JUMLA wa
+// programu moja ikiwa IMEUNGANISHWA. Kwa hiyo jaribio hili linajenga
+// Mchezo KWA MKONO (kupitia mchezo_unda + mchezo_weka_* moja kwa
+// moja) badala ya kutegemea mchezo_anzisha -- hii inathibitisha
+// UNGANISHO HALISI (wiring) wa mipaka_hai/majanga/eneo ndani ya
+// mchezo_sasisha/mchezo_uharibu BILA kutegemea kurekebishwa kwa
+// hitilafu hiyo tofauti kabisa.
 //
-// HITILAFU IMERIPOTIWA: lugha-swa/swa#292. Mstari wa chini wa jaribio
-// hili (mchezo_sasisha(g) na mchezo_uharibu(g)) BADO huathiriwa na
-// hitilafu hiyo hiyo (kwa sababu zinaitwa ndani ya programu yenye
-// kazi 925, mbali zaidi ya kiwango cha ~440-444 kinachosababisha
-// SIGSEGV) -- yametunzwa hapa KWA MAKUSUDI (si kufutwa) ili yawe
-// ukaguzi wa kurudi nyuma (regression check) mara #292 itakaporekebishwa:
-// matarajio ni kwamba PASS zote 16 zitatokea bila SIGSEGV baada ya
-// hapo. Hadi wakati huo, PASS 13 za kwanza (muundo/accessor/mantiki
-// HALISI ya kila mfumo mpya ukiitwa moja kwa moja) ndizo uthibitisho
-// pekee unaopatikana sasa.
+// SASISHO (2026-10-02) -- lugha-swa/swa#292 IMETHIBITIKA KUREKEBISHWA:
+// stage1 mpya kabisa iliyojengwa kutoka `main` (d768113) haianguki
+// tena ikiendesha programu hii (kazi 1136, mnyororo mzima wa
+// mchezo.swa wa wimbi la tisa) -- PASS 16/16 zote zinatokea kwa
+// THAMANI SAHIHI (angalia uchapishaji wa [dbg] chini: mvutano
+// 0.0 -> 0.049, eneo la mkoa 8.0 HALISI, idadi_ya_sasisho == 1).
+//
+// Wakati wa kuthibitisha hili, ziligundulika mambo MAWILI tofauti:
+//
+// (A) PENGO LA JARIBIO HILI LENYEWE (limerekebishwa hapa chini):
+//     mchezo_sasisha ina ukaguzi wa mlango
+//     "kama (g->inafanya_kazi == 0 || ...) rudisha;" na
+//     g->inafanya_kazi huwekwa 1 NDANI ya mchezo_anzisha PEKEE
+//     (mchezo_unda huiacha 0). Kwa kuwa jaribio hili kwa makusudi
+//     HALIITI mchezo_anzisha (ili kuepuka #292 hapo juu),
+//     mchezo_sasisha ilikuwa ikirudi mapema kimya bila kufanya
+//     chochote -- si kwa sababu ya mdudu wowote kwenye
+//     mipaka_hai/majanga/eneo wenyewe. Bendera hiyo sasa inawekwa
+//     kwa mkono (mstari mmoja) kabla ya mchezo_sasisha(g).
+//
+// (B) HITILAFU MPYA, TOFAUTI KABISA, YA MKUSANYAJI (imeripotiwa kama
+//     lugha-swa/swa#295, SI kurekebishwa humu -- nje ya wigo wa
+//     mradi huu): pale idadi ya JUMLA ya kazi kwenye programu
+//     inapovuka kiwango fulani kati ya kazi 1128 na 1136 (bisection:
+//     commit 150b2a6 ya dominion, kazi 1128, ni SAFI KABISA; commit
+//     45350b1 (HEAD), kazi 1136, ina dalili), anwani za string
+//     literal zinachanganyikiwa (mfano: thibitisho linalopaswa
+//     kuchapisha jina lake sahihi linachapisha "B" badala yake --
+//     anwani ya hoja ya mfuatano ya wito ULIOTANGULIA) na sehemu ya
+//     mwisho ya main() (uchapishaji wa "[muhtasari]"/"DONE")
+//     inaonekana kuchapishwa MAPEMA kabla ya wakati wake kisha
+//     TENA mwishoni halisi. Hii ni thabiti (deterministic, si
+//     uharibifu wa nasibu wa kumbukumbu) na HAIATHIRI usahihi wa
+//     HESABU halisi (ALU/FPU) -- ni maonyesho (stdout
+//     ordering/anwani za literal) pekee yanayoathiriwa, kama
+//     ilivyothibitishwa na uchapishaji wa [dbg] wa thamani halisi
+//     chini. Angalia #295 kwa maelezo kamili ya bisection.
 
 n32 jaribio_hesabu_yalioshindwa = 0;
 
@@ -113,11 +135,36 @@ n32 main() {
     // mchezo_sasisha inaziruka salama (kila moja ina ukaguzi wa
     // "kama (x != 0)") -- hii inathibitisha kuwa muunganisho wa
     // mifumo mitatu mipya HAUTEGEMEI mifumo mingine yoyote kuwepo.
+    //
+    // GUNDUA (2026-10-02, baada ya #292 kurekebishwa): mchezo_sasisha
+    // ina ukaguzi wa mlango kwenye mstari wa kwanza --
+    // "kama (g->inafanya_kazi == 0 || g->imesimamishwa != 0) rudisha;"
+    // -- na g->inafanya_kazi huwekwa 1 NDANI ya mchezo_anzisha pekee
+    // (mchezo_unda huiacha 0, angalia mchezo.swa). Kwa kuwa jaribio
+    // hili kwa makusudi HALIITI mchezo_anzisha (ili kuepuka #292),
+    // mchezo_sasisha ingerudi mapema kimya bila kufanya chochote --
+    // si kwa sababu ya mdudu wowote kwenye mipaka_hai/majanga/eneo
+    // wenyewe, bali kwa sababu ya mlango huu wa ulinzi tu. Tunaweka
+    // bendera hiyo kwa mkono hapa (si kupitia mchezo_anzisha) ili
+    // kuendana na muundo wa jaribio hili (kujenga Mchezo kwa mkono).
+    g->inafanya_kazi = 1;
     mchezo_sasisha(g);
     d64 mvutano_baada = dunia_mpaka_hai_pata_mvutano(mipaka, "A", "B");
+    // Uchapishaji wa [dbg] wa THAMANI HALISI (si tu PASS/FAIL) --
+    // %f haiungwi mkono (andika inasaidia %d/%u/%x/%s/%c pekee,
+    // angalia kumbukumbu.swa), kwa hiyo d64 inazidishwa kwa 1000 na
+    // kuonyeshwa kama n64 kwa usahihi wa desimali 3. Hii ndiyo
+    // uthibitisho wa moja kwa moja uliotumika kugundua #295 (angalia
+    // maelezo juu ya faili) -- thamani hizi ni SAHIHI hata pale
+    // mpangilio wa uchapishaji wa PASS/FAIL unapoharibika na #295.
+    n64 mvutano_kabla_x1000 = mvutano_kabla * 1000.0;
+    n64 mvutano_baada_x1000 = mvutano_baada * 1000.0;
+    n64 eneo_mkoa_x1000 = mkoa->eneo * 1000.0;
+    andika("[dbg] mvutano_kabla*1000=%d mvutano_baada*1000=%d eneo_mkoa*1000=%d\n", mvutano_kabla_x1000, mvutano_baada_x1000, eneo_mkoa_x1000, 0, 0, 0);
     jaribio_mchezo_thibitisha(mvutano_baada > mvutano_kabla, "mvutano wa mpaka umeongezeka baada ya mchezo_sasisha moja");
 
     n64 idadi_sasisho = g->utendaji.idadi_ya_sasisho;
+    andika("[dbg] idadi_ya_sasisho=%d\n", idadi_sasisho, 0, 0, 0, 0, 0);
     jaribio_mchezo_thibitisha(idadi_sasisho == 1, "idadi_ya_sasisho == 1 baada ya mzunguko mmoja");
 
     // mchezo_uharibu -> mchezo_zima huita dunia_mpaka_hai_uharibu/
