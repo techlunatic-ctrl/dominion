@@ -23,6 +23,9 @@ ina kiambishi chake cha lazima, tangu kazi ya kwanza.
 | `environment/`  | `mazingira_`    |
 | `world/`        | `dunia_`        |
 | `simulation_engine/` | `injini_`  |
+| `subunits/`     | (faili moja, kiambishi chake maalum -- angalia chini) |
+| `abstracts/`    | (faili moja, kiambishi chake maalum -- angalia chini) |
+| `data/`         | (faili moja, kiambishi chake maalum -- angalia chini) |
 
 ## Kiambishi maalum kwa faili za `src/core/` (ngazi ya juu, si saraka ndogo)
 
@@ -40,6 +43,9 @@ ramani ya juu (ambayo ni kwa saraka ndogo pekee):
 | `npc_engine.c` | `wakala_` | |
 | `time_engine.c` | `injini_saa_` | Sehemu YA SAA KUU pekee imetafsiriwa (mwaka/siku/zamu) -- mfumo wa kalenda nyingi/enzi umeachwa, angalia maelezo kwenye `swa/moduli/injini/saa_kuu.swa` |
 | `profile.c` | `wasifu_` | Ilitumia SDL3 moja kwa moja kwa faili (SDL_CreateDirectory/SDL_IOFromFile/SDL_EnumerateDirectory) -- imeandikwa upya kwa syscalls ghafi (mkdir=83, getdents64=217) badala ya kutumia SDL3 au faili.swa pekee (ambayo haina uundaji/uorodheshaji wa saraka) -- angalia `swa/moduli/wasifu/wasifu.swa` |
+| `subunits/subunit.c` | `kitengo_chini_` | Saraka `subunits/` ina faili MOJA tu -- haikuhitaji jedwali lake la kiambishi-kidogo (tofauti na `governance/`). Vitengo vidogo vya kiutawala (mkoa/kanda/jiji/wilaya), kugawanyika/kuungana -- angalia `swa/moduli/subunits/kitengo_chini.swa` |
+| `abstracts/soft_metrics.c` | `vipimo_laini_` | Vipimo "laini" vya taifa (furaha, uhalali, fahari) -- angalia `swa/moduli/abstracts/vipimo_laini.swa` |
+| `data/history_db.c` | `historia_db_` | Journal ya matukio ya kihistoria (event-sourced), ikiwemo uhifadhi/upakiaji wa faili halisi -- angalia `swa/moduli/data/historia_db.swa` kwa maelezo kamili ya tofauti za umbizo la faili kutoka kwa C |
 
 ## Viambishi vidogo vya `governance/` (saraka ndogo nyingi, kila moja `utawala_<kiambishi_kidogo>_`)
 
