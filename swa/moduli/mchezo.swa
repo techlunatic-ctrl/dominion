@@ -1569,97 +1569,2961 @@ w0 mchezo_uharibu(Mchezo* g) {
 }
 
 // ---------------------------------------------------------------
-// Uhifadhi/upakiaji wa hali ya mchezo (state_persistence.c) —
-// tafsiri ya kwanza HALISI (si tu injini_uhifadhi iliyopo tayari
-// kama sehemu isiyotumika).
+// Uhifadhi/upakiaji KAMILI wa hali ya mchezo (state_persistence.c) --
+// UANDISHI UPYA KAMILI (2026-10-03) wa toleo la kwanza (lililokuwa
+// hapa kabla): lile toleo la kwanza lilitafsiri civ_state_persistence_t
+// moja kwa moja (primitives za baiti ghafi tu, angalia uhifadhi.swa)
+// na kisha likahifadhi muundo MMOJA BAPA (MchezoHifadhiData) wenye
+// shamba 12 TU (4 za juu + 6 za usanidi + 2 za uchumi_mkuu) kama
+// baiti ghafi moja kwa moja -- WIGO WAKE HALISI ulikuwa: hali_ya_mchezo/
+// zamu_ya_sasa/inafanya_kazi/imesimamishwa, usanidi (bila jina/toleo --
+// hizo ni n8* na muundo bapa hauwezi kuzihifadhi kama baiti ghafi),
+// na uchumi_mkuu.kiwango_cha_kodi/matumizi_ya_serikali TU (mifumo
+// mingine 46 kati ya 47 HAZIKUGUSWA KABISA). Sababu ya wigo huo
+// mdogo ilikuwa thibitisho tatu: (1) #186 -- shamba la kielekezi cha
+// muundo ndani ya muundo haihifadhi sahihi, (2) hakuna umbizaji wa
+// d64 ndani ya mfuatano_umbiza wakati huo, (3) safu za ukubwa
+// maalum ndani ya muundo haziwezi kuchanganuliwa -- yote matatu
+// yalifanya muundo BAPA mmoja uonekane kama njia pekee salama.
 //
-// WIGO WA KIMAKUSUDI: injini_uhifadhi_hifadhi/pakia (uhifadhi.swa)
-// ni primitives za baiti ghafi tu (andika/soma bafa+ukubwa) -- si
-// serializer halisi. MchezoHifadhiData hapa chini ni muundo BAPA
-// (hakuna vielekezi, hakuna miundo iliyowekwa ndani, hakuna
-// safu/array) unaohifadhiwa/kupakiwa KAMA BAITI GHAFI moja kwa
-// moja -- hii inaepuka mapungufu matatu yaliyothibitishwa kikao
-// hiki: #186 (field ya kielekezi cha muundo ndani ya muundo
-// haihifadhi sahihi), hakuna umbizaji wa d64/float ndani ya
-// mfuatano_umbiza (hivyo maandishi/text serialization ya nambari
-// za desimali haiwezekani sasa), na kuepuka safu zenye ukubwa
-// maalum ndani ya muundo (haziwezi kuchanganuliwa).
+// Tangu wakati huo tumepata (na tunatumia hapa chini): primitives za
+// I/O za kiwango cha chini zenye kishikio cha FAILI (si muundo bapa)
+// kwenye uhifadhi.swa (injini_uhifadhi_andika/soma_n32/n64/d64/n8/
+// mfuatano) -- mtindo HUU HUU uliothibitishwa tayari na historia_db.swa
+// (angalia faili hilo kwa precedent kamili). Kwa kutumia MKONDO wa
+// maandishi ya moja kwa moja kwenye faili (si muundo bapa mmoja),
+// tunaepuka vikwazo vyote vitatu vya hapo juu: hakuna haja ya
+// kuhifadhi kielekezi cha muundo (tunaandika SHAMBA zake moja kwa
+// moja), d64 inahifadhiwa kwa BIT-REINTERPRET (si maandishi), na
+// safu za ukubwa maalum (zilizogawanywa kwenye shamba_0..N kwenye
+// lugha hii) zinaandikwa kwa KUITA KAZI MOJA YA KUSAIDIA mara N
+// (mfano: kifaa_0..kifaa_7 za SeraMfumo) -- hii ndiyo sababu
+// UMBIZO LA FAILI LIMEBADILIKA KABISA (halisomani na faili za zamani
+// za MchezoHifadhiData) -- SAWA NA USAHIHI, hakuna faili za kweli za
+// wachezaji zinazohitaji kuhifadhiwa bado (angalia historia ya
+// mradi: historia_db.swa ilifanya uamuzi uleule pale ilipobadilisha
+// umbizo lake).
 //
-// Tumeamua KUHIFADHI/KUPAKIA SHAMBA HALISI ZENYE "pata"/"weka"
-// zilizothibitishwa TU -- si ripoti zilizotokana (derived reports)
-// ambazo hazina njia ya kurudishwa kwenye hali hai (mfano: UchumiMkuuRipoti
-// ni matokeo ya hesabu, si hali ghafi -- soko->kiwango_cha_kodi na
-// soko->matumizi_ya_serikali ndizo pekee zenye "weka" kwenye
-// uchumi_mkuu.swa). Hii inaruhusu jaribio la round-trip HALISI:
-// unda -> badilisha -> hifadhi -> pakia kwenye kitu kipya -> linganisha
-// shamba kwa shamba -- si tu "haikuanguka".
+// WIGO (2026-10-03): mifumo YOTE 47 ya Mchezo sasa zina angalau
+// safu zao za juu (scalar) zikihifadhiwa. Baadhi ya shamba
+// yameachwa KWA MAKUSUDI (yametajwa kwenye maoni ya kazi husika
+// hapa chini) kwa sababu mojawapo:
+//   (a) ni anwani (n64 _addr) zinazorejelea KITU KINGINE (cross-
+//       reference kama vile taifa->serikali_addr, au kabila_N/
+//       lugha_N/imani_N za makazi) -- kuhifadhi anwani ghafi
+//       haina maana baada ya kupakia tena (heap address mpya kabisa
+//       kwenye mzunguko mpya wa programu) -- hazijahifadhiwa hadi
+//       mfumo wa "ID thabiti" uwepo kwa marejeo haya,
+//   (b) ni anwani za KAZI (function pointers -- wasikilizaji wa
+//       muda, vishughulikia vya matukio, mifumo ya injini_okestra)
+//       -- hazina maana KABISA zikipakiwa tena (anwani hubadilika
+//       kila ujenzi wa programu),
+//   (c) ni gridi kubwa isiyobadilika kivitendo na mchezo_sasisha wa
+//       sasa (DuniaRamani.vipande, upana*urefu kipande -- inaweza
+//       kuzalishwa upya kwa uhakika kutoka (upana,urefu,mbegu)),
+//   (d) ni safu za ndani NESTED (safu ndani ya kiingilio cha safu
+//       nyingine, mfano Shirika.wanachama/maazimio, UtawalaDesturi.
+//       majukumu, UtawalaMwingiliano.washiriki, utamaduni
+//       kitambulisho/kuenea/itikadi/uigaji/dini zote tano) -- hizi
+//       huanza TUPU kwenye mchezo_anzisha ya sasa na HAZIJAZWI na
+//       mchezo_sasisha (angalia maelezo ya wigo juu ya faili hili) --
+//       tumehifadhi METADATA yao (idadi/uwezo) kama uthibitisho wa
+//       muundo, lakini si maudhui ya kila kiingilio -- kazi ijayo
+//       dhahiri, imeandikwa wazi kwenye kila kazi husika.
 //
-// Mifumo mingine (idadi ya watu, ramani, taifa, jeshi, n.k.) BADO
-// HAIJAJUMUISHWA kwenye uhifadhi -- ni pengo linalojulikana wazi,
-// si kosa la bahati mbaya. Kupanua MchezoHifadhiData kwa mifumo
-// zaidi ni kazi ijayo, si sehemu ya toleo hili la kwanza.
-muundo MchezoHifadhiData {
-    n32 hali_ya_mchezo;
-    n32 zamu_ya_sasa;
-    n32 inafanya_kazi;
-    n32 imesimamishwa;
+// Kila "mchezo_hifadhi_andika_<mfumo>"/"mchezo_hifadhi_soma_<mfumo>"
+// ni JOZI inayolingana KABISA kwa mpangilio wa shamba -- mpangilio
+// WOWOTE ukibadilika upande mmoja bila mwingine utasababisha data
+// kusomwa vibaya kimya (hakuna majina ya "sehemu" kwenye faili,
+// ni mkondo mmoja wa moja kwa moja, kama historia_db.swa).
 
-    n32 usanidi_mwaka_wa_kuanza;
-    n32 usanidi_ugumu;
-    n32 usanidi_washa_mantiki_isiyo_wazi;
-    n32 usanidi_washa_ufuatiliaji_wa_utegemezi;
-    n32 usanidi_muda_wa_hifadhi_otomatiki;
-    n32 usanidi_kiwango_cha_juu_cha_kumbukumbu_matukio;
+n32 MCHEZO_HIFADHI_ALAMA = 1398227268; // "SWAD" (S=83,W=87,A=65,D=68) kama n32
+n32 MCHEZO_HIFADHI_TOLEO = 1;
 
-    d64 uchumi_mkuu_kiwango_cha_kodi;
-    d64 uchumi_mkuu_matumizi_ya_serikali;
-};
+// ---------- usanidi ----------
+w0 mchezo_hifadhi_andika_usanidi(n8* f, MchezoUsanidi* u) {
+    injini_uhifadhi_andika_mfuatano(f, u->jina);
+    injini_uhifadhi_andika_mfuatano(f, u->toleo);
+    injini_uhifadhi_andika_n32(f, u->mwaka_wa_kuanza);
+    injini_uhifadhi_andika_n32(f, u->ugumu);
+    injini_uhifadhi_andika_n32(f, u->washa_mantiki_isiyo_wazi);
+    injini_uhifadhi_andika_n32(f, u->washa_ufuatiliaji_wa_utegemezi);
+    injini_uhifadhi_andika_n32(f, u->muda_wa_hifadhi_otomatiki);
+    injini_uhifadhi_andika_n32(f, u->kiwango_cha_juu_cha_kumbukumbu_matukio);
+}
+w0 mchezo_hifadhi_soma_usanidi(n8* f, MchezoUsanidi* u) {
+    u->jina = injini_uhifadhi_soma_mfuatano(f);
+    u->toleo = injini_uhifadhi_soma_mfuatano(f);
+    u->mwaka_wa_kuanza = injini_uhifadhi_soma_n32(f);
+    u->ugumu = injini_uhifadhi_soma_n32(f);
+    u->washa_mantiki_isiyo_wazi = injini_uhifadhi_soma_n32(f);
+    u->washa_ufuatiliaji_wa_utegemezi = injini_uhifadhi_soma_n32(f);
+    u->muda_wa_hifadhi_otomatiki = injini_uhifadhi_soma_n32(f);
+    u->kiwango_cha_juu_cha_kumbukumbu_matukio = injini_uhifadhi_soma_n32(f);
+}
 
-n8* mchezo_hifadhi_data_kama_baiti(MchezoHifadhiData* d) { rudisha d; }
-MchezoHifadhiData* mchezo_hifadhi_data_kutoka_baiti(n8* b) { rudisha b; }
+// ---------- muda (InjiniMudaMfumo) ----------
+// wasikilizaji (n64, kichwa cha orodha-kiungo ya wasikilizaji wa
+// matukio ya muda) HAIHIFADHIWI kimakusudi -- ni anwani za kazi za
+// mtumiaji (angalia (b) kwenye maelezo ya wigo juu ya faili).
+w0 mchezo_hifadhi_andika_muda(n8* f, InjiniMudaMfumo* m) {
+    kama (m == 0) { rudisha; }
+    injini_uhifadhi_andika_n32(f, m->kalenda.mwaka);
+    injini_uhifadhi_andika_n32(f, m->kalenda.mwezi);
+    injini_uhifadhi_andika_n32(f, m->kalenda.siku);
+    injini_uhifadhi_andika_n64(f, m->kalenda.jumla_ya_siku);
+    injini_uhifadhi_andika_n32(f, m->kalenda.msimu);
+    injini_uhifadhi_andika_n32(f, m->kasi_ya_wakati);
+    injini_uhifadhi_andika_d64(f, m->kasi_ya_mchezo);
+    injini_uhifadhi_andika_d64(f, m->muda_uliopita_hivi_karibuni);
+    injini_uhifadhi_andika_d64(f, m->muda_uliokusanywa);
+    injini_uhifadhi_andika_d64(f, m->kizidishi_0);
+    injini_uhifadhi_andika_d64(f, m->kizidishi_1);
+    injini_uhifadhi_andika_d64(f, m->kizidishi_2);
+    injini_uhifadhi_andika_d64(f, m->kizidishi_3);
+    injini_uhifadhi_andika_d64(f, m->kizidishi_4);
+    injini_uhifadhi_andika_d64(f, m->kizidishi_5);
+}
+w0 mchezo_hifadhi_soma_muda(n8* f, InjiniMudaMfumo* m) {
+    kama (m == 0) { rudisha; }
+    m->kalenda.mwaka = injini_uhifadhi_soma_n32(f);
+    m->kalenda.mwezi = injini_uhifadhi_soma_n32(f);
+    m->kalenda.siku = injini_uhifadhi_soma_n32(f);
+    m->kalenda.jumla_ya_siku = injini_uhifadhi_soma_n64(f);
+    m->kalenda.msimu = injini_uhifadhi_soma_n32(f);
+    m->kasi_ya_wakati = injini_uhifadhi_soma_n32(f);
+    m->kasi_ya_mchezo = injini_uhifadhi_soma_d64(f);
+    m->muda_uliopita_hivi_karibuni = injini_uhifadhi_soma_d64(f);
+    m->muda_uliokusanywa = injini_uhifadhi_soma_d64(f);
+    m->kizidishi_0 = injini_uhifadhi_soma_d64(f);
+    m->kizidishi_1 = injini_uhifadhi_soma_d64(f);
+    m->kizidishi_2 = injini_uhifadhi_soma_d64(f);
+    m->kizidishi_3 = injini_uhifadhi_soma_d64(f);
+    m->kizidishi_4 = injini_uhifadhi_soma_d64(f);
+    m->kizidishi_5 = injini_uhifadhi_soma_d64(f);
+}
 
-w0 mchezo_hifadhi_data_jaza(Mchezo* g, MchezoHifadhiData* d) {
-    d->hali_ya_mchezo = g->hali_ya_mchezo;
-    d->zamu_ya_sasa = g->zamu_ya_sasa;
-    d->inafanya_kazi = g->inafanya_kazi;
-    d->imesimamishwa = g->imesimamishwa;
+// ---------- saa_kuu (InjiniSaaKuu) ----------
+w0 mchezo_hifadhi_andika_saa_kuu(n8* f, InjiniSaaKuu* s) {
+    kama (s == 0) { rudisha; }
+    injini_uhifadhi_andika_n32(f, s->mwaka_wa_ulimwengu);
+    injini_uhifadhi_andika_n32(f, s->siku_ya_ulimwengu);
+    injini_uhifadhi_andika_n32(f, s->nambari_ya_zamu);
+    injini_uhifadhi_andika_n32(f, s->zamu_kwa_mwaka);
+    injini_uhifadhi_andika_d64(f, s->maendeleo_ya_siku);
+}
+w0 mchezo_hifadhi_soma_saa_kuu(n8* f, InjiniSaaKuu* s) {
+    kama (s == 0) { rudisha; }
+    s->mwaka_wa_ulimwengu = injini_uhifadhi_soma_n32(f);
+    s->siku_ya_ulimwengu = injini_uhifadhi_soma_n32(f);
+    s->nambari_ya_zamu = injini_uhifadhi_soma_n32(f);
+    s->zamu_kwa_mwaka = injini_uhifadhi_soma_n32(f);
+    s->maendeleo_ya_siku = injini_uhifadhi_soma_d64(f);
+}
 
-    d->usanidi_mwaka_wa_kuanza = g->usanidi.mwaka_wa_kuanza;
-    d->usanidi_ugumu = g->usanidi.ugumu;
-    d->usanidi_washa_mantiki_isiyo_wazi = g->usanidi.washa_mantiki_isiyo_wazi;
-    d->usanidi_washa_ufuatiliaji_wa_utegemezi = g->usanidi.washa_ufuatiliaji_wa_utegemezi;
-    d->usanidi_muda_wa_hifadhi_otomatiki = g->usanidi.muda_wa_hifadhi_otomatiki;
-    d->usanidi_kiwango_cha_juu_cha_kumbukumbu_matukio = g->usanidi.kiwango_cha_juu_cha_kumbukumbu_matukio;
+// ---------- idadi_ya_watu (IdadiYaWatuMsimamizi + DemografiaMfumo) ----------
+w0 mchezo_hifadhi_andika_kundi_umri(n8* f, DemografiaKundiLaUmri* k) {
+    injini_uhifadhi_andika_n32(f, k->umri_wa_chini);
+    injini_uhifadhi_andika_n32(f, k->umri_wa_juu);
+    injini_uhifadhi_andika_n32(f, k->idadi);
+    injini_uhifadhi_andika_d64(f, k->kiwango_cha_uzazi);
+    injini_uhifadhi_andika_d64(f, k->kiwango_cha_vifo);
+}
+w0 mchezo_hifadhi_soma_kundi_umri(n8* f, DemografiaKundiLaUmri* k) {
+    k->umri_wa_chini = injini_uhifadhi_soma_n32(f);
+    k->umri_wa_juu = injini_uhifadhi_soma_n32(f);
+    k->idadi = injini_uhifadhi_soma_n32(f);
+    k->kiwango_cha_uzazi = injini_uhifadhi_soma_d64(f);
+    k->kiwango_cha_vifo = injini_uhifadhi_soma_d64(f);
+}
 
-    UchumiMkuuMfumo* uchumi = mchezo_pata_uchumi_mkuu(g);
-    kama (uchumi != 0) {
-        d->uchumi_mkuu_kiwango_cha_kodi = uchumi->kiwango_cha_kodi;
-        d->uchumi_mkuu_matumizi_ya_serikali = uchumi->matumizi_ya_serikali;
+w0 mchezo_hifadhi_andika_idadi_ya_watu(n8* f, IdadiYaWatuMsimamizi* m) {
+    kama (m == 0) { rudisha; }
+    injini_uhifadhi_andika_n64(f, m->demografia.idadi_jumla);
+    mchezo_hifadhi_andika_kundi_umri(f, &m->demografia.kundi_0);
+    mchezo_hifadhi_andika_kundi_umri(f, &m->demografia.kundi_1);
+    mchezo_hifadhi_andika_kundi_umri(f, &m->demografia.kundi_2);
+    mchezo_hifadhi_andika_kundi_umri(f, &m->demografia.kundi_3);
+    mchezo_hifadhi_andika_kundi_umri(f, &m->demografia.kundi_4);
+    mchezo_hifadhi_andika_kundi_umri(f, &m->demografia.kundi_5);
+    mchezo_hifadhi_andika_kundi_umri(f, &m->demografia.kundi_6);
+    injini_uhifadhi_andika_d64(f, m->demografia.uwiano_wa_jinsia);
+    injini_uhifadhi_andika_d64(f, m->demografia.uwiano_wa_mjini);
+    injini_uhifadhi_andika_d64(f, m->demografia.uwiano_wa_vijijini);
+    injini_uhifadhi_andika_d64(f, m->demografia.muundo_wa_kikabila);
+    injini_uhifadhi_andika_d64(f, m->kiwango_cha_uzazi);
+    injini_uhifadhi_andika_d64(f, m->kiwango_cha_vifo);
+    injini_uhifadhi_andika_d64(f, m->kiwango_cha_uhamiaji);
+    injini_uhifadhi_andika_d64(f, m->kiwango_cha_ukuaji);
+    injini_uhifadhi_andika_d64(f, m->ubora_wa_elimu);
+    injini_uhifadhi_andika_d64(f, m->kiashiria_cha_afya);
+    injini_uhifadhi_andika_d64(f, m->kuridhika);
+    injini_uhifadhi_andika_mfuatano(f, m->eneo_0);
+    injini_uhifadhi_andika_mfuatano(f, m->eneo_1);
+    injini_uhifadhi_andika_mfuatano(f, m->eneo_2);
+    injini_uhifadhi_andika_mfuatano(f, m->eneo_3);
+    injini_uhifadhi_andika_mfuatano(f, m->eneo_4);
+    injini_uhifadhi_andika_mfuatano(f, m->eneo_5);
+    injini_uhifadhi_andika_mfuatano(f, m->eneo_6);
+    injini_uhifadhi_andika_mfuatano(f, m->eneo_7);
+    injini_uhifadhi_andika_n32(f, m->idadi_ya_maeneo);
+}
+w0 mchezo_hifadhi_soma_idadi_ya_watu(n8* f, IdadiYaWatuMsimamizi* m) {
+    kama (m == 0) { rudisha; }
+    m->demografia.idadi_jumla = injini_uhifadhi_soma_n64(f);
+    mchezo_hifadhi_soma_kundi_umri(f, &m->demografia.kundi_0);
+    mchezo_hifadhi_soma_kundi_umri(f, &m->demografia.kundi_1);
+    mchezo_hifadhi_soma_kundi_umri(f, &m->demografia.kundi_2);
+    mchezo_hifadhi_soma_kundi_umri(f, &m->demografia.kundi_3);
+    mchezo_hifadhi_soma_kundi_umri(f, &m->demografia.kundi_4);
+    mchezo_hifadhi_soma_kundi_umri(f, &m->demografia.kundi_5);
+    mchezo_hifadhi_soma_kundi_umri(f, &m->demografia.kundi_6);
+    m->demografia.uwiano_wa_jinsia = injini_uhifadhi_soma_d64(f);
+    m->demografia.uwiano_wa_mjini = injini_uhifadhi_soma_d64(f);
+    m->demografia.uwiano_wa_vijijini = injini_uhifadhi_soma_d64(f);
+    m->demografia.muundo_wa_kikabila = injini_uhifadhi_soma_d64(f);
+    m->kiwango_cha_uzazi = injini_uhifadhi_soma_d64(f);
+    m->kiwango_cha_vifo = injini_uhifadhi_soma_d64(f);
+    m->kiwango_cha_uhamiaji = injini_uhifadhi_soma_d64(f);
+    m->kiwango_cha_ukuaji = injini_uhifadhi_soma_d64(f);
+    m->ubora_wa_elimu = injini_uhifadhi_soma_d64(f);
+    m->kiashiria_cha_afya = injini_uhifadhi_soma_d64(f);
+    m->kuridhika = injini_uhifadhi_soma_d64(f);
+    m->eneo_0 = injini_uhifadhi_soma_mfuatano(f);
+    m->eneo_1 = injini_uhifadhi_soma_mfuatano(f);
+    m->eneo_2 = injini_uhifadhi_soma_mfuatano(f);
+    m->eneo_3 = injini_uhifadhi_soma_mfuatano(f);
+    m->eneo_4 = injini_uhifadhi_soma_mfuatano(f);
+    m->eneo_5 = injini_uhifadhi_soma_mfuatano(f);
+    m->eneo_6 = injini_uhifadhi_soma_mfuatano(f);
+    m->eneo_7 = injini_uhifadhi_soma_mfuatano(f);
+    m->idadi_ya_maeneo = injini_uhifadhi_soma_n32(f);
+}
+
+// ---------- serikali (UtawalaSerikali) ----------
+// HAIHIFADHIWI kimakusudi: nafasi (n64* safu ya UtawalaNafasi*,
+// nafasi za kiserikali) na *_addr zote 15 (katiba/mtendaji/bunge/
+// mahakama/baraza/kidini/taasisi_mfumo/mgawanyo_mfumo/rushwa_injini/
+// uchaguzi_mfumo/vurugu/wizara_meneja/utumishi/haki_tamko/daftari/
+// maendeleo_hali) -- hizi ni mifumo midogo YA ZIADA isiyounganishwa
+// kama field zake za Mchezo (pengo lililopo tayari kwenye
+// mchezo.swa, si jipya kwenye uhifadhi) -- kuzihifadhi kungehitaji
+// kujua miundo yao kamili, ambayo haijatafsiriwa/kuunganishwa bado.
+w0 mchezo_hifadhi_andika_serikali(n8* f, UtawalaSerikali* s) {
+    kama (s == 0) { rudisha; }
+    injini_uhifadhi_andika_mfuatano(f, s->kitambulisho);
+    injini_uhifadhi_andika_mfuatano(f, s->jina);
+    injini_uhifadhi_andika_d64(f, s->wasifu.umoja_wa_mamlaka);
+    injini_uhifadhi_andika_d64(f, s->wasifu.kielezo_cha_uwakilishi);
+    injini_uhifadhi_andika_d64(f, s->wasifu.ugumu_wa_kitaasisi);
+    injini_uhifadhi_andika_d64(f, s->wasifu.usawa_wa_madaraka);
+    injini_uhifadhi_andika_d64(f, s->wasifu.furaha_ya_wananchi);
+    injini_uhifadhi_andika_d64(f, s->wasifu.kiwango_cha_utawala);
+    injini_uhifadhi_andika_d64(f, s->utulivu);
+    injini_uhifadhi_andika_d64(f, s->uhalali);
+    injini_uhifadhi_andika_d64(f, s->ufanisi);
+    injini_uhifadhi_andika_d64(f, s->afya.kielezo_cha_utulivu);
+    injini_uhifadhi_andika_d64(f, s->afya.kielezo_cha_mshikamano);
+    injini_uhifadhi_andika_d64(f, s->afya.kielezo_cha_rushwa);
+    injini_uhifadhi_andika_d64(f, s->afya.kielezo_cha_ukali);
+    injini_uhifadhi_andika_d64(f, s->afya.kasi_ya_mageuzi);
+    injini_uhifadhi_andika_d64(f, s->afya.kielezo_cha_kidunia);
+    injini_uhifadhi_andika_d64(f, s->afya.kielezo_cha_uhai);
+    injini_uhifadhi_andika_d64(f, s->afya.mshikamano_wa_kiuchumi);
+    injini_uhifadhi_andika_d64(f, s->afya.heshima_ya_kimataifa);
+    injini_uhifadhi_andika_d64(f, s->afya.kielezo_cha_pato);
+    injini_uhifadhi_andika_d64(f, s->afya.utulivu_wa_viwanda);
+    injini_uhifadhi_andika_d64(f, s->mgao_0);
+    injini_uhifadhi_andika_d64(f, s->mgao_1);
+    injini_uhifadhi_andika_d64(f, s->mgao_2);
+    injini_uhifadhi_andika_d64(f, s->mgao_3);
+    injini_uhifadhi_andika_d64(f, s->mgao_4);
+    injini_uhifadhi_andika_d64(f, s->mgao_5);
+    injini_uhifadhi_andika_d64(f, s->mgao_6);
+    injini_uhifadhi_andika_d64(f, s->mgao_7);
+    injini_uhifadhi_andika_d64(f, s->mgao_8);
+    injini_uhifadhi_andika_d64(f, s->kizingiti_cha_kibunge);
+    injini_uhifadhi_andika_n32(f, s->zamu_tangu_kikao_cha_mwisho);
+    injini_uhifadhi_andika_d64(f, s->uungwaji_wa_vikundi);
+    injini_uhifadhi_andika_n32(f, s->idadi_ya_vikundi);
+}
+w0 mchezo_hifadhi_soma_serikali(n8* f, UtawalaSerikali* s) {
+    kama (s == 0) { rudisha; }
+    s->kitambulisho = injini_uhifadhi_soma_mfuatano(f);
+    s->jina = injini_uhifadhi_soma_mfuatano(f);
+    s->wasifu.umoja_wa_mamlaka = injini_uhifadhi_soma_d64(f);
+    s->wasifu.kielezo_cha_uwakilishi = injini_uhifadhi_soma_d64(f);
+    s->wasifu.ugumu_wa_kitaasisi = injini_uhifadhi_soma_d64(f);
+    s->wasifu.usawa_wa_madaraka = injini_uhifadhi_soma_d64(f);
+    s->wasifu.furaha_ya_wananchi = injini_uhifadhi_soma_d64(f);
+    s->wasifu.kiwango_cha_utawala = injini_uhifadhi_soma_d64(f);
+    s->utulivu = injini_uhifadhi_soma_d64(f);
+    s->uhalali = injini_uhifadhi_soma_d64(f);
+    s->ufanisi = injini_uhifadhi_soma_d64(f);
+    s->afya.kielezo_cha_utulivu = injini_uhifadhi_soma_d64(f);
+    s->afya.kielezo_cha_mshikamano = injini_uhifadhi_soma_d64(f);
+    s->afya.kielezo_cha_rushwa = injini_uhifadhi_soma_d64(f);
+    s->afya.kielezo_cha_ukali = injini_uhifadhi_soma_d64(f);
+    s->afya.kasi_ya_mageuzi = injini_uhifadhi_soma_d64(f);
+    s->afya.kielezo_cha_kidunia = injini_uhifadhi_soma_d64(f);
+    s->afya.kielezo_cha_uhai = injini_uhifadhi_soma_d64(f);
+    s->afya.mshikamano_wa_kiuchumi = injini_uhifadhi_soma_d64(f);
+    s->afya.heshima_ya_kimataifa = injini_uhifadhi_soma_d64(f);
+    s->afya.kielezo_cha_pato = injini_uhifadhi_soma_d64(f);
+    s->afya.utulivu_wa_viwanda = injini_uhifadhi_soma_d64(f);
+    s->mgao_0 = injini_uhifadhi_soma_d64(f);
+    s->mgao_1 = injini_uhifadhi_soma_d64(f);
+    s->mgao_2 = injini_uhifadhi_soma_d64(f);
+    s->mgao_3 = injini_uhifadhi_soma_d64(f);
+    s->mgao_4 = injini_uhifadhi_soma_d64(f);
+    s->mgao_5 = injini_uhifadhi_soma_d64(f);
+    s->mgao_6 = injini_uhifadhi_soma_d64(f);
+    s->mgao_7 = injini_uhifadhi_soma_d64(f);
+    s->mgao_8 = injini_uhifadhi_soma_d64(f);
+    s->kizingiti_cha_kibunge = injini_uhifadhi_soma_d64(f);
+    s->zamu_tangu_kikao_cha_mwisho = injini_uhifadhi_soma_n32(f);
+    s->uungwaji_wa_vikundi = injini_uhifadhi_soma_d64(f);
+    s->idadi_ya_vikundi = injini_uhifadhi_soma_n32(f);
+}
+
+// ---------- ramani (DuniaRamani) ----------
+// vipande (n64* gridi ya upana*urefu DuniaRamaniKipande*) HAIHIFADHIWI
+// kimakusudi -- angalia (c) kwenye maelezo ya wigo juu ya faili:
+// gridi inazalishwa upya kwa uhakika kutoka (upana,urefu,mbegu) kupitia
+// dunia_ramani_unda, na mchezo_sasisha iliyopunguzwa ya sasa haiandiki
+// kwenye shamba za kila kipande (hakuna makazi yanayoundwa kiotomatiki
+// yanayoweza kubadilisha msongamano_wa_watu/ushawishi_wa_kisiasa wa
+// kipande -- angalia makazi hapa chini, idadi huanza 0).
+w0 mchezo_hifadhi_andika_ramani(n8* f, DuniaRamani* r) {
+    kama (r == 0) { rudisha; }
+    injini_uhifadhi_andika_n32(f, r->upana);
+    injini_uhifadhi_andika_n32(f, r->urefu);
+    injini_uhifadhi_andika_d64(f, r->kiwango_cha_bahari);
+    injini_uhifadhi_andika_n32(f, r->mbegu);
+    injini_uhifadhi_andika_n32(f, r->idadi_ya_vipande_vya_ardhi);
+    injini_uhifadhi_andika_n32(f, r->idadi_ya_vipande_vya_mto);
+    injini_uhifadhi_andika_n32(f, r->idadi_ya_vipande_vya_mlima);
+}
+w0 mchezo_hifadhi_soma_ramani(n8* f, DuniaRamani* r) {
+    kama (r == 0) { rudisha; }
+    r->upana = injini_uhifadhi_soma_n32(f);
+    r->urefu = injini_uhifadhi_soma_n32(f);
+    r->kiwango_cha_bahari = injini_uhifadhi_soma_d64(f);
+    r->mbegu = injini_uhifadhi_soma_n32(f);
+    r->idadi_ya_vipande_vya_ardhi = injini_uhifadhi_soma_n32(f);
+    r->idadi_ya_vipande_vya_mto = injini_uhifadhi_soma_n32(f);
+    r->idadi_ya_vipande_vya_mlima = injini_uhifadhi_soma_n32(f);
+}
+
+// ---------- makazi (DuniaMakaziMsimamizi -- settlement manager) ----------
+// kabila_0..7/lugha_0..7/imani_0..7 za DuniaMakazi (anwani za vitu
+// vya kiutamaduni) HAZIHIFADHIWI kimakusudi -- angalia (a) kwenye
+// maelezo ya wigo juu ya faili.
+w0 mchezo_hifadhi_andika_kijiji(n8* f, DuniaMakazi* s) {
+    injini_uhifadhi_andika_mfuatano(f, s->kitambulisho);
+    injini_uhifadhi_andika_mfuatano(f, s->jina);
+    injini_uhifadhi_andika_n32(f, s->kiwango);
+    injini_uhifadhi_andika_d64(f, s->x);
+    injini_uhifadhi_andika_d64(f, s->y);
+    injini_uhifadhi_andika_n64(f, s->idadi_ya_watu);
+    injini_uhifadhi_andika_d64(f, s->kiwango_cha_ukuaji);
+    injini_uhifadhi_andika_d64(f, s->uvutio);
+    injini_uhifadhi_andika_d64(f, s->elimu_ya_kusoma);
+    injini_uhifadhi_andika_d64(f, s->kiwango_cha_afya);
+    injini_uhifadhi_andika_d64(f, s->miundombinu.ubora_wa_barabara);
+    injini_uhifadhi_andika_d64(f, s->miundombinu.ngome);
+    injini_uhifadhi_andika_d64(f, s->miundombinu.uwezo_wa_bandari);
+    injini_uhifadhi_andika_d64(f, s->miundombinu.usafi);
+    injini_uhifadhi_andika_mfuatano(f, s->eneo_id);
+    injini_uhifadhi_andika_n32(f, s->aina_ya_uzalishaji);
+    injini_uhifadhi_andika_d64(f, s->maendeleo_ya_uzalishaji);
+    injini_uhifadhi_andika_d64(f, s->lengo_la_uzalishaji);
+    injini_uhifadhi_andika_n32(f, s->inazalisha);
+    injini_uhifadhi_andika_d64(f, s->mavuno_ya_utamaduni);
+    injini_uhifadhi_andika_d64(f, s->utamaduni_uliokusanywa);
+    injini_uhifadhi_andika_n32(f, s->eneo_la_kipenyo);
+    injini_uhifadhi_andika_d64(f, s->uaminifu);
+    injini_uhifadhi_andika_d64(f, s->machafuko);
+    injini_uhifadhi_andika_n32(f, s->kabila_kuu);
+    injini_uhifadhi_andika_n32(f, s->lugha_kuu);
+    injini_uhifadhi_andika_n32(f, s->imani_kuu);
+}
+w0 mchezo_hifadhi_soma_kijiji(n8* f, DuniaMakazi* s) {
+    s->kitambulisho = injini_uhifadhi_soma_mfuatano(f);
+    s->jina = injini_uhifadhi_soma_mfuatano(f);
+    s->kiwango = injini_uhifadhi_soma_n32(f);
+    s->x = injini_uhifadhi_soma_d64(f);
+    s->y = injini_uhifadhi_soma_d64(f);
+    s->idadi_ya_watu = injini_uhifadhi_soma_n64(f);
+    s->kiwango_cha_ukuaji = injini_uhifadhi_soma_d64(f);
+    s->uvutio = injini_uhifadhi_soma_d64(f);
+    s->elimu_ya_kusoma = injini_uhifadhi_soma_d64(f);
+    s->kiwango_cha_afya = injini_uhifadhi_soma_d64(f);
+    s->miundombinu.ubora_wa_barabara = injini_uhifadhi_soma_d64(f);
+    s->miundombinu.ngome = injini_uhifadhi_soma_d64(f);
+    s->miundombinu.uwezo_wa_bandari = injini_uhifadhi_soma_d64(f);
+    s->miundombinu.usafi = injini_uhifadhi_soma_d64(f);
+    s->eneo_id = injini_uhifadhi_soma_mfuatano(f);
+    s->aina_ya_uzalishaji = injini_uhifadhi_soma_n32(f);
+    s->maendeleo_ya_uzalishaji = injini_uhifadhi_soma_d64(f);
+    s->lengo_la_uzalishaji = injini_uhifadhi_soma_d64(f);
+    s->inazalisha = injini_uhifadhi_soma_n32(f);
+    s->mavuno_ya_utamaduni = injini_uhifadhi_soma_d64(f);
+    s->utamaduni_uliokusanywa = injini_uhifadhi_soma_d64(f);
+    s->eneo_la_kipenyo = injini_uhifadhi_soma_n32(f);
+    s->uaminifu = injini_uhifadhi_soma_d64(f);
+    s->machafuko = injini_uhifadhi_soma_d64(f);
+    s->kabila_kuu = injini_uhifadhi_soma_n32(f);
+    s->lugha_kuu = injini_uhifadhi_soma_n32(f);
+    s->imani_kuu = injini_uhifadhi_soma_n32(f);
+}
+w0 mchezo_hifadhi_andika_makazi(n8* f, DuniaMakaziMsimamizi* m) {
+    kama (m == 0) { rudisha; }
+    injini_uhifadhi_andika_d64(f, m->umbali_wa_chini);
+    injini_uhifadhi_andika_n32(f, m->idadi);
+    n32 i = 0;
+    wakati (i < m->idadi) {
+        DuniaMakazi* s = m->makazi_yote[i];
+        mchezo_hifadhi_andika_kijiji(f, s);
+        i = i + 1;
+    }
+}
+w0 mchezo_hifadhi_soma_makazi(n8* f, DuniaMakaziMsimamizi* m) {
+    kama (m == 0) { rudisha; }
+    m->umbali_wa_chini = injini_uhifadhi_soma_d64(f);
+    n32 idadi_iliyohifadhiwa = injini_uhifadhi_soma_n32(f);
+    // Rudisha manager kwenye hali tupu kabla ya kupakia upya -- vinginevyo
+    // makazi ya chaguo-msingi (kama yapo) yangerudufiwa (angalia maelezo
+    // ya jumla ya mbinu hii juu ya faili, karibu na mchezo_pakia).
+    m->idadi = 0;
+    n32 i = 0;
+    wakati (i < idadi_iliyohifadhiwa) {
+        DuniaMakazi* s = tenga(ukubwa(DuniaMakazi));
+        mchezo_hifadhi_soma_kijiji(f, s);
+        dunia_makazi_msimamizi_ongeza(m, s);
+        i = i + 1;
     }
 }
 
-w0 mchezo_hifadhi_data_tumia(Mchezo* g, MchezoHifadhiData* d) {
-    g->hali_ya_mchezo = d->hali_ya_mchezo;
-    g->zamu_ya_sasa = d->zamu_ya_sasa;
-    g->inafanya_kazi = d->inafanya_kazi;
-    g->imesimamishwa = d->imesimamishwa;
+// ---------- akili (AkiliMfumo) ----------
+// mkakati_ais/mbinu_ais (safu za anwani za vitu vya AI) HAZIHIFADHIWI
+// kimakusudi -- ni miundo isiyojulikana kwa kikao hiki (haikuchunguzwa),
+// na akili_mfumo_sasisha haionekani kubadilisha idadi zao kwa kila
+// mzunguko -- metadata (idadi/uwezo) tu ndiyo inayohifadhiwa.
+w0 mchezo_hifadhi_andika_akili(n8* f, AkiliMfumo* a) {
+    kama (a == 0) { rudisha; }
+    injini_uhifadhi_andika_n32(f, a->idadi_ya_mkakati);
+    injini_uhifadhi_andika_n32(f, a->idadi_ya_mbinu);
+    injini_uhifadhi_andika_n32(f, a->uwezo_wa_mkakati);
+    injini_uhifadhi_andika_n32(f, a->uwezo_wa_mbinu);
+}
+w0 mchezo_hifadhi_soma_akili(n8* f, AkiliMfumo* a) {
+    kama (a == 0) { rudisha; }
+    a->idadi_ya_mkakati = injini_uhifadhi_soma_n32(f);
+    a->idadi_ya_mbinu = injini_uhifadhi_soma_n32(f);
+    a->uwezo_wa_mkakati = injini_uhifadhi_soma_n32(f);
+    a->uwezo_wa_mbinu = injini_uhifadhi_soma_n32(f);
+}
 
-    g->usanidi.mwaka_wa_kuanza = d->usanidi_mwaka_wa_kuanza;
-    g->usanidi.ugumu = d->usanidi_ugumu;
-    g->usanidi.washa_mantiki_isiyo_wazi = d->usanidi_washa_mantiki_isiyo_wazi;
-    g->usanidi.washa_ufuatiliaji_wa_utegemezi = d->usanidi_washa_ufuatiliaji_wa_utegemezi;
-    g->usanidi.muda_wa_hifadhi_otomatiki = d->usanidi_muda_wa_hifadhi_otomatiki;
-    g->usanidi.kiwango_cha_juu_cha_kumbukumbu_matukio = d->usanidi_kiwango_cha_juu_cha_kumbukumbu_matukio;
+// ---------- diplomasia (DiplomasiaMfumo) ----------
+w0 mchezo_hifadhi_andika_uhusiano(n8* f, DiplomasiaUhusiano* u) {
+    injini_uhifadhi_andika_mfuatano(f, u->taifa_a);
+    injini_uhifadhi_andika_mfuatano(f, u->taifa_b);
+    injini_uhifadhi_andika_n32(f, u->kiwango_cha_uhusiano);
+    injini_uhifadhi_andika_n32(f, u->msimamo_wa_sasa);
+    injini_uhifadhi_andika_d64(f, u->imani);
+    injini_uhifadhi_andika_d64(f, u->alama_ya_maoni);
+    injini_uhifadhi_andika_n32(f, u->aina_ya_tabia);
+    injini_uhifadhi_andika_d64(f, u->malalamiko);
+    injini_uhifadhi_andika_mfuatano(f, u->sababu_kuu_ya_vita);
+    injini_uhifadhi_andika_n64(f, u->ilisasishwa_mwisho);
+}
+w0 mchezo_hifadhi_soma_uhusiano(n8* f, DiplomasiaUhusiano* u) {
+    u->taifa_a = injini_uhifadhi_soma_mfuatano(f);
+    u->taifa_b = injini_uhifadhi_soma_mfuatano(f);
+    u->kiwango_cha_uhusiano = injini_uhifadhi_soma_n32(f);
+    u->msimamo_wa_sasa = injini_uhifadhi_soma_n32(f);
+    u->imani = injini_uhifadhi_soma_d64(f);
+    u->alama_ya_maoni = injini_uhifadhi_soma_d64(f);
+    u->aina_ya_tabia = injini_uhifadhi_soma_n32(f);
+    u->malalamiko = injini_uhifadhi_soma_d64(f);
+    u->sababu_kuu_ya_vita = injini_uhifadhi_soma_mfuatano(f);
+    u->ilisasishwa_mwisho = injini_uhifadhi_soma_n64(f);
+}
+w0 mchezo_hifadhi_andika_mkataba(n8* f, DiplomasiaMkataba* k) {
+    injini_uhifadhi_andika_mfuatano(f, k->kitambulisho);
+    injini_uhifadhi_andika_n32(f, k->aina);
+    injini_uhifadhi_andika_mfuatano(f, k->mtia_saini_a);
+    injini_uhifadhi_andika_mfuatano(f, k->mtia_saini_b);
+    injini_uhifadhi_andika_n64(f, k->tarehe_ya_kuanza);
+    injini_uhifadhi_andika_n32(f, k->muda_wa_siku);
+    injini_uhifadhi_andika_n32(f, k->unafanya_kazi);
+}
+w0 mchezo_hifadhi_soma_mkataba(n8* f, DiplomasiaMkataba* k) {
+    k->kitambulisho = injini_uhifadhi_soma_mfuatano(f);
+    k->aina = injini_uhifadhi_soma_n32(f);
+    k->mtia_saini_a = injini_uhifadhi_soma_mfuatano(f);
+    k->mtia_saini_b = injini_uhifadhi_soma_mfuatano(f);
+    k->tarehe_ya_kuanza = injini_uhifadhi_soma_n64(f);
+    k->muda_wa_siku = injini_uhifadhi_soma_n32(f);
+    k->unafanya_kazi = injini_uhifadhi_soma_n32(f);
+}
+w0 mchezo_hifadhi_andika_diplomasia(n8* f, DiplomasiaMfumo* d) {
+    kama (d == 0) { rudisha; }
+    mchezo_hifadhi_andika_uhusiano(f, &d->uh_0);
+    mchezo_hifadhi_andika_uhusiano(f, &d->uh_1);
+    mchezo_hifadhi_andika_uhusiano(f, &d->uh_2);
+    mchezo_hifadhi_andika_uhusiano(f, &d->uh_3);
+    mchezo_hifadhi_andika_uhusiano(f, &d->uh_4);
+    mchezo_hifadhi_andika_uhusiano(f, &d->uh_5);
+    mchezo_hifadhi_andika_uhusiano(f, &d->uh_6);
+    mchezo_hifadhi_andika_uhusiano(f, &d->uh_7);
+    mchezo_hifadhi_andika_uhusiano(f, &d->uh_8);
+    mchezo_hifadhi_andika_uhusiano(f, &d->uh_9);
+    mchezo_hifadhi_andika_uhusiano(f, &d->uh_10);
+    mchezo_hifadhi_andika_uhusiano(f, &d->uh_11);
+    injini_uhifadhi_andika_n32(f, d->idadi_ya_uhusiano);
+    mchezo_hifadhi_andika_mkataba(f, &d->mk_0);
+    mchezo_hifadhi_andika_mkataba(f, &d->mk_1);
+    mchezo_hifadhi_andika_mkataba(f, &d->mk_2);
+    mchezo_hifadhi_andika_mkataba(f, &d->mk_3);
+    mchezo_hifadhi_andika_mkataba(f, &d->mk_4);
+    mchezo_hifadhi_andika_mkataba(f, &d->mk_5);
+    mchezo_hifadhi_andika_mkataba(f, &d->mk_6);
+    mchezo_hifadhi_andika_mkataba(f, &d->mk_7);
+    injini_uhifadhi_andika_n32(f, d->idadi_ya_mikataba);
+}
+w0 mchezo_hifadhi_soma_diplomasia(n8* f, DiplomasiaMfumo* d) {
+    kama (d == 0) { rudisha; }
+    mchezo_hifadhi_soma_uhusiano(f, &d->uh_0);
+    mchezo_hifadhi_soma_uhusiano(f, &d->uh_1);
+    mchezo_hifadhi_soma_uhusiano(f, &d->uh_2);
+    mchezo_hifadhi_soma_uhusiano(f, &d->uh_3);
+    mchezo_hifadhi_soma_uhusiano(f, &d->uh_4);
+    mchezo_hifadhi_soma_uhusiano(f, &d->uh_5);
+    mchezo_hifadhi_soma_uhusiano(f, &d->uh_6);
+    mchezo_hifadhi_soma_uhusiano(f, &d->uh_7);
+    mchezo_hifadhi_soma_uhusiano(f, &d->uh_8);
+    mchezo_hifadhi_soma_uhusiano(f, &d->uh_9);
+    mchezo_hifadhi_soma_uhusiano(f, &d->uh_10);
+    mchezo_hifadhi_soma_uhusiano(f, &d->uh_11);
+    d->idadi_ya_uhusiano = injini_uhifadhi_soma_n32(f);
+    mchezo_hifadhi_soma_mkataba(f, &d->mk_0);
+    mchezo_hifadhi_soma_mkataba(f, &d->mk_1);
+    mchezo_hifadhi_soma_mkataba(f, &d->mk_2);
+    mchezo_hifadhi_soma_mkataba(f, &d->mk_3);
+    mchezo_hifadhi_soma_mkataba(f, &d->mk_4);
+    mchezo_hifadhi_soma_mkataba(f, &d->mk_5);
+    mchezo_hifadhi_soma_mkataba(f, &d->mk_6);
+    mchezo_hifadhi_soma_mkataba(f, &d->mk_7);
+    d->idadi_ya_mikataba = injini_uhifadhi_soma_n32(f);
+}
 
-    UchumiMkuuMfumo* uchumi = mchezo_pata_uchumi_mkuu(g);
-    kama (uchumi != 0) {
-        uchumi_mkuu_weka_kiwango_cha_kodi(uchumi, d->uchumi_mkuu_kiwango_cha_kodi);
-        uchumi_mkuu_weka_matumizi_ya_serikali(uchumi, d->uchumi_mkuu_matumizi_ya_serikali);
+// ---------- taifa (TaifaMfumo -- safu ya TaifaNchi*) ----------
+// serikali_addr/katiba_addr za kila TaifaNchi HAZIHIFADHIWI
+// kimakusudi -- angalia (a) kwenye maelezo ya wigo juu ya faili
+// (serikali/katiba ya kila taifa ni mifumo yake YENYEWE ambayo
+// haijaunganishwa kama field za Mchezo).
+w0 mchezo_hifadhi_andika_taifa_eneo(n8* f, TaifaEneo* e) {
+    injini_uhifadhi_andika_d64(f, e->lon_chini);
+    injini_uhifadhi_andika_d64(f, e->lon_juu);
+    injini_uhifadhi_andika_d64(f, e->lat_chini);
+    injini_uhifadhi_andika_d64(f, e->lat_juu);
+}
+w0 mchezo_hifadhi_soma_taifa_eneo(n8* f, TaifaEneo* e) {
+    e->lon_chini = injini_uhifadhi_soma_d64(f);
+    e->lon_juu = injini_uhifadhi_soma_d64(f);
+    e->lat_chini = injini_uhifadhi_soma_d64(f);
+    e->lat_juu = injini_uhifadhi_soma_d64(f);
+}
+w0 mchezo_hifadhi_andika_taifa_mgawanyo(n8* f, TaifaMgawanyo* g2) {
+    injini_uhifadhi_andika_mfuatano(f, g2->jina);
+    injini_uhifadhi_andika_mfuatano(f, g2->kitambulisho);
+    injini_uhifadhi_andika_n32(f, g2->rangi);
+    mchezo_hifadhi_andika_taifa_eneo(f, &g2->eneo);
+}
+w0 mchezo_hifadhi_soma_taifa_mgawanyo(n8* f, TaifaMgawanyo* g2) {
+    g2->jina = injini_uhifadhi_soma_mfuatano(f);
+    g2->kitambulisho = injini_uhifadhi_soma_mfuatano(f);
+    g2->rangi = injini_uhifadhi_soma_n32(f);
+    mchezo_hifadhi_soma_taifa_eneo(f, &g2->eneo);
+}
+w0 mchezo_hifadhi_andika_taifa_uchumi(n8* f, TaifaUchumi* u) {
+    injini_uhifadhi_andika_d64(f, u->pato_ghafi);
+    injini_uhifadhi_andika_d64(f, u->pato_kwa_kila_mtu);
+    injini_uhifadhi_andika_d64(f, u->ukuaji_wa_pato);
+    injini_uhifadhi_andika_d64(f, u->mfumuko);
+    injini_uhifadhi_andika_d64(f, u->ukosefu_wa_kazi);
+    injini_uhifadhi_andika_d64(f, u->mapato_ya_kodi);
+    injini_uhifadhi_andika_d64(f, u->uzalishaji_wa_chakula);
+    injini_uhifadhi_andika_d64(f, u->matumizi_ya_chakula);
+    injini_uhifadhi_andika_d64(f, u->uzalishaji_wa_nishati);
+    injini_uhifadhi_andika_d64(f, u->uzalishaji_wa_viwanda);
+    injini_uhifadhi_andika_d64(f, u->malighafi);
+    injini_uhifadhi_andika_d64(f, u->nguvukazi);
+    injini_uhifadhi_andika_d64(f, u->mshahara_wa_wastani);
+    injini_uhifadhi_andika_n32(f, u->vipande_vya_ardhi);
+    injini_uhifadhi_andika_n32(f, u->vipande_vya_maji);
+}
+w0 mchezo_hifadhi_soma_taifa_uchumi(n8* f, TaifaUchumi* u) {
+    u->pato_ghafi = injini_uhifadhi_soma_d64(f);
+    u->pato_kwa_kila_mtu = injini_uhifadhi_soma_d64(f);
+    u->ukuaji_wa_pato = injini_uhifadhi_soma_d64(f);
+    u->mfumuko = injini_uhifadhi_soma_d64(f);
+    u->ukosefu_wa_kazi = injini_uhifadhi_soma_d64(f);
+    u->mapato_ya_kodi = injini_uhifadhi_soma_d64(f);
+    u->uzalishaji_wa_chakula = injini_uhifadhi_soma_d64(f);
+    u->matumizi_ya_chakula = injini_uhifadhi_soma_d64(f);
+    u->uzalishaji_wa_nishati = injini_uhifadhi_soma_d64(f);
+    u->uzalishaji_wa_viwanda = injini_uhifadhi_soma_d64(f);
+    u->malighafi = injini_uhifadhi_soma_d64(f);
+    u->nguvukazi = injini_uhifadhi_soma_d64(f);
+    u->mshahara_wa_wastani = injini_uhifadhi_soma_d64(f);
+    u->vipande_vya_ardhi = injini_uhifadhi_soma_n32(f);
+    u->vipande_vya_maji = injini_uhifadhi_soma_n32(f);
+}
+w0 mchezo_hifadhi_andika_nchi(n8* f, TaifaNchi* t) {
+    injini_uhifadhi_andika_mfuatano(f, t->kitambulisho);
+    injini_uhifadhi_andika_mfuatano(f, t->jina);
+    injini_uhifadhi_andika_n32(f, t->rangi);
+    injini_uhifadhi_andika_n32(f, t->rangi_pambizo);
+    injini_uhifadhi_andika_n32(f, t->data_id);
+    injini_uhifadhi_andika_mfuatano(f, t->iso_a3);
+    injini_uhifadhi_andika_mfuatano(f, t->iso_a2);
+    mchezo_hifadhi_andika_taifa_eneo(f, &t->eneo_0);
+    mchezo_hifadhi_andika_taifa_eneo(f, &t->eneo_1);
+    mchezo_hifadhi_andika_taifa_eneo(f, &t->eneo_2);
+    mchezo_hifadhi_andika_taifa_eneo(f, &t->eneo_3);
+    mchezo_hifadhi_andika_taifa_eneo(f, &t->eneo_4);
+    mchezo_hifadhi_andika_taifa_eneo(f, &t->eneo_5);
+    mchezo_hifadhi_andika_taifa_eneo(f, &t->eneo_6);
+    mchezo_hifadhi_andika_taifa_eneo(f, &t->eneo_7);
+    injini_uhifadhi_andika_n32(f, t->idadi_ya_maeneo);
+    injini_uhifadhi_andika_d64(f, t->mji_mkuu_lon);
+    injini_uhifadhi_andika_d64(f, t->mji_mkuu_lat);
+    mchezo_hifadhi_andika_taifa_mgawanyo(f, &t->mgawanyo_0);
+    mchezo_hifadhi_andika_taifa_mgawanyo(f, &t->mgawanyo_1);
+    mchezo_hifadhi_andika_taifa_mgawanyo(f, &t->mgawanyo_2);
+    mchezo_hifadhi_andika_taifa_mgawanyo(f, &t->mgawanyo_3);
+    mchezo_hifadhi_andika_taifa_mgawanyo(f, &t->mgawanyo_4);
+    mchezo_hifadhi_andika_taifa_mgawanyo(f, &t->mgawanyo_5);
+    mchezo_hifadhi_andika_taifa_mgawanyo(f, &t->mgawanyo_6);
+    mchezo_hifadhi_andika_taifa_mgawanyo(f, &t->mgawanyo_7);
+    mchezo_hifadhi_andika_taifa_mgawanyo(f, &t->mgawanyo_8);
+    mchezo_hifadhi_andika_taifa_mgawanyo(f, &t->mgawanyo_9);
+    mchezo_hifadhi_andika_taifa_mgawanyo(f, &t->mgawanyo_10);
+    mchezo_hifadhi_andika_taifa_mgawanyo(f, &t->mgawanyo_11);
+    mchezo_hifadhi_andika_taifa_mgawanyo(f, &t->mgawanyo_12);
+    mchezo_hifadhi_andika_taifa_mgawanyo(f, &t->mgawanyo_13);
+    mchezo_hifadhi_andika_taifa_mgawanyo(f, &t->mgawanyo_14);
+    mchezo_hifadhi_andika_taifa_mgawanyo(f, &t->mgawanyo_15);
+    injini_uhifadhi_andika_n32(f, t->idadi_ya_mgawanyo);
+    mchezo_hifadhi_andika_taifa_uchumi(f, &t->uchumi);
+    injini_uhifadhi_andika_n32(f, t->kielezo_cha_teknolojia);
+    injini_uhifadhi_andika_n32(f, t->kielezo_cha_uchumi);
+    injini_uhifadhi_andika_n32(f, t->kielezo_cha_kijeshi);
+    injini_uhifadhi_andika_n32(f, t->kielezo_cha_utamaduni);
+    injini_uhifadhi_andika_n64(f, t->idadi_ya_watu);
+    injini_uhifadhi_andika_d64(f, t->gharama_ya_maisha);
+    injini_uhifadhi_andika_d64(f, t->pato_kwa_kila_mtu);
+}
+w0 mchezo_hifadhi_soma_nchi(n8* f, TaifaNchi* t) {
+    t->kitambulisho = injini_uhifadhi_soma_mfuatano(f);
+    t->jina = injini_uhifadhi_soma_mfuatano(f);
+    t->rangi = injini_uhifadhi_soma_n32(f);
+    t->rangi_pambizo = injini_uhifadhi_soma_n32(f);
+    t->data_id = injini_uhifadhi_soma_n32(f);
+    t->iso_a3 = injini_uhifadhi_soma_mfuatano(f);
+    t->iso_a2 = injini_uhifadhi_soma_mfuatano(f);
+    mchezo_hifadhi_soma_taifa_eneo(f, &t->eneo_0);
+    mchezo_hifadhi_soma_taifa_eneo(f, &t->eneo_1);
+    mchezo_hifadhi_soma_taifa_eneo(f, &t->eneo_2);
+    mchezo_hifadhi_soma_taifa_eneo(f, &t->eneo_3);
+    mchezo_hifadhi_soma_taifa_eneo(f, &t->eneo_4);
+    mchezo_hifadhi_soma_taifa_eneo(f, &t->eneo_5);
+    mchezo_hifadhi_soma_taifa_eneo(f, &t->eneo_6);
+    mchezo_hifadhi_soma_taifa_eneo(f, &t->eneo_7);
+    t->idadi_ya_maeneo = injini_uhifadhi_soma_n32(f);
+    t->mji_mkuu_lon = injini_uhifadhi_soma_d64(f);
+    t->mji_mkuu_lat = injini_uhifadhi_soma_d64(f);
+    mchezo_hifadhi_soma_taifa_mgawanyo(f, &t->mgawanyo_0);
+    mchezo_hifadhi_soma_taifa_mgawanyo(f, &t->mgawanyo_1);
+    mchezo_hifadhi_soma_taifa_mgawanyo(f, &t->mgawanyo_2);
+    mchezo_hifadhi_soma_taifa_mgawanyo(f, &t->mgawanyo_3);
+    mchezo_hifadhi_soma_taifa_mgawanyo(f, &t->mgawanyo_4);
+    mchezo_hifadhi_soma_taifa_mgawanyo(f, &t->mgawanyo_5);
+    mchezo_hifadhi_soma_taifa_mgawanyo(f, &t->mgawanyo_6);
+    mchezo_hifadhi_soma_taifa_mgawanyo(f, &t->mgawanyo_7);
+    mchezo_hifadhi_soma_taifa_mgawanyo(f, &t->mgawanyo_8);
+    mchezo_hifadhi_soma_taifa_mgawanyo(f, &t->mgawanyo_9);
+    mchezo_hifadhi_soma_taifa_mgawanyo(f, &t->mgawanyo_10);
+    mchezo_hifadhi_soma_taifa_mgawanyo(f, &t->mgawanyo_11);
+    mchezo_hifadhi_soma_taifa_mgawanyo(f, &t->mgawanyo_12);
+    mchezo_hifadhi_soma_taifa_mgawanyo(f, &t->mgawanyo_13);
+    mchezo_hifadhi_soma_taifa_mgawanyo(f, &t->mgawanyo_14);
+    mchezo_hifadhi_soma_taifa_mgawanyo(f, &t->mgawanyo_15);
+    t->idadi_ya_mgawanyo = injini_uhifadhi_soma_n32(f);
+    mchezo_hifadhi_soma_taifa_uchumi(f, &t->uchumi);
+    t->kielezo_cha_teknolojia = injini_uhifadhi_soma_n32(f);
+    t->kielezo_cha_uchumi = injini_uhifadhi_soma_n32(f);
+    t->kielezo_cha_kijeshi = injini_uhifadhi_soma_n32(f);
+    t->kielezo_cha_utamaduni = injini_uhifadhi_soma_n32(f);
+    t->idadi_ya_watu = injini_uhifadhi_soma_n64(f);
+    t->gharama_ya_maisha = injini_uhifadhi_soma_d64(f);
+    t->pato_kwa_kila_mtu = injini_uhifadhi_soma_d64(f);
+    t->serikali_addr = 0;
+    t->katiba_addr = 0;
+}
+w0 mchezo_hifadhi_andika_taifa(n8* f, TaifaMfumo* m) {
+    kama (m == 0) { rudisha; }
+    injini_uhifadhi_andika_n32(f, m->idadi);
+    injini_uhifadhi_andika_n32(f, m->faharisi_ya_taifa_la_mchezaji);
+    n32 i = 0;
+    wakati (i < m->idadi) {
+        TaifaNchi* t = m->mataifa[i];
+        mchezo_hifadhi_andika_nchi(f, t);
+        i = i + 1;
+    }
+}
+w0 mchezo_hifadhi_soma_taifa(n8* f, TaifaMfumo* m) {
+    kama (m == 0) { rudisha; }
+    n32 idadi_iliyohifadhiwa = injini_uhifadhi_soma_n32(f);
+    m->faharisi_ya_taifa_la_mchezaji = injini_uhifadhi_soma_n32(f);
+    // Rudisha kwenye tupu kabla ya kujaza upya (mataifa 8 ya chaguo-
+    // msingi yaliyoundwa na mchezo_anzisha yangerudufiwa vinginevyo --
+    // angalia maelezo ya jumla karibu na mchezo_pakia). Nafasi
+    // (m->uwezo) tayari ni ya kutosha kwa sababu haibadiliki baada ya
+    // dunia_taifa_mfumo_unda (DUNIA_TAIFA_UWEZO_JUU).
+    m->idadi = 0;
+    n32 i = 0;
+    wakati (i < idadi_iliyohifadhiwa) {
+        TaifaNchi* t = tenga(ukubwa(TaifaNchi));
+        mchezo_hifadhi_soma_nchi(f, t);
+        m->mataifa[m->idadi] = t;
+        m->idadi = m->idadi + 1;
+        i = i + 1;
     }
 }
 
-// Huhifadhi hali ya sasa ya g kwenye jina_la_faili (ndani ya saraka
-// ya injini_uhifadhi ya g, mfano "saves/jina_la_faili").
+// ---------- uchumi_mkuu (UchumiMkuuMfumo) ----------
+w0 mchezo_hifadhi_andika_mkuu_sekta(n8* f, UchumiMkuuSekta* s) {
+    injini_uhifadhi_andika_d64(f, s->pato);
+    injini_uhifadhi_andika_d64(f, s->uzalishaji);
+    injini_uhifadhi_andika_d64(f, s->kiwango_cha_ukuaji);
+}
+w0 mchezo_hifadhi_soma_mkuu_sekta(n8* f, UchumiMkuuSekta* s) {
+    s->pato = injini_uhifadhi_soma_d64(f);
+    s->uzalishaji = injini_uhifadhi_soma_d64(f);
+    s->kiwango_cha_ukuaji = injini_uhifadhi_soma_d64(f);
+}
+w0 mchezo_hifadhi_andika_mkuu_ripoti(n8* f, UchumiMkuuRipoti* r) {
+    injini_uhifadhi_andika_d64(f, r->pato_la_taifa);
+    injini_uhifadhi_andika_d64(f, r->pato_kwa_kila_mtu);
+    injini_uhifadhi_andika_d64(f, r->kiwango_cha_ukosefu_wa_kazi);
+    injini_uhifadhi_andika_d64(f, r->kiwango_cha_mfumuko);
+    injini_uhifadhi_andika_d64(f, r->kiwango_cha_ukuaji);
+    injini_uhifadhi_andika_d64(f, r->pato_la_kilimo);
+    injini_uhifadhi_andika_d64(f, r->pato_la_viwanda);
+    injini_uhifadhi_andika_d64(f, r->pato_la_huduma);
+    injini_uhifadhi_andika_n32(f, r->hisia);
+}
+w0 mchezo_hifadhi_soma_mkuu_ripoti(n8* f, UchumiMkuuRipoti* r) {
+    r->pato_la_taifa = injini_uhifadhi_soma_d64(f);
+    r->pato_kwa_kila_mtu = injini_uhifadhi_soma_d64(f);
+    r->kiwango_cha_ukosefu_wa_kazi = injini_uhifadhi_soma_d64(f);
+    r->kiwango_cha_mfumuko = injini_uhifadhi_soma_d64(f);
+    r->kiwango_cha_ukuaji = injini_uhifadhi_soma_d64(f);
+    r->pato_la_kilimo = injini_uhifadhi_soma_d64(f);
+    r->pato_la_viwanda = injini_uhifadhi_soma_d64(f);
+    r->pato_la_huduma = injini_uhifadhi_soma_d64(f);
+    r->hisia = injini_uhifadhi_soma_n32(f);
+}
+w0 mchezo_hifadhi_andika_uchumi_mkuu(n8* f, UchumiMkuuMfumo* m) {
+    kama (m == 0) { rudisha; }
+    injini_uhifadhi_andika_d64(f, m->kiwango_cha_kodi);
+    injini_uhifadhi_andika_d64(f, m->matumizi_ya_serikali);
+    injini_uhifadhi_andika_d64(f, m->pato_la_msingi);
+    injini_uhifadhi_andika_d64(f, m->ukosefu_wa_kazi_wa_msingi);
+    injini_uhifadhi_andika_d64(f, m->mfumuko_wa_msingi);
+    mchezo_hifadhi_andika_mkuu_sekta(f, &m->kilimo);
+    mchezo_hifadhi_andika_mkuu_sekta(f, &m->viwanda);
+    mchezo_hifadhi_andika_mkuu_sekta(f, &m->huduma);
+    injini_uhifadhi_andika_n32(f, m->hisia);
+    injini_uhifadhi_andika_d64(f, m->mtikisiko_wa_soko);
+    mchezo_hifadhi_andika_mkuu_ripoti(f, &m->ripoti_ya_mwisho);
+}
+w0 mchezo_hifadhi_soma_uchumi_mkuu(n8* f, UchumiMkuuMfumo* m) {
+    kama (m == 0) { rudisha; }
+    m->kiwango_cha_kodi = injini_uhifadhi_soma_d64(f);
+    m->matumizi_ya_serikali = injini_uhifadhi_soma_d64(f);
+    m->pato_la_msingi = injini_uhifadhi_soma_d64(f);
+    m->ukosefu_wa_kazi_wa_msingi = injini_uhifadhi_soma_d64(f);
+    m->mfumuko_wa_msingi = injini_uhifadhi_soma_d64(f);
+    mchezo_hifadhi_soma_mkuu_sekta(f, &m->kilimo);
+    mchezo_hifadhi_soma_mkuu_sekta(f, &m->viwanda);
+    mchezo_hifadhi_soma_mkuu_sekta(f, &m->huduma);
+    m->hisia = injini_uhifadhi_soma_n32(f);
+    m->mtikisiko_wa_soko = injini_uhifadhi_soma_d64(f);
+    mchezo_hifadhi_soma_mkuu_ripoti(f, &m->ripoti_ya_mwisho);
+}
+
+// ---------- nguvukazi (NguvukaziMfumo) ----------
+w0 mchezo_hifadhi_andika_nguvukazi_sehemu(n8* f, NguvukaziSehemu* s) {
+    injini_uhifadhi_andika_n32(f, s->ngazi);
+    injini_uhifadhi_andika_n32(f, s->wafanyakazi);
+    injini_uhifadhi_andika_n32(f, s->walioajiriwa);
+    injini_uhifadhi_andika_d64(f, s->mshahara_wa_wastani);
+    injini_uhifadhi_andika_d64(f, s->ukuaji_wa_mshahara);
+    injini_uhifadhi_andika_d64(f, s->kiwango_cha_ukosefu_wa_kazi);
+}
+w0 mchezo_hifadhi_soma_nguvukazi_sehemu(n8* f, NguvukaziSehemu* s) {
+    s->ngazi = injini_uhifadhi_soma_n32(f);
+    s->wafanyakazi = injini_uhifadhi_soma_n32(f);
+    s->walioajiriwa = injini_uhifadhi_soma_n32(f);
+    s->mshahara_wa_wastani = injini_uhifadhi_soma_d64(f);
+    s->ukuaji_wa_mshahara = injini_uhifadhi_soma_d64(f);
+    s->kiwango_cha_ukosefu_wa_kazi = injini_uhifadhi_soma_d64(f);
+}
+w0 mchezo_hifadhi_andika_nguvukazi(n8* f, NguvukaziMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_andika_nguvukazi_sehemu(f, &m->sehemu_0);
+    mchezo_hifadhi_andika_nguvukazi_sehemu(f, &m->sehemu_1);
+    mchezo_hifadhi_andika_nguvukazi_sehemu(f, &m->sehemu_2);
+    mchezo_hifadhi_andika_nguvukazi_sehemu(f, &m->sehemu_3);
+    injini_uhifadhi_andika_n32(f, m->nguvukazi_jumla);
+    injini_uhifadhi_andika_n32(f, m->walioajiriwa_jumla);
+    injini_uhifadhi_andika_n32(f, m->wasio_na_ajira_jumla);
+    injini_uhifadhi_andika_d64(f, m->ukosefu_wa_kazi_wa_jumla);
+    injini_uhifadhi_andika_d64(f, m->ushiriki_wa_nguvukazi);
+    injini_uhifadhi_andika_d64(f, m->mshahara_wa_wastani_wa_taifa);
+    injini_uhifadhi_andika_d64(f, m->ukosefu_wa_usawa_wa_mshahara);
+    injini_uhifadhi_andika_d64(f, m->mshahara_wa_chini);
+    injini_uhifadhi_andika_d64(f, m->uzalishaji_kwa_mfanyakazi);
+}
+w0 mchezo_hifadhi_soma_nguvukazi(n8* f, NguvukaziMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_soma_nguvukazi_sehemu(f, &m->sehemu_0);
+    mchezo_hifadhi_soma_nguvukazi_sehemu(f, &m->sehemu_1);
+    mchezo_hifadhi_soma_nguvukazi_sehemu(f, &m->sehemu_2);
+    mchezo_hifadhi_soma_nguvukazi_sehemu(f, &m->sehemu_3);
+    m->nguvukazi_jumla = injini_uhifadhi_soma_n32(f);
+    m->walioajiriwa_jumla = injini_uhifadhi_soma_n32(f);
+    m->wasio_na_ajira_jumla = injini_uhifadhi_soma_n32(f);
+    m->ukosefu_wa_kazi_wa_jumla = injini_uhifadhi_soma_d64(f);
+    m->ushiriki_wa_nguvukazi = injini_uhifadhi_soma_d64(f);
+    m->mshahara_wa_wastani_wa_taifa = injini_uhifadhi_soma_d64(f);
+    m->ukosefu_wa_usawa_wa_mshahara = injini_uhifadhi_soma_d64(f);
+    m->mshahara_wa_chini = injini_uhifadhi_soma_d64(f);
+    m->uzalishaji_kwa_mfanyakazi = injini_uhifadhi_soma_d64(f);
+}
+
+// ---------- sera (SeraMfumo) ----------
+w0 mchezo_hifadhi_andika_sera_kifaa(n8* f, SeraKifaa* k) {
+    injini_uhifadhi_andika_n32(f, k->aina);
+    injini_uhifadhi_andika_n32(f, k->inafanya_kazi);
+    injini_uhifadhi_andika_d64(f, k->kiwango);
+    injini_uhifadhi_andika_d64(f, k->gharama);
+    injini_uhifadhi_andika_d64(f, k->ufanisi);
+    injini_uhifadhi_andika_mfuatano(f, k->sekta_lengwa);
+}
+w0 mchezo_hifadhi_soma_sera_kifaa(n8* f, SeraKifaa* k) {
+    k->aina = injini_uhifadhi_soma_n32(f);
+    k->inafanya_kazi = injini_uhifadhi_soma_n32(f);
+    k->kiwango = injini_uhifadhi_soma_d64(f);
+    k->gharama = injini_uhifadhi_soma_d64(f);
+    k->ufanisi = injini_uhifadhi_soma_d64(f);
+    k->sekta_lengwa = injini_uhifadhi_soma_mfuatano(f);
+}
+w0 mchezo_hifadhi_andika_sera(n8* f, SeraMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_andika_sera_kifaa(f, &m->kifaa_0);
+    mchezo_hifadhi_andika_sera_kifaa(f, &m->kifaa_1);
+    mchezo_hifadhi_andika_sera_kifaa(f, &m->kifaa_2);
+    mchezo_hifadhi_andika_sera_kifaa(f, &m->kifaa_3);
+    mchezo_hifadhi_andika_sera_kifaa(f, &m->kifaa_4);
+    mchezo_hifadhi_andika_sera_kifaa(f, &m->kifaa_5);
+    mchezo_hifadhi_andika_sera_kifaa(f, &m->kifaa_6);
+    mchezo_hifadhi_andika_sera_kifaa(f, &m->kifaa_7);
+    injini_uhifadhi_andika_n32(f, m->udhibiti);
+    injini_uhifadhi_andika_d64(f, m->mshahara_wa_chini);
+    injini_uhifadhi_andika_d64(f, m->gharama_jumla_ya_sera);
+    injini_uhifadhi_andika_d64(f, m->imani_ya_walaji);
+    injini_uhifadhi_andika_d64(f, m->imani_ya_biashara);
+    injini_uhifadhi_andika_d64(f, m->kiashiria_cha_uhuru_wa_kiuchumi);
+}
+w0 mchezo_hifadhi_soma_sera(n8* f, SeraMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_soma_sera_kifaa(f, &m->kifaa_0);
+    mchezo_hifadhi_soma_sera_kifaa(f, &m->kifaa_1);
+    mchezo_hifadhi_soma_sera_kifaa(f, &m->kifaa_2);
+    mchezo_hifadhi_soma_sera_kifaa(f, &m->kifaa_3);
+    mchezo_hifadhi_soma_sera_kifaa(f, &m->kifaa_4);
+    mchezo_hifadhi_soma_sera_kifaa(f, &m->kifaa_5);
+    mchezo_hifadhi_soma_sera_kifaa(f, &m->kifaa_6);
+    mchezo_hifadhi_soma_sera_kifaa(f, &m->kifaa_7);
+    m->udhibiti = injini_uhifadhi_soma_n32(f);
+    m->mshahara_wa_chini = injini_uhifadhi_soma_d64(f);
+    m->gharama_jumla_ya_sera = injini_uhifadhi_soma_d64(f);
+    m->imani_ya_walaji = injini_uhifadhi_soma_d64(f);
+    m->imani_ya_biashara = injini_uhifadhi_soma_d64(f);
+    m->kiashiria_cha_uhuru_wa_kiuchumi = injini_uhifadhi_soma_d64(f);
+}
+
+// ---------- kodi (KodiMfumo) ----------
+w0 mchezo_hifadhi_andika_kodi_sera(n8* f, KodiSera* s) {
+    injini_uhifadhi_andika_n32(f, s->aina);
+    injini_uhifadhi_andika_n32(f, s->inafanya_kazi);
+    injini_uhifadhi_andika_d64(f, s->kiwango_gorofa);
+    injini_uhifadhi_andika_d64(f, s->ufanisi_wa_ukusanyaji);
+    injini_uhifadhi_andika_d64(f, s->kiwango_cha_ukwepaji);
+}
+w0 mchezo_hifadhi_soma_kodi_sera(n8* f, KodiSera* s) {
+    s->aina = injini_uhifadhi_soma_n32(f);
+    s->inafanya_kazi = injini_uhifadhi_soma_n32(f);
+    s->kiwango_gorofa = injini_uhifadhi_soma_d64(f);
+    s->ufanisi_wa_ukusanyaji = injini_uhifadhi_soma_d64(f);
+    s->kiwango_cha_ukwepaji = injini_uhifadhi_soma_d64(f);
+}
+w0 mchezo_hifadhi_andika_kodi(n8* f, KodiMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_andika_kodi_sera(f, &m->s_0);
+    mchezo_hifadhi_andika_kodi_sera(f, &m->s_1);
+    mchezo_hifadhi_andika_kodi_sera(f, &m->s_2);
+    mchezo_hifadhi_andika_kodi_sera(f, &m->s_3);
+    mchezo_hifadhi_andika_kodi_sera(f, &m->s_4);
+    mchezo_hifadhi_andika_kodi_sera(f, &m->s_5);
+    mchezo_hifadhi_andika_kodi_sera(f, &m->s_6);
+    injini_uhifadhi_andika_d64(f, m->kizingiti_0); injini_uhifadhi_andika_d64(f, m->kiwango_0);
+    injini_uhifadhi_andika_d64(f, m->kizingiti_1); injini_uhifadhi_andika_d64(f, m->kiwango_1);
+    injini_uhifadhi_andika_d64(f, m->kizingiti_2); injini_uhifadhi_andika_d64(f, m->kiwango_2);
+    injini_uhifadhi_andika_d64(f, m->kizingiti_3); injini_uhifadhi_andika_d64(f, m->kiwango_3);
+    injini_uhifadhi_andika_d64(f, m->kizingiti_4); injini_uhifadhi_andika_d64(f, m->kiwango_4);
+    injini_uhifadhi_andika_d64(f, m->kizingiti_5); injini_uhifadhi_andika_d64(f, m->kiwango_5);
+    injini_uhifadhi_andika_n32(f, m->idadi_ya_vizingiti);
+    injini_uhifadhi_andika_d64(f, m->mapato_jumla);
+    injini_uhifadhi_andika_d64(f, m->mapato_yanayotarajiwa);
+    injini_uhifadhi_andika_d64(f, m->kiashiria_cha_mzigo_wa_kodi);
+    injini_uhifadhi_andika_d64(f, m->mgawanyo_wa_gini);
+}
+w0 mchezo_hifadhi_soma_kodi(n8* f, KodiMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_soma_kodi_sera(f, &m->s_0);
+    mchezo_hifadhi_soma_kodi_sera(f, &m->s_1);
+    mchezo_hifadhi_soma_kodi_sera(f, &m->s_2);
+    mchezo_hifadhi_soma_kodi_sera(f, &m->s_3);
+    mchezo_hifadhi_soma_kodi_sera(f, &m->s_4);
+    mchezo_hifadhi_soma_kodi_sera(f, &m->s_5);
+    mchezo_hifadhi_soma_kodi_sera(f, &m->s_6);
+    m->kizingiti_0 = injini_uhifadhi_soma_d64(f); m->kiwango_0 = injini_uhifadhi_soma_d64(f);
+    m->kizingiti_1 = injini_uhifadhi_soma_d64(f); m->kiwango_1 = injini_uhifadhi_soma_d64(f);
+    m->kizingiti_2 = injini_uhifadhi_soma_d64(f); m->kiwango_2 = injini_uhifadhi_soma_d64(f);
+    m->kizingiti_3 = injini_uhifadhi_soma_d64(f); m->kiwango_3 = injini_uhifadhi_soma_d64(f);
+    m->kizingiti_4 = injini_uhifadhi_soma_d64(f); m->kiwango_4 = injini_uhifadhi_soma_d64(f);
+    m->kizingiti_5 = injini_uhifadhi_soma_d64(f); m->kiwango_5 = injini_uhifadhi_soma_d64(f);
+    m->idadi_ya_vizingiti = injini_uhifadhi_soma_n32(f);
+    m->mapato_jumla = injini_uhifadhi_soma_d64(f);
+    m->mapato_yanayotarajiwa = injini_uhifadhi_soma_d64(f);
+    m->kiashiria_cha_mzigo_wa_kodi = injini_uhifadhi_soma_d64(f);
+    m->mgawanyo_wa_gini = injini_uhifadhi_soma_d64(f);
+}
+
+// ---------- bajeti (BajetiMfumo) ----------
+w0 mchezo_hifadhi_andika_bajeti(n8* f, BajetiMfumo* m) {
+    kama (m == 0) { rudisha; }
+    injini_uhifadhi_andika_d64(f, m->mgao_0); injini_uhifadhi_andika_d64(f, m->mgao_1);
+    injini_uhifadhi_andika_d64(f, m->mgao_2); injini_uhifadhi_andika_d64(f, m->mgao_3);
+    injini_uhifadhi_andika_d64(f, m->mgao_4); injini_uhifadhi_andika_d64(f, m->mgao_5);
+    injini_uhifadhi_andika_d64(f, m->mgao_6); injini_uhifadhi_andika_d64(f, m->mgao_7);
+    injini_uhifadhi_andika_d64(f, m->mapato_jumla);
+    injini_uhifadhi_andika_d64(f, m->matumizi_jumla);
+    injini_uhifadhi_andika_d64(f, m->nakisi);
+    injini_uhifadhi_andika_d64(f, m->deni_la_taifa);
+    injini_uhifadhi_andika_d64(f, m->kiwango_cha_riba_ya_deni);
+    injini_uhifadhi_andika_d64(f, m->uwiano_wa_deni_kwa_pato);
+    injini_uhifadhi_andika_d64(f, m->kiwango_cha_mkopo);
+    injini_uhifadhi_andika_d64(f, m->afya_ya_kifedha);
+}
+w0 mchezo_hifadhi_soma_bajeti(n8* f, BajetiMfumo* m) {
+    kama (m == 0) { rudisha; }
+    m->mgao_0 = injini_uhifadhi_soma_d64(f); m->mgao_1 = injini_uhifadhi_soma_d64(f);
+    m->mgao_2 = injini_uhifadhi_soma_d64(f); m->mgao_3 = injini_uhifadhi_soma_d64(f);
+    m->mgao_4 = injini_uhifadhi_soma_d64(f); m->mgao_5 = injini_uhifadhi_soma_d64(f);
+    m->mgao_6 = injini_uhifadhi_soma_d64(f); m->mgao_7 = injini_uhifadhi_soma_d64(f);
+    m->mapato_jumla = injini_uhifadhi_soma_d64(f);
+    m->matumizi_jumla = injini_uhifadhi_soma_d64(f);
+    m->nakisi = injini_uhifadhi_soma_d64(f);
+    m->deni_la_taifa = injini_uhifadhi_soma_d64(f);
+    m->kiwango_cha_riba_ya_deni = injini_uhifadhi_soma_d64(f);
+    m->uwiano_wa_deni_kwa_pato = injini_uhifadhi_soma_d64(f);
+    m->kiwango_cha_mkopo = injini_uhifadhi_soma_d64(f);
+    m->afya_ya_kifedha = injini_uhifadhi_soma_d64(f);
+}
+
+// ---------- bidhaa (BidhaaSoko) ----------
+w0 mchezo_hifadhi_andika_bidhaa_rasilimali(n8* f, BidhaaRasilimali* r) {
+    injini_uhifadhi_andika_mfuatano(f, r->kitambulisho);
+    injini_uhifadhi_andika_d64(f, r->ugavi_wa_ndani);
+    injini_uhifadhi_andika_d64(f, r->mahitaji_ya_ndani);
+    injini_uhifadhi_andika_d64(f, r->bei_ya_sasa);
+    injini_uhifadhi_andika_d64(f, r->akiba);
+    injini_uhifadhi_andika_n32(f, r->imesajiliwa);
+}
+w0 mchezo_hifadhi_soma_bidhaa_rasilimali(n8* f, BidhaaRasilimali* r) {
+    r->kitambulisho = injini_uhifadhi_soma_mfuatano(f);
+    r->ugavi_wa_ndani = injini_uhifadhi_soma_d64(f);
+    r->mahitaji_ya_ndani = injini_uhifadhi_soma_d64(f);
+    r->bei_ya_sasa = injini_uhifadhi_soma_d64(f);
+    r->akiba = injini_uhifadhi_soma_d64(f);
+    r->imesajiliwa = injini_uhifadhi_soma_n32(f);
+}
+w0 mchezo_hifadhi_andika_bidhaa(n8* f, BidhaaSoko* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_andika_bidhaa_rasilimali(f, &m->r_0);
+    mchezo_hifadhi_andika_bidhaa_rasilimali(f, &m->r_1);
+    mchezo_hifadhi_andika_bidhaa_rasilimali(f, &m->r_2);
+    mchezo_hifadhi_andika_bidhaa_rasilimali(f, &m->r_3);
+    mchezo_hifadhi_andika_bidhaa_rasilimali(f, &m->r_4);
+    mchezo_hifadhi_andika_bidhaa_rasilimali(f, &m->r_5);
+    mchezo_hifadhi_andika_bidhaa_rasilimali(f, &m->r_6);
+    mchezo_hifadhi_andika_bidhaa_rasilimali(f, &m->r_7);
+    mchezo_hifadhi_andika_bidhaa_rasilimali(f, &m->r_8);
+    mchezo_hifadhi_andika_bidhaa_rasilimali(f, &m->r_9);
+    mchezo_hifadhi_andika_bidhaa_rasilimali(f, &m->r_10);
+    mchezo_hifadhi_andika_bidhaa_rasilimali(f, &m->r_11);
+    mchezo_hifadhi_andika_bidhaa_rasilimali(f, &m->r_12);
+    mchezo_hifadhi_andika_bidhaa_rasilimali(f, &m->r_13);
+    mchezo_hifadhi_andika_bidhaa_rasilimali(f, &m->r_14);
+    mchezo_hifadhi_andika_bidhaa_rasilimali(f, &m->r_15);
+    injini_uhifadhi_andika_n32(f, m->idadi_ya_rasilimali);
+    injini_uhifadhi_andika_d64(f, m->ujazo_jumla_wa_biashara);
+    injini_uhifadhi_andika_d64(f, m->kiashiria_cha_bei_cha_dunia);
+}
+w0 mchezo_hifadhi_soma_bidhaa(n8* f, BidhaaSoko* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_soma_bidhaa_rasilimali(f, &m->r_0);
+    mchezo_hifadhi_soma_bidhaa_rasilimali(f, &m->r_1);
+    mchezo_hifadhi_soma_bidhaa_rasilimali(f, &m->r_2);
+    mchezo_hifadhi_soma_bidhaa_rasilimali(f, &m->r_3);
+    mchezo_hifadhi_soma_bidhaa_rasilimali(f, &m->r_4);
+    mchezo_hifadhi_soma_bidhaa_rasilimali(f, &m->r_5);
+    mchezo_hifadhi_soma_bidhaa_rasilimali(f, &m->r_6);
+    mchezo_hifadhi_soma_bidhaa_rasilimali(f, &m->r_7);
+    mchezo_hifadhi_soma_bidhaa_rasilimali(f, &m->r_8);
+    mchezo_hifadhi_soma_bidhaa_rasilimali(f, &m->r_9);
+    mchezo_hifadhi_soma_bidhaa_rasilimali(f, &m->r_10);
+    mchezo_hifadhi_soma_bidhaa_rasilimali(f, &m->r_11);
+    mchezo_hifadhi_soma_bidhaa_rasilimali(f, &m->r_12);
+    mchezo_hifadhi_soma_bidhaa_rasilimali(f, &m->r_13);
+    mchezo_hifadhi_soma_bidhaa_rasilimali(f, &m->r_14);
+    mchezo_hifadhi_soma_bidhaa_rasilimali(f, &m->r_15);
+    m->idadi_ya_rasilimali = injini_uhifadhi_soma_n32(f);
+    m->ujazo_jumla_wa_biashara = injini_uhifadhi_soma_d64(f);
+    m->kiashiria_cha_bei_cha_dunia = injini_uhifadhi_soma_d64(f);
+}
+
+// ---------- benki (BenkiMfumo) ----------
+w0 mchezo_hifadhi_andika_benki_mkopo(n8* f, BenkiMkopo* k) {
+    injini_uhifadhi_andika_n32(f, k->nambari_ya_mkopo);
+    injini_uhifadhi_andika_mfuatano(f, k->mkopaji);
+    injini_uhifadhi_andika_d64(f, k->kiasi_asili);
+    injini_uhifadhi_andika_d64(f, k->kilichobaki);
+    injini_uhifadhi_andika_d64(f, k->kiwango_cha_riba);
+    injini_uhifadhi_andika_d64(f, k->malipo_ya_mwezi);
+    injini_uhifadhi_andika_n32(f, k->miezi_ya_muda);
+    injini_uhifadhi_andika_n32(f, k->miezi_iliyobaki);
+    injini_uhifadhi_andika_n32(f, k->hatari);
+    injini_uhifadhi_andika_n32(f, k->inafanya_vizuri);
+}
+w0 mchezo_hifadhi_soma_benki_mkopo(n8* f, BenkiMkopo* k) {
+    k->nambari_ya_mkopo = injini_uhifadhi_soma_n32(f);
+    k->mkopaji = injini_uhifadhi_soma_mfuatano(f);
+    k->kiasi_asili = injini_uhifadhi_soma_d64(f);
+    k->kilichobaki = injini_uhifadhi_soma_d64(f);
+    k->kiwango_cha_riba = injini_uhifadhi_soma_d64(f);
+    k->malipo_ya_mwezi = injini_uhifadhi_soma_d64(f);
+    k->miezi_ya_muda = injini_uhifadhi_soma_n32(f);
+    k->miezi_iliyobaki = injini_uhifadhi_soma_n32(f);
+    k->hatari = injini_uhifadhi_soma_n32(f);
+    k->inafanya_vizuri = injini_uhifadhi_soma_n32(f);
+}
+w0 mchezo_hifadhi_andika_benki(n8* f, BenkiMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_andika_benki_mkopo(f, &m->m_0); mchezo_hifadhi_andika_benki_mkopo(f, &m->m_1);
+    mchezo_hifadhi_andika_benki_mkopo(f, &m->m_2); mchezo_hifadhi_andika_benki_mkopo(f, &m->m_3);
+    mchezo_hifadhi_andika_benki_mkopo(f, &m->m_4); mchezo_hifadhi_andika_benki_mkopo(f, &m->m_5);
+    mchezo_hifadhi_andika_benki_mkopo(f, &m->m_6); mchezo_hifadhi_andika_benki_mkopo(f, &m->m_7);
+    mchezo_hifadhi_andika_benki_mkopo(f, &m->m_8); mchezo_hifadhi_andika_benki_mkopo(f, &m->m_9);
+    mchezo_hifadhi_andika_benki_mkopo(f, &m->m_10); mchezo_hifadhi_andika_benki_mkopo(f, &m->m_11);
+    mchezo_hifadhi_andika_benki_mkopo(f, &m->m_12); mchezo_hifadhi_andika_benki_mkopo(f, &m->m_13);
+    mchezo_hifadhi_andika_benki_mkopo(f, &m->m_14); mchezo_hifadhi_andika_benki_mkopo(f, &m->m_15);
+    mchezo_hifadhi_andika_benki_mkopo(f, &m->m_16); mchezo_hifadhi_andika_benki_mkopo(f, &m->m_17);
+    mchezo_hifadhi_andika_benki_mkopo(f, &m->m_18); mchezo_hifadhi_andika_benki_mkopo(f, &m->m_19);
+    mchezo_hifadhi_andika_benki_mkopo(f, &m->m_20); mchezo_hifadhi_andika_benki_mkopo(f, &m->m_21);
+    mchezo_hifadhi_andika_benki_mkopo(f, &m->m_22); mchezo_hifadhi_andika_benki_mkopo(f, &m->m_23);
+    mchezo_hifadhi_andika_benki_mkopo(f, &m->m_24); mchezo_hifadhi_andika_benki_mkopo(f, &m->m_25);
+    mchezo_hifadhi_andika_benki_mkopo(f, &m->m_26); mchezo_hifadhi_andika_benki_mkopo(f, &m->m_27);
+    mchezo_hifadhi_andika_benki_mkopo(f, &m->m_28); mchezo_hifadhi_andika_benki_mkopo(f, &m->m_29);
+    mchezo_hifadhi_andika_benki_mkopo(f, &m->m_30); mchezo_hifadhi_andika_benki_mkopo(f, &m->m_31);
+    injini_uhifadhi_andika_d64(f, m->uwiano_wa_akiba);
+    injini_uhifadhi_andika_d64(f, m->kiwango_cha_msingi_cha_riba);
+    injini_uhifadhi_andika_d64(f, m->ugavi_wa_fedha);
+    injini_uhifadhi_andika_d64(f, m->akiba_zilizohifadhiwa);
+    injini_uhifadhi_andika_d64(f, m->ujazo_wa_mikopo);
+    injini_uhifadhi_andika_d64(f, m->kiwango_cha_kutolipa);
+    injini_uhifadhi_andika_n32(f, m->idadi_ya_mikopo);
+    injini_uhifadhi_andika_d64(f, m->kizidishi_cha_mkopo);
+}
+w0 mchezo_hifadhi_soma_benki(n8* f, BenkiMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_soma_benki_mkopo(f, &m->m_0); mchezo_hifadhi_soma_benki_mkopo(f, &m->m_1);
+    mchezo_hifadhi_soma_benki_mkopo(f, &m->m_2); mchezo_hifadhi_soma_benki_mkopo(f, &m->m_3);
+    mchezo_hifadhi_soma_benki_mkopo(f, &m->m_4); mchezo_hifadhi_soma_benki_mkopo(f, &m->m_5);
+    mchezo_hifadhi_soma_benki_mkopo(f, &m->m_6); mchezo_hifadhi_soma_benki_mkopo(f, &m->m_7);
+    mchezo_hifadhi_soma_benki_mkopo(f, &m->m_8); mchezo_hifadhi_soma_benki_mkopo(f, &m->m_9);
+    mchezo_hifadhi_soma_benki_mkopo(f, &m->m_10); mchezo_hifadhi_soma_benki_mkopo(f, &m->m_11);
+    mchezo_hifadhi_soma_benki_mkopo(f, &m->m_12); mchezo_hifadhi_soma_benki_mkopo(f, &m->m_13);
+    mchezo_hifadhi_soma_benki_mkopo(f, &m->m_14); mchezo_hifadhi_soma_benki_mkopo(f, &m->m_15);
+    mchezo_hifadhi_soma_benki_mkopo(f, &m->m_16); mchezo_hifadhi_soma_benki_mkopo(f, &m->m_17);
+    mchezo_hifadhi_soma_benki_mkopo(f, &m->m_18); mchezo_hifadhi_soma_benki_mkopo(f, &m->m_19);
+    mchezo_hifadhi_soma_benki_mkopo(f, &m->m_20); mchezo_hifadhi_soma_benki_mkopo(f, &m->m_21);
+    mchezo_hifadhi_soma_benki_mkopo(f, &m->m_22); mchezo_hifadhi_soma_benki_mkopo(f, &m->m_23);
+    mchezo_hifadhi_soma_benki_mkopo(f, &m->m_24); mchezo_hifadhi_soma_benki_mkopo(f, &m->m_25);
+    mchezo_hifadhi_soma_benki_mkopo(f, &m->m_26); mchezo_hifadhi_soma_benki_mkopo(f, &m->m_27);
+    mchezo_hifadhi_soma_benki_mkopo(f, &m->m_28); mchezo_hifadhi_soma_benki_mkopo(f, &m->m_29);
+    mchezo_hifadhi_soma_benki_mkopo(f, &m->m_30); mchezo_hifadhi_soma_benki_mkopo(f, &m->m_31);
+    m->uwiano_wa_akiba = injini_uhifadhi_soma_d64(f);
+    m->kiwango_cha_msingi_cha_riba = injini_uhifadhi_soma_d64(f);
+    m->ugavi_wa_fedha = injini_uhifadhi_soma_d64(f);
+    m->akiba_zilizohifadhiwa = injini_uhifadhi_soma_d64(f);
+    m->ujazo_wa_mikopo = injini_uhifadhi_soma_d64(f);
+    m->kiwango_cha_kutolipa = injini_uhifadhi_soma_d64(f);
+    m->idadi_ya_mikopo = injini_uhifadhi_soma_n32(f);
+    m->kizidishi_cha_mkopo = injini_uhifadhi_soma_d64(f);
+}
+
+// ---------- kilimo (KilimoMfumo) ----------
+w0 mchezo_hifadhi_andika_kilimo(n8* f, KilimoMfumo* m) {
+    kama (m == 0) { rudisha; }
+    injini_uhifadhi_andika_d64(f, m->ardhi_ya_kilimo_km2);
+    injini_uhifadhi_andika_d64(f, m->rutuba_ya_udongo);
+    injini_uhifadhi_andika_d64(f, m->upatikanaji_wa_maji);
+    injini_uhifadhi_andika_d64(f, m->mavuno_ya_mazao);
+    injini_uhifadhi_andika_d64(f, m->uzalishaji_wa_mifugo);
+    injini_uhifadhi_andika_d64(f, m->uzalishaji_wa_chakula);
+    injini_uhifadhi_andika_d64(f, m->matumizi_ya_chakula);
+    injini_uhifadhi_andika_d64(f, m->ziada_ya_chakula);
+    injini_uhifadhi_andika_d64(f, m->hatari_ya_njaa);
+    injini_uhifadhi_andika_d64(f, m->kiwango_cha_umwagiliaji);
+    injini_uhifadhi_andika_d64(f, m->teknolojia_ya_mbolea);
+    injini_uhifadhi_andika_n32(f, m->msimu);
+    injini_uhifadhi_andika_d64(f, m->maendeleo_ya_msimu);
+}
+w0 mchezo_hifadhi_soma_kilimo(n8* f, KilimoMfumo* m) {
+    kama (m == 0) { rudisha; }
+    m->ardhi_ya_kilimo_km2 = injini_uhifadhi_soma_d64(f);
+    m->rutuba_ya_udongo = injini_uhifadhi_soma_d64(f);
+    m->upatikanaji_wa_maji = injini_uhifadhi_soma_d64(f);
+    m->mavuno_ya_mazao = injini_uhifadhi_soma_d64(f);
+    m->uzalishaji_wa_mifugo = injini_uhifadhi_soma_d64(f);
+    m->uzalishaji_wa_chakula = injini_uhifadhi_soma_d64(f);
+    m->matumizi_ya_chakula = injini_uhifadhi_soma_d64(f);
+    m->ziada_ya_chakula = injini_uhifadhi_soma_d64(f);
+    m->hatari_ya_njaa = injini_uhifadhi_soma_d64(f);
+    m->kiwango_cha_umwagiliaji = injini_uhifadhi_soma_d64(f);
+    m->teknolojia_ya_mbolea = injini_uhifadhi_soma_d64(f);
+    m->msimu = injini_uhifadhi_soma_n32(f);
+    m->maendeleo_ya_msimu = injini_uhifadhi_soma_d64(f);
+}
+
+// ---------- uchimbaji (UchimbajiMfumo) ----------
+w0 mchezo_hifadhi_andika_uchimbaji_eneo(n8* f, UchimbajiEneo* e) {
+    injini_uhifadhi_andika_n32(f, e->aina);
+    injini_uhifadhi_andika_mfuatano(f, e->rasilimali);
+    injini_uhifadhi_andika_d64(f, e->ukubwa_wa_akiba);
+    injini_uhifadhi_andika_d64(f, e->kiwango_cha_uchimbaji);
+    injini_uhifadhi_andika_d64(f, e->kiwango_cha_kupungua);
+    injini_uhifadhi_andika_d64(f, e->ufanisi);
+    injini_uhifadhi_andika_n32(f, e->imeisha);
+}
+w0 mchezo_hifadhi_soma_uchimbaji_eneo(n8* f, UchimbajiEneo* e) {
+    e->aina = injini_uhifadhi_soma_n32(f);
+    e->rasilimali = injini_uhifadhi_soma_mfuatano(f);
+    e->ukubwa_wa_akiba = injini_uhifadhi_soma_d64(f);
+    e->kiwango_cha_uchimbaji = injini_uhifadhi_soma_d64(f);
+    e->kiwango_cha_kupungua = injini_uhifadhi_soma_d64(f);
+    e->ufanisi = injini_uhifadhi_soma_d64(f);
+    e->imeisha = injini_uhifadhi_soma_n32(f);
+}
+w0 mchezo_hifadhi_andika_uchimbaji(n8* f, UchimbajiMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_andika_uchimbaji_eneo(f, &m->e_0); mchezo_hifadhi_andika_uchimbaji_eneo(f, &m->e_1);
+    mchezo_hifadhi_andika_uchimbaji_eneo(f, &m->e_2); mchezo_hifadhi_andika_uchimbaji_eneo(f, &m->e_3);
+    mchezo_hifadhi_andika_uchimbaji_eneo(f, &m->e_4); mchezo_hifadhi_andika_uchimbaji_eneo(f, &m->e_5);
+    mchezo_hifadhi_andika_uchimbaji_eneo(f, &m->e_6); mchezo_hifadhi_andika_uchimbaji_eneo(f, &m->e_7);
+    mchezo_hifadhi_andika_uchimbaji_eneo(f, &m->e_8); mchezo_hifadhi_andika_uchimbaji_eneo(f, &m->e_9);
+    mchezo_hifadhi_andika_uchimbaji_eneo(f, &m->e_10); mchezo_hifadhi_andika_uchimbaji_eneo(f, &m->e_11);
+    mchezo_hifadhi_andika_uchimbaji_eneo(f, &m->e_12); mchezo_hifadhi_andika_uchimbaji_eneo(f, &m->e_13);
+    mchezo_hifadhi_andika_uchimbaji_eneo(f, &m->e_14); mchezo_hifadhi_andika_uchimbaji_eneo(f, &m->e_15);
+    injini_uhifadhi_andika_n32(f, m->idadi_ya_maeneo);
+    injini_uhifadhi_andika_d64(f, m->pato_jumla);
+    injini_uhifadhi_andika_d64(f, m->kiashiria_cha_uendelevu);
+}
+w0 mchezo_hifadhi_soma_uchimbaji(n8* f, UchimbajiMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_soma_uchimbaji_eneo(f, &m->e_0); mchezo_hifadhi_soma_uchimbaji_eneo(f, &m->e_1);
+    mchezo_hifadhi_soma_uchimbaji_eneo(f, &m->e_2); mchezo_hifadhi_soma_uchimbaji_eneo(f, &m->e_3);
+    mchezo_hifadhi_soma_uchimbaji_eneo(f, &m->e_4); mchezo_hifadhi_soma_uchimbaji_eneo(f, &m->e_5);
+    mchezo_hifadhi_soma_uchimbaji_eneo(f, &m->e_6); mchezo_hifadhi_soma_uchimbaji_eneo(f, &m->e_7);
+    mchezo_hifadhi_soma_uchimbaji_eneo(f, &m->e_8); mchezo_hifadhi_soma_uchimbaji_eneo(f, &m->e_9);
+    mchezo_hifadhi_soma_uchimbaji_eneo(f, &m->e_10); mchezo_hifadhi_soma_uchimbaji_eneo(f, &m->e_11);
+    mchezo_hifadhi_soma_uchimbaji_eneo(f, &m->e_12); mchezo_hifadhi_soma_uchimbaji_eneo(f, &m->e_13);
+    mchezo_hifadhi_soma_uchimbaji_eneo(f, &m->e_14); mchezo_hifadhi_soma_uchimbaji_eneo(f, &m->e_15);
+    m->idadi_ya_maeneo = injini_uhifadhi_soma_n32(f);
+    m->pato_jumla = injini_uhifadhi_soma_d64(f);
+    m->kiashiria_cha_uendelevu = injini_uhifadhi_soma_d64(f);
+}
+
+// ---------- miundombinu (MiundombinuMfumo) ----------
+w0 mchezo_hifadhi_andika_mtandao(n8* f, MiundombinuMtandao* t) {
+    injini_uhifadhi_andika_n32(f, t->aina);
+    injini_uhifadhi_andika_d64(f, t->ufikiaji);
+    injini_uhifadhi_andika_d64(f, t->hali_ya_mtandao);
+    injini_uhifadhi_andika_d64(f, t->gharama_ya_matengenezo);
+    injini_uhifadhi_andika_d64(f, t->maendeleo_ya_ujenzi);
+}
+w0 mchezo_hifadhi_soma_mtandao(n8* f, MiundombinuMtandao* t) {
+    t->aina = injini_uhifadhi_soma_n32(f);
+    t->ufikiaji = injini_uhifadhi_soma_d64(f);
+    t->hali_ya_mtandao = injini_uhifadhi_soma_d64(f);
+    t->gharama_ya_matengenezo = injini_uhifadhi_soma_d64(f);
+    t->maendeleo_ya_ujenzi = injini_uhifadhi_soma_d64(f);
+}
+w0 mchezo_hifadhi_andika_miundombinu(n8* f, MiundombinuMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_andika_mtandao(f, &m->mtandao_0);
+    mchezo_hifadhi_andika_mtandao(f, &m->mtandao_1);
+    mchezo_hifadhi_andika_mtandao(f, &m->mtandao_2);
+    mchezo_hifadhi_andika_mtandao(f, &m->mtandao_3);
+    mchezo_hifadhi_andika_mtandao(f, &m->mtandao_4);
+    mchezo_hifadhi_andika_mtandao(f, &m->mtandao_5);
+    mchezo_hifadhi_andika_mtandao(f, &m->mtandao_6);
+    injini_uhifadhi_andika_d64(f, m->ubora_wa_jumla);
+    injini_uhifadhi_andika_d64(f, m->kizidishi_cha_gharama_ya_usafiri);
+    injini_uhifadhi_andika_d64(f, m->ufanisi_wa_mnyororo_wa_ugavi);
+    injini_uhifadhi_andika_d64(f, m->mzigo_jumla_wa_matengenezo);
+}
+w0 mchezo_hifadhi_soma_miundombinu(n8* f, MiundombinuMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_soma_mtandao(f, &m->mtandao_0);
+    mchezo_hifadhi_soma_mtandao(f, &m->mtandao_1);
+    mchezo_hifadhi_soma_mtandao(f, &m->mtandao_2);
+    mchezo_hifadhi_soma_mtandao(f, &m->mtandao_3);
+    mchezo_hifadhi_soma_mtandao(f, &m->mtandao_4);
+    mchezo_hifadhi_soma_mtandao(f, &m->mtandao_5);
+    mchezo_hifadhi_soma_mtandao(f, &m->mtandao_6);
+    m->ubora_wa_jumla = injini_uhifadhi_soma_d64(f);
+    m->kizidishi_cha_gharama_ya_usafiri = injini_uhifadhi_soma_d64(f);
+    m->ufanisi_wa_mnyororo_wa_ugavi = injini_uhifadhi_soma_d64(f);
+    m->mzigo_jumla_wa_matengenezo = injini_uhifadhi_soma_d64(f);
+}
+
+// ---------- viwanda (ViwandaMfumo) ----------
+w0 mchezo_hifadhi_andika_kiwanda(n8* f, ViwandaKiwanda* k) {
+    injini_uhifadhi_andika_mfuatano(f, k->bidhaa);
+    injini_uhifadhi_andika_d64(f, k->pato_kwa_mfanyakazi);
+    injini_uhifadhi_andika_d64(f, k->kiwango_cha_mtaji);
+    injini_uhifadhi_andika_d64(f, k->uwiano_wa_malighafi);
+    injini_uhifadhi_andika_n32(f, k->wafanyakazi);
+    injini_uhifadhi_andika_n32(f, k->uwezo);
+    injini_uhifadhi_andika_n32(f, k->inafanya_kazi);
+}
+w0 mchezo_hifadhi_soma_kiwanda(n8* f, ViwandaKiwanda* k) {
+    k->bidhaa = injini_uhifadhi_soma_mfuatano(f);
+    k->pato_kwa_mfanyakazi = injini_uhifadhi_soma_d64(f);
+    k->kiwango_cha_mtaji = injini_uhifadhi_soma_d64(f);
+    k->uwiano_wa_malighafi = injini_uhifadhi_soma_d64(f);
+    k->wafanyakazi = injini_uhifadhi_soma_n32(f);
+    k->uwezo = injini_uhifadhi_soma_n32(f);
+    k->inafanya_kazi = injini_uhifadhi_soma_n32(f);
+}
+w0 mchezo_hifadhi_andika_viwanda(n8* f, ViwandaMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_andika_kiwanda(f, &m->k_0); mchezo_hifadhi_andika_kiwanda(f, &m->k_1);
+    mchezo_hifadhi_andika_kiwanda(f, &m->k_2); mchezo_hifadhi_andika_kiwanda(f, &m->k_3);
+    mchezo_hifadhi_andika_kiwanda(f, &m->k_4); mchezo_hifadhi_andika_kiwanda(f, &m->k_5);
+    mchezo_hifadhi_andika_kiwanda(f, &m->k_6); mchezo_hifadhi_andika_kiwanda(f, &m->k_7);
+    mchezo_hifadhi_andika_kiwanda(f, &m->k_8); mchezo_hifadhi_andika_kiwanda(f, &m->k_9);
+    mchezo_hifadhi_andika_kiwanda(f, &m->k_10); mchezo_hifadhi_andika_kiwanda(f, &m->k_11);
+    mchezo_hifadhi_andika_kiwanda(f, &m->k_12); mchezo_hifadhi_andika_kiwanda(f, &m->k_13);
+    mchezo_hifadhi_andika_kiwanda(f, &m->k_14); mchezo_hifadhi_andika_kiwanda(f, &m->k_15);
+    injini_uhifadhi_andika_n32(f, m->idadi_ya_viwanda);
+    injini_uhifadhi_andika_d64(f, m->pato_jumla_la_viwanda);
+    injini_uhifadhi_andika_d64(f, m->matumizi_ya_uwezo);
+    injini_uhifadhi_andika_d64(f, m->kiwango_cha_otomatiki);
+    injini_uhifadhi_andika_d64(f, m->ufanisi_wa_mnyororo_wa_ugavi);
+}
+w0 mchezo_hifadhi_soma_viwanda(n8* f, ViwandaMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_soma_kiwanda(f, &m->k_0); mchezo_hifadhi_soma_kiwanda(f, &m->k_1);
+    mchezo_hifadhi_soma_kiwanda(f, &m->k_2); mchezo_hifadhi_soma_kiwanda(f, &m->k_3);
+    mchezo_hifadhi_soma_kiwanda(f, &m->k_4); mchezo_hifadhi_soma_kiwanda(f, &m->k_5);
+    mchezo_hifadhi_soma_kiwanda(f, &m->k_6); mchezo_hifadhi_soma_kiwanda(f, &m->k_7);
+    mchezo_hifadhi_soma_kiwanda(f, &m->k_8); mchezo_hifadhi_soma_kiwanda(f, &m->k_9);
+    mchezo_hifadhi_soma_kiwanda(f, &m->k_10); mchezo_hifadhi_soma_kiwanda(f, &m->k_11);
+    mchezo_hifadhi_soma_kiwanda(f, &m->k_12); mchezo_hifadhi_soma_kiwanda(f, &m->k_13);
+    mchezo_hifadhi_soma_kiwanda(f, &m->k_14); mchezo_hifadhi_soma_kiwanda(f, &m->k_15);
+    m->idadi_ya_viwanda = injini_uhifadhi_soma_n32(f);
+    m->pato_jumla_la_viwanda = injini_uhifadhi_soma_d64(f);
+    m->matumizi_ya_uwezo = injini_uhifadhi_soma_d64(f);
+    m->kiwango_cha_otomatiki = injini_uhifadhi_soma_d64(f);
+    m->ufanisi_wa_mnyororo_wa_ugavi = injini_uhifadhi_soma_d64(f);
+}
+
+// ---------- nishati (NishatiMfumo) ----------
+w0 mchezo_hifadhi_andika_nishati_kiwanda(n8* f, NishatiKiwanda* k) {
+    injini_uhifadhi_andika_n32(f, k->chanzo);
+    injini_uhifadhi_andika_d64(f, k->uwezo_mw);
+    injini_uhifadhi_andika_d64(f, k->pato_la_sasa_mw);
+    injini_uhifadhi_andika_d64(f, k->ufanisi);
+    injini_uhifadhi_andika_d64(f, k->gharama_kwa_mwh);
+    injini_uhifadhi_andika_d64(f, k->uzito_wa_kaboni);
+    injini_uhifadhi_andika_n32(f, k->inaweza_kujazwa);
+}
+w0 mchezo_hifadhi_soma_nishati_kiwanda(n8* f, NishatiKiwanda* k) {
+    k->chanzo = injini_uhifadhi_soma_n32(f);
+    k->uwezo_mw = injini_uhifadhi_soma_d64(f);
+    k->pato_la_sasa_mw = injini_uhifadhi_soma_d64(f);
+    k->ufanisi = injini_uhifadhi_soma_d64(f);
+    k->gharama_kwa_mwh = injini_uhifadhi_soma_d64(f);
+    k->uzito_wa_kaboni = injini_uhifadhi_soma_d64(f);
+    k->inaweza_kujazwa = injini_uhifadhi_soma_n32(f);
+}
+w0 mchezo_hifadhi_andika_nishati(n8* f, NishatiMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_andika_nishati_kiwanda(f, &m->k_0);
+    mchezo_hifadhi_andika_nishati_kiwanda(f, &m->k_1);
+    mchezo_hifadhi_andika_nishati_kiwanda(f, &m->k_2);
+    mchezo_hifadhi_andika_nishati_kiwanda(f, &m->k_3);
+    mchezo_hifadhi_andika_nishati_kiwanda(f, &m->k_4);
+    mchezo_hifadhi_andika_nishati_kiwanda(f, &m->k_5);
+    mchezo_hifadhi_andika_nishati_kiwanda(f, &m->k_6);
+    mchezo_hifadhi_andika_nishati_kiwanda(f, &m->k_7);
+    injini_uhifadhi_andika_n32(f, m->idadi_ya_viwanda);
+    injini_uhifadhi_andika_d64(f, m->uwezo_jumla_mw);
+    injini_uhifadhi_andika_d64(f, m->mahitaji_jumla_mw);
+    injini_uhifadhi_andika_d64(f, m->uaminifu_wa_gridi);
+    injini_uhifadhi_andika_d64(f, m->bei_ya_nishati);
+    injini_uhifadhi_andika_d64(f, m->kujitegemea_kwa_nishati);
+    injini_uhifadhi_andika_d64(f, m->sehemu_inayoweza_kujazwa);
+    injini_uhifadhi_andika_n32(f, m->kukatika_kwa_umeme);
+}
+w0 mchezo_hifadhi_soma_nishati(n8* f, NishatiMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_soma_nishati_kiwanda(f, &m->k_0);
+    mchezo_hifadhi_soma_nishati_kiwanda(f, &m->k_1);
+    mchezo_hifadhi_soma_nishati_kiwanda(f, &m->k_2);
+    mchezo_hifadhi_soma_nishati_kiwanda(f, &m->k_3);
+    mchezo_hifadhi_soma_nishati_kiwanda(f, &m->k_4);
+    mchezo_hifadhi_soma_nishati_kiwanda(f, &m->k_5);
+    mchezo_hifadhi_soma_nishati_kiwanda(f, &m->k_6);
+    mchezo_hifadhi_soma_nishati_kiwanda(f, &m->k_7);
+    m->idadi_ya_viwanda = injini_uhifadhi_soma_n32(f);
+    m->uwezo_jumla_mw = injini_uhifadhi_soma_d64(f);
+    m->mahitaji_jumla_mw = injini_uhifadhi_soma_d64(f);
+    m->uaminifu_wa_gridi = injini_uhifadhi_soma_d64(f);
+    m->bei_ya_nishati = injini_uhifadhi_soma_d64(f);
+    m->kujitegemea_kwa_nishati = injini_uhifadhi_soma_d64(f);
+    m->sehemu_inayoweza_kujazwa = injini_uhifadhi_soma_d64(f);
+    m->kukatika_kwa_umeme = injini_uhifadhi_soma_n32(f);
+}
+
+// ---------- uchumi_makazi / housing (MakaziMfumo) ----------
+w0 mchezo_hifadhi_andika_uchumi_makazi(n8* f, MakaziMfumo* m) {
+    kama (m == 0) { rudisha; }
+    injini_uhifadhi_andika_n32(f, m->vitengo_jumla);
+    injini_uhifadhi_andika_n32(f, m->vitengo_vilivyokaliwa);
+    injini_uhifadhi_andika_n32(f, m->vitengo_wazi);
+    injini_uhifadhi_andika_n32(f, m->vinavyojengwa);
+    injini_uhifadhi_andika_d64(f, m->bei_ya_wastani);
+    injini_uhifadhi_andika_d64(f, m->kodi_ya_wastani);
+    injini_uhifadhi_andika_d64(f, m->uwiano_wa_bei_kwa_mapato);
+    injini_uhifadhi_andika_d64(f, m->kiwango_cha_umiliki_wa_nyumba);
+    injini_uhifadhi_andika_d64(f, m->ukuaji_wa_miji);
+    injini_uhifadhi_andika_d64(f, m->kiwango_cha_ujenzi);
+    injini_uhifadhi_andika_d64(f, m->kiwango_cha_ubomoaji);
+    injini_uhifadhi_andika_n32(f, m->mgogoro_wa_makazi);
+}
+w0 mchezo_hifadhi_soma_uchumi_makazi(n8* f, MakaziMfumo* m) {
+    kama (m == 0) { rudisha; }
+    m->vitengo_jumla = injini_uhifadhi_soma_n32(f);
+    m->vitengo_vilivyokaliwa = injini_uhifadhi_soma_n32(f);
+    m->vitengo_wazi = injini_uhifadhi_soma_n32(f);
+    m->vinavyojengwa = injini_uhifadhi_soma_n32(f);
+    m->bei_ya_wastani = injini_uhifadhi_soma_d64(f);
+    m->kodi_ya_wastani = injini_uhifadhi_soma_d64(f);
+    m->uwiano_wa_bei_kwa_mapato = injini_uhifadhi_soma_d64(f);
+    m->kiwango_cha_umiliki_wa_nyumba = injini_uhifadhi_soma_d64(f);
+    m->ukuaji_wa_miji = injini_uhifadhi_soma_d64(f);
+    m->kiwango_cha_ujenzi = injini_uhifadhi_soma_d64(f);
+    m->kiwango_cha_ubomoaji = injini_uhifadhi_soma_d64(f);
+    m->mgogoro_wa_makazi = injini_uhifadhi_soma_n32(f);
+}
+
+// ---------- ardhi (ArdhiMfumo) ----------
+w0 mchezo_hifadhi_andika_ugawaji(n8* f, ArdhiUgawaji* u) {
+    injini_uhifadhi_andika_n32(f, u->eneo);
+    injini_uhifadhi_andika_d64(f, u->eneo_km2);
+    injini_uhifadhi_andika_d64(f, u->thamani_kwa_km2);
+    injini_uhifadhi_andika_d64(f, u->uzalishaji);
+    injini_uhifadhi_andika_d64(f, u->maendeleo_ya_ujenzi);
+}
+w0 mchezo_hifadhi_soma_ugawaji(n8* f, ArdhiUgawaji* u) {
+    u->eneo = injini_uhifadhi_soma_n32(f);
+    u->eneo_km2 = injini_uhifadhi_soma_d64(f);
+    u->thamani_kwa_km2 = injini_uhifadhi_soma_d64(f);
+    u->uzalishaji = injini_uhifadhi_soma_d64(f);
+    u->maendeleo_ya_ujenzi = injini_uhifadhi_soma_d64(f);
+}
+w0 mchezo_hifadhi_andika_ardhi(n8* f, ArdhiMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_andika_ugawaji(f, &m->ugawaji_0);
+    mchezo_hifadhi_andika_ugawaji(f, &m->ugawaji_1);
+    mchezo_hifadhi_andika_ugawaji(f, &m->ugawaji_2);
+    mchezo_hifadhi_andika_ugawaji(f, &m->ugawaji_3);
+    mchezo_hifadhi_andika_ugawaji(f, &m->ugawaji_4);
+    mchezo_hifadhi_andika_ugawaji(f, &m->ugawaji_5);
+    injini_uhifadhi_andika_d64(f, m->eneo_jumla_km2);
+    injini_uhifadhi_andika_d64(f, m->msongamano_wa_watu);
+    injini_uhifadhi_andika_d64(f, m->kiashiria_cha_thamani_ya_ardhi);
+    injini_uhifadhi_andika_d64(f, m->shinikizo_la_maendeleo);
+}
+w0 mchezo_hifadhi_soma_ardhi(n8* f, ArdhiMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_soma_ugawaji(f, &m->ugawaji_0);
+    mchezo_hifadhi_soma_ugawaji(f, &m->ugawaji_1);
+    mchezo_hifadhi_soma_ugawaji(f, &m->ugawaji_2);
+    mchezo_hifadhi_soma_ugawaji(f, &m->ugawaji_3);
+    mchezo_hifadhi_soma_ugawaji(f, &m->ugawaji_4);
+    mchezo_hifadhi_soma_ugawaji(f, &m->ugawaji_5);
+    m->eneo_jumla_km2 = injini_uhifadhi_soma_d64(f);
+    m->msongamano_wa_watu = injini_uhifadhi_soma_d64(f);
+    m->kiashiria_cha_thamani_ya_ardhi = injini_uhifadhi_soma_d64(f);
+    m->shinikizo_la_maendeleo = injini_uhifadhi_soma_d64(f);
+}
+
+// ---------- mtaji (MtajiMfumo) ----------
+w0 mchezo_hifadhi_andika_bwawa(n8* f, MtajiBwawa* b) {
+    injini_uhifadhi_andika_n32(f, b->aina);
+    injini_uhifadhi_andika_d64(f, b->thamani_jumla);
+    injini_uhifadhi_andika_d64(f, b->kiwango_cha_uchakavu);
+    injini_uhifadhi_andika_d64(f, b->kiwango_cha_uwekezaji);
+    injini_uhifadhi_andika_d64(f, b->matumizi);
+    injini_uhifadhi_andika_d64(f, b->umri_wa_wastani_miaka);
+}
+w0 mchezo_hifadhi_soma_bwawa(n8* f, MtajiBwawa* b) {
+    b->aina = injini_uhifadhi_soma_n32(f);
+    b->thamani_jumla = injini_uhifadhi_soma_d64(f);
+    b->kiwango_cha_uchakavu = injini_uhifadhi_soma_d64(f);
+    b->kiwango_cha_uwekezaji = injini_uhifadhi_soma_d64(f);
+    b->matumizi = injini_uhifadhi_soma_d64(f);
+    b->umri_wa_wastani_miaka = injini_uhifadhi_soma_d64(f);
+}
+w0 mchezo_hifadhi_andika_mtaji(n8* f, MtajiMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_andika_bwawa(f, &m->bwawa_0);
+    mchezo_hifadhi_andika_bwawa(f, &m->bwawa_1);
+    mchezo_hifadhi_andika_bwawa(f, &m->bwawa_2);
+    mchezo_hifadhi_andika_bwawa(f, &m->bwawa_3);
+    mchezo_hifadhi_andika_bwawa(f, &m->bwawa_4);
+    injini_uhifadhi_andika_d64(f, m->hisa_jumla_ya_mtaji);
+    injini_uhifadhi_andika_d64(f, m->mtaji_kwa_kila_mfanyakazi);
+    injini_uhifadhi_andika_d64(f, m->uwiano_wa_uwekezaji);
+    injini_uhifadhi_andika_d64(f, m->mzigo_wa_uchakavu);
+    injini_uhifadhi_andika_d64(f, m->kizidishi_cha_uzalishaji);
+}
+w0 mchezo_hifadhi_soma_mtaji(n8* f, MtajiMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_soma_bwawa(f, &m->bwawa_0);
+    mchezo_hifadhi_soma_bwawa(f, &m->bwawa_1);
+    mchezo_hifadhi_soma_bwawa(f, &m->bwawa_2);
+    mchezo_hifadhi_soma_bwawa(f, &m->bwawa_3);
+    mchezo_hifadhi_soma_bwawa(f, &m->bwawa_4);
+    m->hisa_jumla_ya_mtaji = injini_uhifadhi_soma_d64(f);
+    m->mtaji_kwa_kila_mfanyakazi = injini_uhifadhi_soma_d64(f);
+    m->uwiano_wa_uwekezaji = injini_uhifadhi_soma_d64(f);
+    m->mzigo_wa_uchakavu = injini_uhifadhi_soma_d64(f);
+    m->kizidishi_cha_uzalishaji = injini_uhifadhi_soma_d64(f);
+}
+
+// ---------- biashara_ndani (BiasharaNdaniMfumo) ----------
+w0 mchezo_hifadhi_andika_njia_ndani(n8* f, BiasharaNdaniNjia* n) {
+    injini_uhifadhi_andika_mfuatano(f, n->eneo_kutoka);
+    injini_uhifadhi_andika_mfuatano(f, n->eneo_kwenda);
+    injini_uhifadhi_andika_mfuatano(f, n->bidhaa);
+    injini_uhifadhi_andika_d64(f, n->ujazo_wa_mtiririko);
+    injini_uhifadhi_andika_d64(f, n->gharama_ya_usafiri);
+    injini_uhifadhi_andika_d64(f, n->tofauti_ya_bei);
+    injini_uhifadhi_andika_n32(f, n->inafanya_kazi);
+}
+w0 mchezo_hifadhi_soma_njia_ndani(n8* f, BiasharaNdaniNjia* n) {
+    n->eneo_kutoka = injini_uhifadhi_soma_mfuatano(f);
+    n->eneo_kwenda = injini_uhifadhi_soma_mfuatano(f);
+    n->bidhaa = injini_uhifadhi_soma_mfuatano(f);
+    n->ujazo_wa_mtiririko = injini_uhifadhi_soma_d64(f);
+    n->gharama_ya_usafiri = injini_uhifadhi_soma_d64(f);
+    n->tofauti_ya_bei = injini_uhifadhi_soma_d64(f);
+    n->inafanya_kazi = injini_uhifadhi_soma_n32(f);
+}
+w0 mchezo_hifadhi_andika_biashara_ndani(n8* f, BiasharaNdaniMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_andika_njia_ndani(f, &m->njia_0);
+    mchezo_hifadhi_andika_njia_ndani(f, &m->njia_1);
+    mchezo_hifadhi_andika_njia_ndani(f, &m->njia_2);
+    mchezo_hifadhi_andika_njia_ndani(f, &m->njia_3);
+    mchezo_hifadhi_andika_njia_ndani(f, &m->njia_4);
+    mchezo_hifadhi_andika_njia_ndani(f, &m->njia_5);
+    mchezo_hifadhi_andika_njia_ndani(f, &m->njia_6);
+    mchezo_hifadhi_andika_njia_ndani(f, &m->njia_7);
+    injini_uhifadhi_andika_n32(f, m->idadi_ya_njia);
+    injini_uhifadhi_andika_d64(f, m->muunganiko_wa_soko);
+    injini_uhifadhi_andika_d64(f, m->ushuru_wa_ndani_sawa);
+    injini_uhifadhi_andika_d64(f, m->ujazo_jumla_wa_ndani);
+}
+w0 mchezo_hifadhi_soma_biashara_ndani(n8* f, BiasharaNdaniMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_soma_njia_ndani(f, &m->njia_0);
+    mchezo_hifadhi_soma_njia_ndani(f, &m->njia_1);
+    mchezo_hifadhi_soma_njia_ndani(f, &m->njia_2);
+    mchezo_hifadhi_soma_njia_ndani(f, &m->njia_3);
+    mchezo_hifadhi_soma_njia_ndani(f, &m->njia_4);
+    mchezo_hifadhi_soma_njia_ndani(f, &m->njia_5);
+    mchezo_hifadhi_soma_njia_ndani(f, &m->njia_6);
+    mchezo_hifadhi_soma_njia_ndani(f, &m->njia_7);
+    m->idadi_ya_njia = injini_uhifadhi_soma_n32(f);
+    m->muunganiko_wa_soko = injini_uhifadhi_soma_d64(f);
+    m->ushuru_wa_ndani_sawa = injini_uhifadhi_soma_d64(f);
+    m->ujazo_jumla_wa_ndani = injini_uhifadhi_soma_d64(f);
+}
+
+// ---------- biashara_nje (BiasharaNjeMfumo) ----------
+w0 mchezo_hifadhi_andika_njia_nje(n8* f, BiasharaNjeNjia* n) {
+    injini_uhifadhi_andika_mfuatano(f, n->taifa_chanzo);
+    injini_uhifadhi_andika_mfuatano(f, n->taifa_lengwa);
+    injini_uhifadhi_andika_mfuatano(f, n->aina_ya_rasilimali);
+    injini_uhifadhi_andika_d64(f, n->kiasi);
+    injini_uhifadhi_andika_d64(f, n->thamani_kwa_kipimo);
+    injini_uhifadhi_andika_d64(f, n->kiwango_cha_ushuru);
+    injini_uhifadhi_andika_n32(f, n->inafanya_kazi);
+}
+w0 mchezo_hifadhi_soma_njia_nje(n8* f, BiasharaNjeNjia* n) {
+    n->taifa_chanzo = injini_uhifadhi_soma_mfuatano(f);
+    n->taifa_lengwa = injini_uhifadhi_soma_mfuatano(f);
+    n->aina_ya_rasilimali = injini_uhifadhi_soma_mfuatano(f);
+    n->kiasi = injini_uhifadhi_soma_d64(f);
+    n->thamani_kwa_kipimo = injini_uhifadhi_soma_d64(f);
+    n->kiwango_cha_ushuru = injini_uhifadhi_soma_d64(f);
+    n->inafanya_kazi = injini_uhifadhi_soma_n32(f);
+}
+w0 mchezo_hifadhi_andika_biashara_nje(n8* f, BiasharaNjeMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_andika_njia_nje(f, &m->n_0);
+    mchezo_hifadhi_andika_njia_nje(f, &m->n_1);
+    mchezo_hifadhi_andika_njia_nje(f, &m->n_2);
+    mchezo_hifadhi_andika_njia_nje(f, &m->n_3);
+    mchezo_hifadhi_andika_njia_nje(f, &m->n_4);
+    mchezo_hifadhi_andika_njia_nje(f, &m->n_5);
+    mchezo_hifadhi_andika_njia_nje(f, &m->n_6);
+    mchezo_hifadhi_andika_njia_nje(f, &m->n_7);
+    injini_uhifadhi_andika_n32(f, m->idadi_ya_njia);
+}
+w0 mchezo_hifadhi_soma_biashara_nje(n8* f, BiasharaNjeMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_soma_njia_nje(f, &m->n_0);
+    mchezo_hifadhi_soma_njia_nje(f, &m->n_1);
+    mchezo_hifadhi_soma_njia_nje(f, &m->n_2);
+    mchezo_hifadhi_soma_njia_nje(f, &m->n_3);
+    mchezo_hifadhi_soma_njia_nje(f, &m->n_4);
+    mchezo_hifadhi_soma_njia_nje(f, &m->n_5);
+    mchezo_hifadhi_soma_njia_nje(f, &m->n_6);
+    mchezo_hifadhi_soma_njia_nje(f, &m->n_7);
+    m->idadi_ya_njia = injini_uhifadhi_soma_n32(f);
+}
+
+// ---------- uvumbuzi (UvumbuziMfumo) ----------
+w0 mchezo_hifadhi_andika_uvumbuzi_sekta(n8* f, UvumbuziSekta* s) {
+    injini_uhifadhi_andika_mfuatano(f, s->jina);
+    injini_uhifadhi_andika_d64(f, s->matumizi_ya_utafiti);
+    injini_uhifadhi_andika_d64(f, s->kiwango_cha_uvumbuzi);
+    injini_uhifadhi_andika_d64(f, s->usambazaji_wa_teknolojia);
+    injini_uhifadhi_andika_n32(f, s->hataza_zinazofanya_kazi);
+    injini_uhifadhi_andika_n32(f, s->kampuni_changa);
+}
+w0 mchezo_hifadhi_soma_uvumbuzi_sekta(n8* f, UvumbuziSekta* s) {
+    s->jina = injini_uhifadhi_soma_mfuatano(f);
+    s->matumizi_ya_utafiti = injini_uhifadhi_soma_d64(f);
+    s->kiwango_cha_uvumbuzi = injini_uhifadhi_soma_d64(f);
+    s->usambazaji_wa_teknolojia = injini_uhifadhi_soma_d64(f);
+    s->hataza_zinazofanya_kazi = injini_uhifadhi_soma_n32(f);
+    s->kampuni_changa = injini_uhifadhi_soma_n32(f);
+}
+w0 mchezo_hifadhi_andika_uvumbuzi(n8* f, UvumbuziMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_andika_uvumbuzi_sekta(f, &m->s_0);
+    mchezo_hifadhi_andika_uvumbuzi_sekta(f, &m->s_1);
+    mchezo_hifadhi_andika_uvumbuzi_sekta(f, &m->s_2);
+    mchezo_hifadhi_andika_uvumbuzi_sekta(f, &m->s_3);
+    mchezo_hifadhi_andika_uvumbuzi_sekta(f, &m->s_4);
+    mchezo_hifadhi_andika_uvumbuzi_sekta(f, &m->s_5);
+    mchezo_hifadhi_andika_uvumbuzi_sekta(f, &m->s_6);
+    mchezo_hifadhi_andika_uvumbuzi_sekta(f, &m->s_7);
+    injini_uhifadhi_andika_n32(f, m->idadi_ya_sekta);
+    injini_uhifadhi_andika_d64(f, m->utafiti_jumla);
+    injini_uhifadhi_andika_d64(f, m->utafiti_kwa_pato);
+    injini_uhifadhi_andika_d64(f, m->kiashiria_cha_uvumbuzi);
+    injini_uhifadhi_andika_d64(f, m->ubiasharaji_wa_teknolojia);
+    injini_uhifadhi_andika_d64(f, m->uzalishaji_wa_hataza);
+    injini_uhifadhi_andika_d64(f, m->kiwango_cha_uundwaji_wa_kampuni_changa);
+}
+w0 mchezo_hifadhi_soma_uvumbuzi(n8* f, UvumbuziMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_soma_uvumbuzi_sekta(f, &m->s_0);
+    mchezo_hifadhi_soma_uvumbuzi_sekta(f, &m->s_1);
+    mchezo_hifadhi_soma_uvumbuzi_sekta(f, &m->s_2);
+    mchezo_hifadhi_soma_uvumbuzi_sekta(f, &m->s_3);
+    mchezo_hifadhi_soma_uvumbuzi_sekta(f, &m->s_4);
+    mchezo_hifadhi_soma_uvumbuzi_sekta(f, &m->s_5);
+    mchezo_hifadhi_soma_uvumbuzi_sekta(f, &m->s_6);
+    mchezo_hifadhi_soma_uvumbuzi_sekta(f, &m->s_7);
+    m->idadi_ya_sekta = injini_uhifadhi_soma_n32(f);
+    m->utafiti_jumla = injini_uhifadhi_soma_d64(f);
+    m->utafiti_kwa_pato = injini_uhifadhi_soma_d64(f);
+    m->kiashiria_cha_uvumbuzi = injini_uhifadhi_soma_d64(f);
+    m->ubiasharaji_wa_teknolojia = injini_uhifadhi_soma_d64(f);
+    m->uzalishaji_wa_hataza = injini_uhifadhi_soma_d64(f);
+    m->kiwango_cha_uundwaji_wa_kampuni_changa = injini_uhifadhi_soma_d64(f);
+}
+
+// ---------- soko_haramu (SokoHaramuMfumo) ----------
+w0 mchezo_hifadhi_andika_soko_h(n8* f, SokoHaramuSoko* s) {
+    injini_uhifadhi_andika_n32(f, s->aina);
+    injini_uhifadhi_andika_d64(f, s->ujazo);
+    injini_uhifadhi_andika_d64(f, s->pato_la_faida);
+    injini_uhifadhi_andika_d64(f, s->shinikizo_la_udhibiti);
+    injini_uhifadhi_andika_n32(f, s->inafanya_kazi);
+}
+w0 mchezo_hifadhi_soma_soko_h(n8* f, SokoHaramuSoko* s) {
+    s->aina = injini_uhifadhi_soma_n32(f);
+    s->ujazo = injini_uhifadhi_soma_d64(f);
+    s->pato_la_faida = injini_uhifadhi_soma_d64(f);
+    s->shinikizo_la_udhibiti = injini_uhifadhi_soma_d64(f);
+    s->inafanya_kazi = injini_uhifadhi_soma_n32(f);
+}
+w0 mchezo_hifadhi_andika_soko_haramu(n8* f, SokoHaramuMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_andika_soko_h(f, &m->soko_0);
+    mchezo_hifadhi_andika_soko_h(f, &m->soko_1);
+    mchezo_hifadhi_andika_soko_h(f, &m->soko_2);
+    mchezo_hifadhi_andika_soko_h(f, &m->soko_3);
+    mchezo_hifadhi_andika_soko_h(f, &m->soko_4);
+    injini_uhifadhi_andika_d64(f, m->uchumi_haramu_jumla);
+    injini_uhifadhi_andika_d64(f, m->mapato_ya_rushwa);
+    injini_uhifadhi_andika_d64(f, m->bajeti_ya_udhibiti);
+    injini_uhifadhi_andika_d64(f, m->ufanisi_wa_udhibiti);
+    injini_uhifadhi_andika_d64(f, m->kodi_iliyopotea);
+    injini_uhifadhi_andika_d64(f, m->vurugu_za_uhalifu);
+}
+w0 mchezo_hifadhi_soma_soko_haramu(n8* f, SokoHaramuMfumo* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_soma_soko_h(f, &m->soko_0);
+    mchezo_hifadhi_soma_soko_h(f, &m->soko_1);
+    mchezo_hifadhi_soma_soko_h(f, &m->soko_2);
+    mchezo_hifadhi_soma_soko_h(f, &m->soko_3);
+    mchezo_hifadhi_soma_soko_h(f, &m->soko_4);
+    m->uchumi_haramu_jumla = injini_uhifadhi_soma_d64(f);
+    m->mapato_ya_rushwa = injini_uhifadhi_soma_d64(f);
+    m->bajeti_ya_udhibiti = injini_uhifadhi_soma_d64(f);
+    m->ufanisi_wa_udhibiti = injini_uhifadhi_soma_d64(f);
+    m->kodi_iliyopotea = injini_uhifadhi_soma_d64(f);
+    m->vurugu_za_uhalifu = injini_uhifadhi_soma_d64(f);
+}
+
+// ---------- vita (VitaMfumo) ----------
+w0 mchezo_hifadhi_andika_vita(n8* f, VitaMfumo* m) {
+    kama (m == 0) { rudisha; }
+    injini_uhifadhi_andika_n32(f, m->kiwango);
+    injini_uhifadhi_andika_d64(f, m->uwiano_wa_matumizi_ya_kijeshi);
+    injini_uhifadhi_andika_d64(f, m->ubadilishaji_wa_viwanda_kwa_kijeshi);
+    injini_uhifadhi_andika_d64(f, m->kiwango_cha_mgao);
+    injini_uhifadhi_andika_d64(f, m->kiwango_cha_uandikishaji);
+    injini_uhifadhi_andika_d64(f, m->akiba_ya_vifaa_vya_vita);
+    injini_uhifadhi_andika_d64(f, m->kiwango_cha_matumizi_ya_vifaa);
+    injini_uhifadhi_andika_d64(f, m->adhabu_ya_uchumi_wa_kiraia);
+    injini_uhifadhi_andika_d64(f, m->uchovu_wa_vita);
+    injini_uhifadhi_andika_n32(f, m->miezi_ya_vita);
+    injini_uhifadhi_andika_n32(f, m->vitani);
+}
+w0 mchezo_hifadhi_soma_vita(n8* f, VitaMfumo* m) {
+    kama (m == 0) { rudisha; }
+    m->kiwango = injini_uhifadhi_soma_n32(f);
+    m->uwiano_wa_matumizi_ya_kijeshi = injini_uhifadhi_soma_d64(f);
+    m->ubadilishaji_wa_viwanda_kwa_kijeshi = injini_uhifadhi_soma_d64(f);
+    m->kiwango_cha_mgao = injini_uhifadhi_soma_d64(f);
+    m->kiwango_cha_uandikishaji = injini_uhifadhi_soma_d64(f);
+    m->akiba_ya_vifaa_vya_vita = injini_uhifadhi_soma_d64(f);
+    m->kiwango_cha_matumizi_ya_vifaa = injini_uhifadhi_soma_d64(f);
+    m->adhabu_ya_uchumi_wa_kiraia = injini_uhifadhi_soma_d64(f);
+    m->uchovu_wa_vita = injini_uhifadhi_soma_d64(f);
+    m->miezi_ya_vita = injini_uhifadhi_soma_n32(f);
+    m->vitani = injini_uhifadhi_soma_n32(f);
+}
+
+// ---------- utamaduni x5 (kitambulisho/kuenea/itikadi/uigaji/dini) ----------
+// Mifumo hii MITANO huanza TUPU (idadi=0) kwenye mchezo_anzisha ya
+// sasa na HAIJAZWI na mchezo_sasisha (angalia maelezo ya wigo juu ya
+// faili (d)) -- kila kiingilio chake kina safu zake za NDANI (mfano
+// UtamaduniKitambulisho.sifa/thamani, UtamaduniItikadi.thamani_zote)
+// ambazo zingehitaji tabaka la pili la uhifadhi lililowekwa (nested).
+// Kwa kuwa hazijazwi na mzunguko wa sasa wa mchezo (hakuna thamani
+// halisi ya kuthibitisha round-trip nayo), tumehifadhi METADATA
+// (idadi/uwezo) TU kama uthibitisho wa muundo -- maudhui kamili ya
+// kila kiingilio ni kazi ijayo wazi, itakapokuwa na data halisi ya
+// kuhifadhi.
+w0 mchezo_hifadhi_andika_utamaduni_metadata(n8* f, Mchezo* g) {
+    UtamaduniKitambulishoMfumo* kit = mchezo_pata_utamaduni_kitambulisho(g);
+    kama (kit != 0) {
+        injini_uhifadhi_andika_n32(f, kit->idadi);
+        injini_uhifadhi_andika_n32(f, kit->uwezo);
+    } sivyo {
+        injini_uhifadhi_andika_n32(f, 0);
+        injini_uhifadhi_andika_n32(f, 0);
+    }
+    UtamaduniKuenea* kue = mchezo_pata_utamaduni_kuenea(g);
+    kama (kue != 0) {
+        injini_uhifadhi_andika_n32(f, kue->idadi_ya_matukio);
+        injini_uhifadhi_andika_n32(f, kue->uwezo_wa_matukio);
+    } sivyo {
+        injini_uhifadhi_andika_n32(f, 0);
+        injini_uhifadhi_andika_n32(f, 0);
+    }
+    UtamaduniItikadiMfumo* iti = mchezo_pata_utamaduni_itikadi(g);
+    kama (iti != 0) {
+        injini_uhifadhi_andika_n32(f, iti->idadi);
+        injini_uhifadhi_andika_n32(f, iti->uwezo);
+    } sivyo {
+        injini_uhifadhi_andika_n32(f, 0);
+        injini_uhifadhi_andika_n32(f, 0);
+    }
+    UtamaduniUigajiTracker* uig = mchezo_pata_utamaduni_uigaji(g);
+    kama (uig != 0) {
+        injini_uhifadhi_andika_n32(f, uig->idadi_ya_matukio);
+        injini_uhifadhi_andika_n32(f, uig->uwezo_wa_matukio);
+    } sivyo {
+        injini_uhifadhi_andika_n32(f, 0);
+        injini_uhifadhi_andika_n32(f, 0);
+    }
+    UtamaduniDiniMfumo* din = mchezo_pata_utamaduni_dini(g);
+    kama (din != 0) {
+        injini_uhifadhi_andika_n32(f, din->idadi);
+        injini_uhifadhi_andika_n32(f, din->uwezo);
+    } sivyo {
+        injini_uhifadhi_andika_n32(f, 0);
+        injini_uhifadhi_andika_n32(f, 0);
+    }
+}
+w0 mchezo_hifadhi_soma_utamaduni_metadata(n8* f, Mchezo* g) {
+    n32 a0 = injini_uhifadhi_soma_n32(f); n32 a1 = injini_uhifadhi_soma_n32(f);
+    n32 b0 = injini_uhifadhi_soma_n32(f); n32 b1 = injini_uhifadhi_soma_n32(f);
+    n32 c0 = injini_uhifadhi_soma_n32(f); n32 c1 = injini_uhifadhi_soma_n32(f);
+    n32 d0 = injini_uhifadhi_soma_n32(f); n32 d1 = injini_uhifadhi_soma_n32(f);
+    n32 e0 = injini_uhifadhi_soma_n32(f); n32 e1 = injini_uhifadhi_soma_n32(f);
+    // Thamani hizi ni kwa ajili ya UKAGUZI/kulinganisha tu (metadata
+    // haibadilishi hali hai ya g kwa sasa, kwa sababu idadi halisi za
+    // mifumo hii TAYARI ni 0 baada ya mchezo_anzisha mpya -- angalia
+    // maelezo juu). Zisipotumika moja kwa moja, bado zimesomwa kwa
+    // mpangilio sahihi ili mkondo wa faili usichafuke kwa mifumo
+    // inayofuata.
+    n32 jumla_isiyotumika = a0 + a1 + b0 + b1 + c0 + c1 + d0 + d1 + e0 + e1;
+    kama (jumla_isiyotumika < 0) { rudisha; }
+}
+
+// ---------- matukio (MatukioTukioMfumo) ----------
+// vishughulikia (n64* -- anwani za KAZI za mtumiaji + data) HAZIHIFADHIWI
+// kimakusudi -- angalia (b) kwenye maelezo ya wigo juu ya faili.
+w0 mchezo_hifadhi_andika_tukio(n8* f, MatukioTukio* t) {
+    injini_uhifadhi_andika_n32(f, t->nambari_ya_tukio);
+    injini_uhifadhi_andika_n32(f, t->aina);
+    injini_uhifadhi_andika_mfuatano(f, t->kichwa);
+    injini_uhifadhi_andika_mfuatano(f, t->maelezo);
+    injini_uhifadhi_andika_d64(f, t->umuhimu);
+    injini_uhifadhi_andika_d64(f, t->wakati_uliotokea);
+    injini_uhifadhi_andika_n32(f, t->linafanya_kazi);
+}
+w0 mchezo_hifadhi_soma_tukio(n8* f, MatukioTukio* t) {
+    t->nambari_ya_tukio = injini_uhifadhi_soma_n32(f);
+    t->aina = injini_uhifadhi_soma_n32(f);
+    t->kichwa = injini_uhifadhi_soma_mfuatano(f);
+    t->maelezo = injini_uhifadhi_soma_mfuatano(f);
+    t->umuhimu = injini_uhifadhi_soma_d64(f);
+    t->wakati_uliotokea = injini_uhifadhi_soma_d64(f);
+    t->linafanya_kazi = injini_uhifadhi_soma_n32(f);
+}
+w0 mchezo_hifadhi_andika_matukio(n8* f, MatukioTukioMfumo* em) {
+    kama (em == 0) { rudisha; }
+    injini_uhifadhi_andika_n32(f, em->idadi_ya_matukio);
+    injini_uhifadhi_andika_d64(f, em->muda_wa_mwisho);
+    n32 i = 0;
+    wakati (i < em->idadi_ya_matukio) {
+        MatukioTukio* t = em->matukio[i];
+        mchezo_hifadhi_andika_tukio(f, t);
+        i = i + 1;
+    }
+}
+w0 mchezo_hifadhi_soma_matukio(n8* f, MatukioTukioMfumo* em) {
+    kama (em == 0) { rudisha; }
+    n32 idadi_iliyohifadhiwa = injini_uhifadhi_soma_n32(f);
+    em->muda_wa_mwisho = injini_uhifadhi_soma_d64(f);
+    n32 i = 0;
+    wakati (i < idadi_iliyohifadhiwa) {
+        MatukioTukio* t = tenga(ukubwa(MatukioTukio));
+        mchezo_hifadhi_soma_tukio(f, t);
+        matukio_tukio_toa(em, t);
+        i = i + 1;
+    }
+}
+
+// ---------- wakala (WakalaInjini) ----------
+w0 mchezo_hifadhi_andika_mwakala(n8* f, Wakala* w) {
+    injini_uhifadhi_andika_mfuatano(f, w->jina);
+    injini_uhifadhi_andika_mfuatano(f, w->jukumu);
+    injini_uhifadhi_andika_d64(f, w->itikadi.mila_dhidi_ya_maendeleo);
+    injini_uhifadhi_andika_d64(f, w->itikadi.kimabavu_dhidi_ya_huria);
+    injini_uhifadhi_andika_d64(f, w->itikadi.utaifa_dhidi_ya_udunia);
+    injini_uhifadhi_andika_d64(f, w->itikadi.kijeshi_dhidi_ya_amani);
+    injini_uhifadhi_andika_d64(f, w->itikadi.kibiashara_dhidi_ya_kilimo);
+    injini_uhifadhi_andika_d64(f, w->itikadi.kidini_dhidi_ya_kilimwengu);
+    injini_uhifadhi_andika_d64(f, w->ushawishi);
+    injini_uhifadhi_andika_d64(f, w->rushwa);
+    injini_uhifadhi_andika_d64(f, w->umahiri);
+    injini_uhifadhi_andika_n32(f, w->umri);
+    injini_uhifadhi_andika_mfuatano(f, w->taifa_id);
+}
+w0 mchezo_hifadhi_soma_mwakala(n8* f, Wakala* w) {
+    w->jina = injini_uhifadhi_soma_mfuatano(f);
+    w->jukumu = injini_uhifadhi_soma_mfuatano(f);
+    w->itikadi.mila_dhidi_ya_maendeleo = injini_uhifadhi_soma_d64(f);
+    w->itikadi.kimabavu_dhidi_ya_huria = injini_uhifadhi_soma_d64(f);
+    w->itikadi.utaifa_dhidi_ya_udunia = injini_uhifadhi_soma_d64(f);
+    w->itikadi.kijeshi_dhidi_ya_amani = injini_uhifadhi_soma_d64(f);
+    w->itikadi.kibiashara_dhidi_ya_kilimo = injini_uhifadhi_soma_d64(f);
+    w->itikadi.kidini_dhidi_ya_kilimwengu = injini_uhifadhi_soma_d64(f);
+    w->ushawishi = injini_uhifadhi_soma_d64(f);
+    w->rushwa = injini_uhifadhi_soma_d64(f);
+    w->umahiri = injini_uhifadhi_soma_d64(f);
+    w->umri = injini_uhifadhi_soma_n32(f);
+    w->taifa_id = injini_uhifadhi_soma_mfuatano(f);
+}
+w0 mchezo_hifadhi_andika_uamuzi(n8* f, WakalaUamuzi* u) {
+    injini_uhifadhi_andika_mfuatano(f, u->muigizaji);
+    injini_uhifadhi_andika_mfuatano(f, u->taifa);
+    injini_uhifadhi_andika_n32(f, u->mwaka);
+    injini_uhifadhi_andika_n32(f, u->siku);
+    injini_uhifadhi_andika_n32(f, u->kundi);
+    injini_uhifadhi_andika_n32(f, u->ni_rushwa);
+    injini_uhifadhi_andika_d64(f, u->athari_ya_uthabiti);
+    injini_uhifadhi_andika_d64(f, u->athari_ya_uchumi);
+    injini_uhifadhi_andika_d64(f, u->athari_ya_kidiplomasia);
+}
+w0 mchezo_hifadhi_soma_uamuzi(n8* f, WakalaUamuzi* u) {
+    u->muigizaji = injini_uhifadhi_soma_mfuatano(f);
+    u->taifa = injini_uhifadhi_soma_mfuatano(f);
+    u->mwaka = injini_uhifadhi_soma_n32(f);
+    u->siku = injini_uhifadhi_soma_n32(f);
+    u->kundi = injini_uhifadhi_soma_n32(f);
+    u->ni_rushwa = injini_uhifadhi_soma_n32(f);
+    u->athari_ya_uthabiti = injini_uhifadhi_soma_d64(f);
+    u->athari_ya_uchumi = injini_uhifadhi_soma_d64(f);
+    u->athari_ya_kidiplomasia = injini_uhifadhi_soma_d64(f);
+}
+w0 mchezo_hifadhi_andika_wakala(n8* f, WakalaInjini* eng) {
+    kama (eng == 0) { rudisha; }
+    injini_uhifadhi_andika_n32(f, eng->idadi_ya_wakala);
+    n32 i = 0;
+    wakati (i < eng->idadi_ya_wakala) {
+        Wakala* w = eng->wakala_wote[i];
+        mchezo_hifadhi_andika_mwakala(f, w);
+        i = i + 1;
+    }
+    mchezo_hifadhi_andika_uamuzi(f, &eng->uamuzi_0);
+    mchezo_hifadhi_andika_uamuzi(f, &eng->uamuzi_1);
+    mchezo_hifadhi_andika_uamuzi(f, &eng->uamuzi_2);
+    mchezo_hifadhi_andika_uamuzi(f, &eng->uamuzi_3);
+    mchezo_hifadhi_andika_uamuzi(f, &eng->uamuzi_4);
+    mchezo_hifadhi_andika_uamuzi(f, &eng->uamuzi_5);
+    mchezo_hifadhi_andika_uamuzi(f, &eng->uamuzi_6);
+    mchezo_hifadhi_andika_uamuzi(f, &eng->uamuzi_7);
+    injini_uhifadhi_andika_n32(f, eng->idadi_ya_maamuzi);
+    injini_uhifadhi_andika_n32(f, eng->kichwa_cha_pete);
+}
+w0 mchezo_hifadhi_soma_wakala(n8* f, WakalaInjini* eng) {
+    kama (eng == 0) { rudisha; }
+    n32 idadi_iliyohifadhiwa = injini_uhifadhi_soma_n32(f);
+    // Rudisha kwenye tupu kabla ya kujaza upya (angalia maelezo ya
+    // jumla karibu na mchezo_pakia).
+    eng->idadi_ya_wakala = 0;
+    n32 i = 0;
+    wakati (i < idadi_iliyohifadhiwa) {
+        n8* jina_tupu = "";
+        n8* jukumu_tupu = "";
+        n8* taifa_tupu = "";
+        Wakala* w = wakala_injini_ongeza(eng, jina_tupu, jukumu_tupu, taifa_tupu);
+        mchezo_hifadhi_soma_mwakala(f, w);
+        i = i + 1;
+    }
+    mchezo_hifadhi_soma_uamuzi(f, &eng->uamuzi_0);
+    mchezo_hifadhi_soma_uamuzi(f, &eng->uamuzi_1);
+    mchezo_hifadhi_soma_uamuzi(f, &eng->uamuzi_2);
+    mchezo_hifadhi_soma_uamuzi(f, &eng->uamuzi_3);
+    mchezo_hifadhi_soma_uamuzi(f, &eng->uamuzi_4);
+    mchezo_hifadhi_soma_uamuzi(f, &eng->uamuzi_5);
+    mchezo_hifadhi_soma_uamuzi(f, &eng->uamuzi_6);
+    mchezo_hifadhi_soma_uamuzi(f, &eng->uamuzi_7);
+    eng->idadi_ya_maamuzi = injini_uhifadhi_soma_n32(f);
+    eng->kichwa_cha_pete = injini_uhifadhi_soma_n32(f);
+}
+
+// ---------- injini_okestra + injini_utendaji ----------
+// Zote mbili zina safu zenye vipengele vya ANWANI ZA KAZI (function
+// pointers -- InjiniMfumo.update_fn/n.k. kwa okestra) au hazijaza
+// kabisa na mchezo_sasisha ya sasa (utendaji -- angalia maelezo ya
+// wigo juu ya faili). Metadata TU inahifadhiwa.
+w0 mchezo_hifadhi_andika_okestra_utendaji(n8* f, InjiniOkestra* ok, InjiniUtendaji* ut) {
+    kama (ok != 0) {
+        injini_uhifadhi_andika_n32(f, ok->idadi);
+        injini_uhifadhi_andika_n32(f, ok->idadi_ya_mpangilio);
+    } sivyo {
+        injini_uhifadhi_andika_n32(f, 0);
+        injini_uhifadhi_andika_n32(f, 0);
+    }
+    kama (ut != 0) {
+        injini_uhifadhi_andika_n32(f, ut->idadi_ya_vipimo);
+        injini_uhifadhi_andika_n32(f, ut->ufuatiliaji_umewashwa);
+        injini_uhifadhi_andika_d64(f, ut->kizingiti_cha_uboreshaji);
+        injini_uhifadhi_andika_n64(f, ut->jumla_ya_wito);
+        injini_uhifadhi_andika_d64(f, ut->jumla_ya_muda_wa_utekelezaji);
+    } sivyo {
+        injini_uhifadhi_andika_n32(f, 0);
+        injini_uhifadhi_andika_n32(f, 0);
+        injini_uhifadhi_andika_d64(f, 0.0);
+        injini_uhifadhi_andika_n64(f, 0);
+        injini_uhifadhi_andika_d64(f, 0.0);
+    }
+}
+w0 mchezo_hifadhi_soma_okestra_utendaji(n8* f, InjiniUtendaji* ut) {
+    n32 ok_idadi = injini_uhifadhi_soma_n32(f);
+    n32 ok_mpangilio = injini_uhifadhi_soma_n32(f);
+    n32 dummy_jumla = ok_idadi + ok_mpangilio;
+    kama (ut == 0) {
+        n32 a0 = injini_uhifadhi_soma_n32(f);
+        n32 a1 = injini_uhifadhi_soma_n32(f);
+        d64 a2 = injini_uhifadhi_soma_d64(f);
+        n64 a3 = injini_uhifadhi_soma_n64(f);
+        d64 a4 = injini_uhifadhi_soma_d64(f);
+        rudisha;
+    }
+    n32 idadi_v = injini_uhifadhi_soma_n32(f);
+    ut->ufuatiliaji_umewashwa = injini_uhifadhi_soma_n32(f);
+    ut->kizingiti_cha_uboreshaji = injini_uhifadhi_soma_d64(f);
+    ut->jumla_ya_wito = injini_uhifadhi_soma_n64(f);
+    ut->jumla_ya_muda_wa_utekelezaji = injini_uhifadhi_soma_d64(f);
+    kama (dummy_jumla < 0 || idadi_v < 0) { rudisha; }
+}
+
+// ---------- jeshi (vitengo/mapigano/ushindi) ----------
+// Metadata tu -- mifumo hii ni ya TUKIO/KITENDO (si "sasisha zote"
+// ya kila mzunguko -- angalia maelezo ndani ya mchezo_sasisha_mifumo_huru
+// na mchezo_sasisha), kwa hiyo mazingira ya kawaida ya jaribio hili
+// (mizunguko ya dt bila vitendo vya mchezaji) hayaongezi vitengo/
+// mapigano/matukio ya ushindi -- kuandika maudhui kamili (ambayo
+// pia hayana anwani za marejeo kuwa shida) ni kazi ya thamani ndogo
+// kwa toleo hili, imeachwa kwa makusudi.
+w0 mchezo_hifadhi_andika_jeshi_metadata(n8* f, Mchezo* g) {
+    JeshiVitengoMfumo* v = mchezo_pata_jeshi_vitengo(g);
+    kama (v != 0) { injini_uhifadhi_andika_n32(f, v->idadi); } sivyo { injini_uhifadhi_andika_n32(f, 0); }
+    MapiganoMfumo* mp = mchezo_pata_mapigano(g);
+    kama (mp != 0) { injini_uhifadhi_andika_n32(f, mp->idadi_ya_historia); } sivyo { injini_uhifadhi_andika_n32(f, 0); }
+    UshindiMfumo* us = mchezo_pata_ushindi(g);
+    kama (us != 0) {
+        injini_uhifadhi_andika_n32(f, us->idadi_ya_matukio);
+        injini_uhifadhi_andika_d64(f, us->kiwango_cha_msingi_cha_ushindi);
+        injini_uhifadhi_andika_d64(f, us->kizidishi_cha_nyara);
+    } sivyo {
+        injini_uhifadhi_andika_n32(f, 0);
+        injini_uhifadhi_andika_d64(f, 0.0);
+        injini_uhifadhi_andika_d64(f, 0.0);
+    }
+}
+w0 mchezo_hifadhi_soma_jeshi_metadata(n8* f, Mchezo* g) {
+    n32 v_idadi = injini_uhifadhi_soma_n32(f);
+    n32 mp_idadi = injini_uhifadhi_soma_n32(f);
+    UshindiMfumo* us = mchezo_pata_ushindi(g);
+    n32 us_idadi = injini_uhifadhi_soma_n32(f);
+    d64 us_msingi = injini_uhifadhi_soma_d64(f);
+    d64 us_kizidishi = injini_uhifadhi_soma_d64(f);
+    kama (us != 0) {
+        us->kiwango_cha_msingi_cha_ushindi = us_msingi;
+        us->kizidishi_cha_nyara = us_kizidishi;
+    }
+    n32 dummy = v_idadi + mp_idadi + us_idadi;
+    kama (dummy < 0) { rudisha; }
+}
+
+// ---------- kikundi / siasa_kikundi (SiasaKikundiMfumo -- vyama) ----------
+w0 mchezo_hifadhi_andika_kikundi_kimoja(n8* f, SiasaKikundi* k) {
+    injini_uhifadhi_andika_mfuatano(f, k->kitambulisho);
+    injini_uhifadhi_andika_mfuatano(f, k->jina);
+    injini_uhifadhi_andika_n32(f, k->itikadi);
+    injini_uhifadhi_andika_d64(f, k->uungwaji_mkono);
+    injini_uhifadhi_andika_d64(f, k->ushawishi);
+    injini_uhifadhi_andika_d64(f, k->nguvu);
+    injini_uhifadhi_andika_d64(f, k->uaminifu);
+    injini_uhifadhi_andika_d64(f, k->tamaa);
+}
+w0 mchezo_hifadhi_soma_kikundi_kimoja(n8* f, SiasaKikundi* k) {
+    k->kitambulisho = injini_uhifadhi_soma_mfuatano(f);
+    k->jina = injini_uhifadhi_soma_mfuatano(f);
+    k->itikadi = injini_uhifadhi_soma_n32(f);
+    k->uungwaji_mkono = injini_uhifadhi_soma_d64(f);
+    k->ushawishi = injini_uhifadhi_soma_d64(f);
+    k->nguvu = injini_uhifadhi_soma_d64(f);
+    k->uaminifu = injini_uhifadhi_soma_d64(f);
+    k->tamaa = injini_uhifadhi_soma_d64(f);
+}
+w0 mchezo_hifadhi_andika_kikundi(n8* f, SiasaKikundiMfumo* m) {
+    kama (m == 0) { rudisha; }
+    injini_uhifadhi_andika_n32(f, m->idadi);
+    n32 i = 0;
+    wakati (i < m->idadi) {
+        SiasaKikundi* k = &m->vikundi[i];
+        mchezo_hifadhi_andika_kikundi_kimoja(f, k);
+        i = i + 1;
+    }
+}
+w0 mchezo_hifadhi_soma_kikundi(n8* f, SiasaKikundiMfumo* m) {
+    kama (m == 0) { rudisha; }
+    n32 idadi_iliyohifadhiwa = injini_uhifadhi_soma_n32(f);
+    m->idadi = 0;
+    n32 i = 0;
+    wakati (i < idadi_iliyohifadhiwa) {
+        SiasaKikundi kv;
+        mchezo_hifadhi_soma_kikundi_kimoja(f, &kv);
+        siasa_kikundi_mfumo_ongeza(m, &kv);
+        i = i + 1;
+    }
+}
+
+// ---------- teknolojia (TeknolojiaMfumo) ----------
+w0 mchezo_hifadhi_andika_teknolojia(n8* f, TeknolojiaMfumo* m) {
+    kama (m == 0) { rudisha; }
+    injini_uhifadhi_andika_d64(f, m->bajeti_jumla);
+    n32 i = 0;
+    wakati (i < TEKNOLOJIA_IDADI_YA_NYANJA) {
+        injini_uhifadhi_andika_n32(f, m->kiwango[i]);
+        injini_uhifadhi_andika_n32(f, m->cheo_duniani[i]);
+        injini_uhifadhi_andika_n32(f, m->wastani_duniani[i]);
+        i = i + 1;
+    }
+    injini_uhifadhi_andika_n32(f, m->kiwango_jumla);
+    injini_uhifadhi_andika_n32(f, m->cheo_jumla);
+    injini_uhifadhi_andika_d64(f, m->mgao_0); injini_uhifadhi_andika_d64(f, m->mgao_1);
+    injini_uhifadhi_andika_d64(f, m->mgao_2); injini_uhifadhi_andika_d64(f, m->mgao_3);
+    injini_uhifadhi_andika_d64(f, m->mgao_4); injini_uhifadhi_andika_d64(f, m->mgao_5);
+    injini_uhifadhi_andika_d64(f, m->mgao_6); injini_uhifadhi_andika_d64(f, m->mgao_7);
+    injini_uhifadhi_andika_d64(f, m->mgao_8); injini_uhifadhi_andika_d64(f, m->mgao_9);
+    injini_uhifadhi_andika_d64(f, m->mgao_10); injini_uhifadhi_andika_d64(f, m->mgao_11);
+    injini_uhifadhi_andika_d64(f, m->kasi_0); injini_uhifadhi_andika_d64(f, m->kasi_1);
+    injini_uhifadhi_andika_d64(f, m->kasi_2); injini_uhifadhi_andika_d64(f, m->kasi_3);
+    injini_uhifadhi_andika_d64(f, m->kasi_4); injini_uhifadhi_andika_d64(f, m->kasi_5);
+    injini_uhifadhi_andika_d64(f, m->kasi_6); injini_uhifadhi_andika_d64(f, m->kasi_7);
+    injini_uhifadhi_andika_d64(f, m->kasi_8); injini_uhifadhi_andika_d64(f, m->kasi_9);
+    injini_uhifadhi_andika_d64(f, m->kasi_10); injini_uhifadhi_andika_d64(f, m->kasi_11);
+}
+w0 mchezo_hifadhi_soma_teknolojia(n8* f, TeknolojiaMfumo* m) {
+    kama (m == 0) { rudisha; }
+    m->bajeti_jumla = injini_uhifadhi_soma_d64(f);
+    n32 i = 0;
+    wakati (i < TEKNOLOJIA_IDADI_YA_NYANJA) {
+        m->kiwango[i] = injini_uhifadhi_soma_n32(f);
+        m->cheo_duniani[i] = injini_uhifadhi_soma_n32(f);
+        m->wastani_duniani[i] = injini_uhifadhi_soma_n32(f);
+        i = i + 1;
+    }
+    m->kiwango_jumla = injini_uhifadhi_soma_n32(f);
+    m->cheo_jumla = injini_uhifadhi_soma_n32(f);
+    m->mgao_0 = injini_uhifadhi_soma_d64(f); m->mgao_1 = injini_uhifadhi_soma_d64(f);
+    m->mgao_2 = injini_uhifadhi_soma_d64(f); m->mgao_3 = injini_uhifadhi_soma_d64(f);
+    m->mgao_4 = injini_uhifadhi_soma_d64(f); m->mgao_5 = injini_uhifadhi_soma_d64(f);
+    m->mgao_6 = injini_uhifadhi_soma_d64(f); m->mgao_7 = injini_uhifadhi_soma_d64(f);
+    m->mgao_8 = injini_uhifadhi_soma_d64(f); m->mgao_9 = injini_uhifadhi_soma_d64(f);
+    m->mgao_10 = injini_uhifadhi_soma_d64(f); m->mgao_11 = injini_uhifadhi_soma_d64(f);
+    m->kasi_0 = injini_uhifadhi_soma_d64(f); m->kasi_1 = injini_uhifadhi_soma_d64(f);
+    m->kasi_2 = injini_uhifadhi_soma_d64(f); m->kasi_3 = injini_uhifadhi_soma_d64(f);
+    m->kasi_4 = injini_uhifadhi_soma_d64(f); m->kasi_5 = injini_uhifadhi_soma_d64(f);
+    m->kasi_6 = injini_uhifadhi_soma_d64(f); m->kasi_7 = injini_uhifadhi_soma_d64(f);
+    m->kasi_8 = injini_uhifadhi_soma_d64(f); m->kasi_9 = injini_uhifadhi_soma_d64(f);
+    m->kasi_10 = injini_uhifadhi_soma_d64(f); m->kasi_11 = injini_uhifadhi_soma_d64(f);
+}
+
+// ---------- maarifa (MaarifaUtafiti) ----------
+w0 mchezo_hifadhi_andika_maarifa(n8* f, MaarifaUtafiti* m) {
+    kama (m == 0) { rudisha; }
+    injini_uhifadhi_andika_d64(f, m->sasa.sayansi);
+    injini_uhifadhi_andika_d64(f, m->sasa.uhandisi);
+    injini_uhifadhi_andika_d64(f, m->sasa.utamaduni);
+    injini_uhifadhi_andika_d64(f, m->sasa.tiba);
+    injini_uhifadhi_andika_d64(f, m->sasa.hisabati);
+    injini_uhifadhi_andika_d64(f, m->sasa.kilimo);
+    injini_uhifadhi_andika_d64(f, m->sasa.madini);
+    injini_uhifadhi_andika_d64(f, m->sasa.usafiri_wa_baharini);
+    injini_uhifadhi_andika_d64(f, m->hazina_ya_pointi_za_utafiti);
+    injini_uhifadhi_andika_d64(f, m->kiwango_cha_utafiti);
+}
+w0 mchezo_hifadhi_soma_maarifa(n8* f, MaarifaUtafiti* m) {
+    kama (m == 0) { rudisha; }
+    m->sasa.sayansi = injini_uhifadhi_soma_d64(f);
+    m->sasa.uhandisi = injini_uhifadhi_soma_d64(f);
+    m->sasa.utamaduni = injini_uhifadhi_soma_d64(f);
+    m->sasa.tiba = injini_uhifadhi_soma_d64(f);
+    m->sasa.hisabati = injini_uhifadhi_soma_d64(f);
+    m->sasa.kilimo = injini_uhifadhi_soma_d64(f);
+    m->sasa.madini = injini_uhifadhi_soma_d64(f);
+    m->sasa.usafiri_wa_baharini = injini_uhifadhi_soma_d64(f);
+    m->hazina_ya_pointi_za_utafiti = injini_uhifadhi_soma_d64(f);
+    m->kiwango_cha_utafiti = injini_uhifadhi_soma_d64(f);
+}
+
+// ---------- mipaka_hai (DuniaMipakaHai) ----------
+w0 mchezo_hifadhi_andika_mpaka_kipande(n8* f, DuniaMpakaKipande* k) {
+    injini_uhifadhi_andika_mfuatano(f, k->eneo_a);
+    injini_uhifadhi_andika_mfuatano(f, k->eneo_b);
+    injini_uhifadhi_andika_d64(f, k->mwanzo_x);
+    injini_uhifadhi_andika_d64(f, k->mwanzo_y);
+    injini_uhifadhi_andika_d64(f, k->mwisho_x);
+    injini_uhifadhi_andika_d64(f, k->mwisho_y);
+    injini_uhifadhi_andika_n32(f, k->aina);
+    injini_uhifadhi_andika_d64(f, k->kiwango_cha_uimarishaji);
+    injini_uhifadhi_andika_d64(f, k->kiwango_cha_mvutano);
+}
+w0 mchezo_hifadhi_andika_mipaka_hai(n8* f, DuniaMipakaHai* db) {
+    kama (db == 0) { rudisha; }
+    injini_uhifadhi_andika_n32(f, db->idadi);
+    n32 i = 0;
+    wakati (i < db->idadi) {
+        DuniaMpakaKipande* k = db->vipande[i];
+        mchezo_hifadhi_andika_mpaka_kipande(f, k);
+        i = i + 1;
+    }
+}
+w0 mchezo_hifadhi_soma_mipaka_hai(n8* f, DuniaMipakaHai* db) {
+    kama (db == 0) { rudisha; }
+    n32 idadi_iliyohifadhiwa = injini_uhifadhi_soma_n32(f);
+    db->idadi = 0;
+    n32 i = 0;
+    wakati (i < idadi_iliyohifadhiwa) {
+        DuniaMpakaHoja hoja;
+        hoja.eneo_a = injini_uhifadhi_soma_mfuatano(f);
+        hoja.eneo_b = injini_uhifadhi_soma_mfuatano(f);
+        hoja.mwanzo_x = injini_uhifadhi_soma_d64(f);
+        hoja.mwanzo_y = injini_uhifadhi_soma_d64(f);
+        hoja.mwisho_x = injini_uhifadhi_soma_d64(f);
+        hoja.mwisho_y = injini_uhifadhi_soma_d64(f);
+        hoja.aina = injini_uhifadhi_soma_n32(f);
+        d64 uimarishaji_v = injini_uhifadhi_soma_d64(f);
+        d64 mvutano_v = injini_uhifadhi_soma_d64(f);
+        dunia_mpaka_hai_unda_kipande(db, &hoja);
+        DuniaMpakaKipande* k = dunia_mpaka_hai_pata_kipande(db, i);
+        kama (k != 0) {
+            k->kiwango_cha_uimarishaji = uimarishaji_v;
+            k->kiwango_cha_mvutano = mvutano_v;
+        }
+        i = i + 1;
+    }
+}
+
+// ---------- majanga (MazingiraMajangaMfumo) ----------
+// majanga_yanayofanya_kazi ni ya MUDA MFUPI (majanga yanayoendelea
+// SASA, yanayotoweka ndani ya mizunguko michache -- angalia
+// MazingiraJangaTukio.muda_uliopita/muda_wa_kudumu) -- si historia ya
+// kudumu kama matukio ya historia_db. Metadata tu.
+w0 mchezo_hifadhi_andika_majanga(n8* f, MazingiraMajangaMfumo* mj) {
+    kama (mj == 0) { rudisha; }
+    injini_uhifadhi_andika_n32(f, mj->idadi_ya_majanga);
+}
+w0 mchezo_hifadhi_soma_majanga(n8* f, MazingiraMajangaMfumo* mj) {
+    n32 idadi_v = injini_uhifadhi_soma_n32(f);
+    kama (mj == 0) { rudisha; }
+    kama (idadi_v < 0) { rudisha; }
+}
+
+// ---------- eneo (DuniaEneoMsimamizi) ----------
+// DuniaEneoMkoa ina safu NESTED yake (sehemu_za_mpaka) -- angalia (d)
+// kwenye maelezo ya wigo juu ya faili. Metadata tu.
+w0 mchezo_hifadhi_andika_eneo(n8* f, DuniaEneoMsimamizi* e) {
+    kama (e == 0) { rudisha; }
+    injini_uhifadhi_andika_n32(f, e->idadi);
+}
+w0 mchezo_hifadhi_soma_eneo(n8* f, DuniaEneoMsimamizi* e) {
+    n32 idadi_v = injini_uhifadhi_soma_n32(f);
+    kama (e == 0) { rudisha; }
+    kama (idadi_v < 0) { rudisha; }
+}
+
+// ---------- uhai (UhaiMfumo) ----------
+w0 mchezo_hifadhi_andika_uhai(n8* f, UhaiMfumo* u) {
+    kama (u == 0) { rudisha; }
+    injini_uhifadhi_andika_d64(f, u->afya_ya_jumla);
+    injini_uhifadhi_andika_d64(f, u->kiwango_cha_elimu);
+    injini_uhifadhi_andika_n8(f, u->mlipuko.jina_0); injini_uhifadhi_andika_n8(f, u->mlipuko.jina_1);
+    injini_uhifadhi_andika_n8(f, u->mlipuko.jina_2); injini_uhifadhi_andika_n8(f, u->mlipuko.jina_3);
+    injini_uhifadhi_andika_n8(f, u->mlipuko.jina_4); injini_uhifadhi_andika_n8(f, u->mlipuko.jina_5);
+    injini_uhifadhi_andika_n8(f, u->mlipuko.jina_6); injini_uhifadhi_andika_n8(f, u->mlipuko.jina_7);
+    injini_uhifadhi_andika_n8(f, u->mlipuko.jina_8); injini_uhifadhi_andika_n8(f, u->mlipuko.jina_9);
+    injini_uhifadhi_andika_n8(f, u->mlipuko.jina_10); injini_uhifadhi_andika_n8(f, u->mlipuko.jina_11);
+    injini_uhifadhi_andika_n8(f, u->mlipuko.jina_12); injini_uhifadhi_andika_n8(f, u->mlipuko.jina_13);
+    injini_uhifadhi_andika_n8(f, u->mlipuko.jina_14); injini_uhifadhi_andika_n8(f, u->mlipuko.jina_15);
+    injini_uhifadhi_andika_d64(f, u->mlipuko.kiwango_cha_kuambukiza);
+    injini_uhifadhi_andika_d64(f, u->mlipuko.uwezo_wa_kuua);
+    injini_uhifadhi_andika_d64(f, u->mlipuko.ukali);
+    injini_uhifadhi_andika_n32(f, u->mlipuko.unafanya_kazi);
+    injini_uhifadhi_andika_n32(f, u->kuna_mlipuko);
+    injini_uhifadhi_andika_d64(f, u->matarajio_ya_maisha);
+    injini_uhifadhi_andika_d64(f, u->kiwango_cha_kujua_kusoma);
+}
+w0 mchezo_hifadhi_soma_uhai(n8* f, UhaiMfumo* u) {
+    kama (u == 0) { rudisha; }
+    u->afya_ya_jumla = injini_uhifadhi_soma_d64(f);
+    u->kiwango_cha_elimu = injini_uhifadhi_soma_d64(f);
+    u->mlipuko.jina_0 = injini_uhifadhi_soma_n8(f); u->mlipuko.jina_1 = injini_uhifadhi_soma_n8(f);
+    u->mlipuko.jina_2 = injini_uhifadhi_soma_n8(f); u->mlipuko.jina_3 = injini_uhifadhi_soma_n8(f);
+    u->mlipuko.jina_4 = injini_uhifadhi_soma_n8(f); u->mlipuko.jina_5 = injini_uhifadhi_soma_n8(f);
+    u->mlipuko.jina_6 = injini_uhifadhi_soma_n8(f); u->mlipuko.jina_7 = injini_uhifadhi_soma_n8(f);
+    u->mlipuko.jina_8 = injini_uhifadhi_soma_n8(f); u->mlipuko.jina_9 = injini_uhifadhi_soma_n8(f);
+    u->mlipuko.jina_10 = injini_uhifadhi_soma_n8(f); u->mlipuko.jina_11 = injini_uhifadhi_soma_n8(f);
+    u->mlipuko.jina_12 = injini_uhifadhi_soma_n8(f); u->mlipuko.jina_13 = injini_uhifadhi_soma_n8(f);
+    u->mlipuko.jina_14 = injini_uhifadhi_soma_n8(f); u->mlipuko.jina_15 = injini_uhifadhi_soma_n8(f);
+    u->mlipuko.kiwango_cha_kuambukiza = injini_uhifadhi_soma_d64(f);
+    u->mlipuko.uwezo_wa_kuua = injini_uhifadhi_soma_d64(f);
+    u->mlipuko.ukali = injini_uhifadhi_soma_d64(f);
+    u->mlipuko.unafanya_kazi = injini_uhifadhi_soma_n32(f);
+    u->kuna_mlipuko = injini_uhifadhi_soma_n32(f);
+    u->matarajio_ya_maisha = injini_uhifadhi_soma_d64(f);
+    u->kiwango_cha_kujua_kusoma = injini_uhifadhi_soma_d64(f);
+}
+
+// ---------- sarafu (Sarafu) ----------
+w0 mchezo_hifadhi_andika_sarafu(n8* f, Sarafu* s) {
+    kama (s == 0) { rudisha; }
+    injini_uhifadhi_andika_mfuatano(f, s->kitambulisho);
+    injini_uhifadhi_andika_mfuatano(f, s->jina);
+    injini_uhifadhi_andika_d64(f, s->kiwango_cha_ubadilishaji);
+    injini_uhifadhi_andika_d64(f, s->kiashiria_cha_mfumuko);
+    injini_uhifadhi_andika_d64(f, s->nguvu_ya_akiba);
+    injini_uhifadhi_andika_d64(f, s->ujazo_wa_mzunguko);
+}
+w0 mchezo_hifadhi_soma_sarafu(n8* f, Sarafu* s) {
+    kama (s == 0) { rudisha; }
+    s->kitambulisho = injini_uhifadhi_soma_mfuatano(f);
+    s->jina = injini_uhifadhi_soma_mfuatano(f);
+    s->kiwango_cha_ubadilishaji = injini_uhifadhi_soma_d64(f);
+    s->kiashiria_cha_mfumuko = injini_uhifadhi_soma_d64(f);
+    s->nguvu_ya_akiba = injini_uhifadhi_soma_d64(f);
+    s->ujazo_wa_mzunguko = injini_uhifadhi_soma_d64(f);
+}
+
+// ---------- maajabu (DuniaAjabuMsimamizi) ----------
+w0 mchezo_hifadhi_andika_ajabu(n8* f, DuniaAjabu* a) {
+    injini_uhifadhi_andika_n32(f, a->aina);
+    injini_uhifadhi_andika_mfuatano(f, a->jina);
+    injini_uhifadhi_andika_mfuatano(f, a->maelezo);
+    injini_uhifadhi_andika_d64(f, a->gharama_ya_uzalishaji);
+    injini_uhifadhi_andika_mfuatano(f, a->teknolojia_inayohitajika_id);
+    injini_uhifadhi_andika_n32(f, a->inahitaji_pwani);
+    injini_uhifadhi_andika_d64(f, a->athari.kizidishi_cha_sayansi);
+    injini_uhifadhi_andika_d64(f, a->athari.kizidishi_cha_utamaduni);
+    injini_uhifadhi_andika_d64(f, a->athari.kizidishi_cha_uzalishaji);
+    injini_uhifadhi_andika_d64(f, a->athari.kizidishi_cha_dhahabu);
+    injini_uhifadhi_andika_d64(f, a->athari.nyongeza_ya_nguvu_ya_kijeshi);
+    injini_uhifadhi_andika_n32(f, a->imejengwa);
+    injini_uhifadhi_andika_mfuatano(f, a->mjenzi_id);
+}
+w0 mchezo_hifadhi_soma_ajabu(n8* f, DuniaAjabu* a) {
+    a->aina = injini_uhifadhi_soma_n32(f);
+    a->jina = injini_uhifadhi_soma_mfuatano(f);
+    a->maelezo = injini_uhifadhi_soma_mfuatano(f);
+    a->gharama_ya_uzalishaji = injini_uhifadhi_soma_d64(f);
+    a->teknolojia_inayohitajika_id = injini_uhifadhi_soma_mfuatano(f);
+    a->inahitaji_pwani = injini_uhifadhi_soma_n32(f);
+    a->athari.kizidishi_cha_sayansi = injini_uhifadhi_soma_d64(f);
+    a->athari.kizidishi_cha_utamaduni = injini_uhifadhi_soma_d64(f);
+    a->athari.kizidishi_cha_uzalishaji = injini_uhifadhi_soma_d64(f);
+    a->athari.kizidishi_cha_dhahabu = injini_uhifadhi_soma_d64(f);
+    a->athari.nyongeza_ya_nguvu_ya_kijeshi = injini_uhifadhi_soma_d64(f);
+    a->imejengwa = injini_uhifadhi_soma_n32(f);
+    a->mjenzi_id = injini_uhifadhi_soma_mfuatano(f);
+}
+w0 mchezo_hifadhi_andika_maajabu(n8* f, DuniaAjabuMsimamizi* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_andika_ajabu(f, &m->ajabu_0);
+    mchezo_hifadhi_andika_ajabu(f, &m->ajabu_1);
+    mchezo_hifadhi_andika_ajabu(f, &m->ajabu_2);
+    mchezo_hifadhi_andika_ajabu(f, &m->ajabu_3);
+    mchezo_hifadhi_andika_ajabu(f, &m->ajabu_4);
+    mchezo_hifadhi_andika_ajabu(f, &m->ajabu_5);
+}
+w0 mchezo_hifadhi_soma_maajabu(n8* f, DuniaAjabuMsimamizi* m) {
+    kama (m == 0) { rudisha; }
+    mchezo_hifadhi_soma_ajabu(f, &m->ajabu_0);
+    mchezo_hifadhi_soma_ajabu(f, &m->ajabu_1);
+    mchezo_hifadhi_soma_ajabu(f, &m->ajabu_2);
+    mchezo_hifadhi_soma_ajabu(f, &m->ajabu_3);
+    mchezo_hifadhi_soma_ajabu(f, &m->ajabu_4);
+    mchezo_hifadhi_soma_ajabu(f, &m->ajabu_5);
+}
+
+// ---------- jamii (JamiiMsimamizi) ----------
+// Nafasi 16 (jamii_0..15) hazibadiliki kiukubwa, lakini mchezo_anzisha
+// ya sasa hujaza MOJA TU (jamii_0, kupitia jamii_ibuka) -- angalia
+// maelezo kamili ya uamuzi huu juu ya faili (sehemu ya historia ya
+// utekelezaji wa kazi hii): kuandika nafasi zote 16 (kila moja ikiwa
+// na JamiiSifaYaDNA 8, kila moja ikiwa na baiti 16 za jina) bila
+// sababu ya kiutendaji kungeongeza maelfu ya maandishi tupu ya
+// shamba kwa nafasi 15 zisizotumika. Tunahifadhi idadi_ya_jamii TU +
+// jamii_0 KAMILI (nafasi pekee inayotumika kwa sasa) -- ikiwa
+// jamii_ibuka itaitwa tena baadaye (jamii ya pili), nafasi za 1..
+// zitahitaji kuongezwa hapa KWA UFUATAJI (si kosa la kushindwa
+// kugundua, ni uamuzi wa wigo ulioandikwa wazi).
+w0 mchezo_hifadhi_andika_dna(n8* f, JamiiSifaYaDNA* d) {
+    injini_uhifadhi_andika_n8(f, d->jina_0); injini_uhifadhi_andika_n8(f, d->jina_1);
+    injini_uhifadhi_andika_n8(f, d->jina_2); injini_uhifadhi_andika_n8(f, d->jina_3);
+    injini_uhifadhi_andika_n8(f, d->jina_4); injini_uhifadhi_andika_n8(f, d->jina_5);
+    injini_uhifadhi_andika_n8(f, d->jina_6); injini_uhifadhi_andika_n8(f, d->jina_7);
+    injini_uhifadhi_andika_n8(f, d->jina_8); injini_uhifadhi_andika_n8(f, d->jina_9);
+    injini_uhifadhi_andika_n8(f, d->jina_10); injini_uhifadhi_andika_n8(f, d->jina_11);
+    injini_uhifadhi_andika_n8(f, d->jina_12); injini_uhifadhi_andika_n8(f, d->jina_13);
+    injini_uhifadhi_andika_n8(f, d->jina_14); injini_uhifadhi_andika_n8(f, d->jina_15);
+    injini_uhifadhi_andika_d64(f, d->kiwango_cha_kujitokeza);
+    injini_uhifadhi_andika_n32(f, d->kubwa_zaidi);
+}
+w0 mchezo_hifadhi_soma_dna(n8* f, JamiiSifaYaDNA* d) {
+    d->jina_0 = injini_uhifadhi_soma_n8(f); d->jina_1 = injini_uhifadhi_soma_n8(f);
+    d->jina_2 = injini_uhifadhi_soma_n8(f); d->jina_3 = injini_uhifadhi_soma_n8(f);
+    d->jina_4 = injini_uhifadhi_soma_n8(f); d->jina_5 = injini_uhifadhi_soma_n8(f);
+    d->jina_6 = injini_uhifadhi_soma_n8(f); d->jina_7 = injini_uhifadhi_soma_n8(f);
+    d->jina_8 = injini_uhifadhi_soma_n8(f); d->jina_9 = injini_uhifadhi_soma_n8(f);
+    d->jina_10 = injini_uhifadhi_soma_n8(f); d->jina_11 = injini_uhifadhi_soma_n8(f);
+    d->jina_12 = injini_uhifadhi_soma_n8(f); d->jina_13 = injini_uhifadhi_soma_n8(f);
+    d->jina_14 = injini_uhifadhi_soma_n8(f); d->jina_15 = injini_uhifadhi_soma_n8(f);
+    d->kiwango_cha_kujitokeza = injini_uhifadhi_soma_d64(f);
+    d->kubwa_zaidi = injini_uhifadhi_soma_n32(f);
+}
+w0 mchezo_hifadhi_andika_jamii_moja(n8* f, Jamii* j) {
+    injini_uhifadhi_andika_mfuatano(f, j->kitambulisho);
+    injini_uhifadhi_andika_mfuatano(f, j->jina);
+    injini_uhifadhi_andika_mfuatano(f, j->eneo_asilia_id);
+    mchezo_hifadhi_andika_dna(f, &j->sifa_0);
+    mchezo_hifadhi_andika_dna(f, &j->sifa_1);
+    mchezo_hifadhi_andika_dna(f, &j->sifa_2);
+    mchezo_hifadhi_andika_dna(f, &j->sifa_3);
+    mchezo_hifadhi_andika_dna(f, &j->sifa_4);
+    mchezo_hifadhi_andika_dna(f, &j->sifa_5);
+    mchezo_hifadhi_andika_dna(f, &j->sifa_6);
+    mchezo_hifadhi_andika_dna(f, &j->sifa_7);
+    injini_uhifadhi_andika_n32(f, j->idadi_ya_sifa);
+    injini_uhifadhi_andika_d64(f, j->uthabiti_wa_kijenetiki);
+    injini_uhifadhi_andika_n64(f, j->wakati_wa_kuibuka);
+}
+w0 mchezo_hifadhi_soma_jamii_moja(n8* f, Jamii* j) {
+    j->kitambulisho = injini_uhifadhi_soma_mfuatano(f);
+    j->jina = injini_uhifadhi_soma_mfuatano(f);
+    j->eneo_asilia_id = injini_uhifadhi_soma_mfuatano(f);
+    mchezo_hifadhi_soma_dna(f, &j->sifa_0);
+    mchezo_hifadhi_soma_dna(f, &j->sifa_1);
+    mchezo_hifadhi_soma_dna(f, &j->sifa_2);
+    mchezo_hifadhi_soma_dna(f, &j->sifa_3);
+    mchezo_hifadhi_soma_dna(f, &j->sifa_4);
+    mchezo_hifadhi_soma_dna(f, &j->sifa_5);
+    mchezo_hifadhi_soma_dna(f, &j->sifa_6);
+    mchezo_hifadhi_soma_dna(f, &j->sifa_7);
+    j->idadi_ya_sifa = injini_uhifadhi_soma_n32(f);
+    j->uthabiti_wa_kijenetiki = injini_uhifadhi_soma_d64(f);
+    j->wakati_wa_kuibuka = injini_uhifadhi_soma_n64(f);
+}
+w0 mchezo_hifadhi_andika_jamii(n8* f, JamiiMsimamizi* m) {
+    kama (m == 0) { rudisha; }
+    injini_uhifadhi_andika_n32(f, m->idadi_ya_jamii);
+    mchezo_hifadhi_andika_jamii_moja(f, &m->jamii_0);
+}
+w0 mchezo_hifadhi_soma_jamii(n8* f, JamiiMsimamizi* m) {
+    kama (m == 0) { rudisha; }
+    m->idadi_ya_jamii = injini_uhifadhi_soma_n32(f);
+    mchezo_hifadhi_soma_jamii_moja(f, &m->jamii_0);
+}
+
+// ---------- desturi (UtawalaDesturiMsimamizi) ----------
+// majukumu (safu NESTED ya kila UtawalaDesturi) HAYAHIFADHIWI
+// kimakusudi -- angalia (d) juu ya faili. Entry 0 (desturi_kuu, TU
+// iliyoundwa na mchezo_anzisha na KUSASISHWA kila mzunguko -- angalia
+// mchezo_sasisha_mifumo_huru) ndiyo pekee yenye thamani halisi ya
+// kuthibitisha katika jaribio hili la kawaida; nafasi za 1.. (ikiwa
+// zitaongezwa baadaye kupitia utawala_desturi_msimamizi_ongeza)
+// zingehitaji kuongezwa hapa.
+w0 mchezo_hifadhi_andika_desturi_moja(n8* f, UtawalaDesturi* d) {
+    injini_uhifadhi_andika_mfuatano(f, d->kitambulisho);
+    injini_uhifadhi_andika_mfuatano(f, d->jina);
+    injini_uhifadhi_andika_mfuatano(f, d->maelezo);
+    injini_uhifadhi_andika_d64(f, d->umoja);
+    injini_uhifadhi_andika_d64(f, d->kiwango_cha_demokrasia);
+    injini_uhifadhi_andika_d64(f, d->rushwa);
+    injini_uhifadhi_andika_d64(f, d->uthabiti);
+    injini_uhifadhi_andika_d64(f, d->ufanisi);
+    injini_uhifadhi_andika_mfuatano(f, d->kanuni_ya_hivi_karibuni);
+    injini_uhifadhi_andika_n32(f, d->mfumo_wa_chama);
+    injini_uhifadhi_andika_d64(f, d->mvutano_wa_kisiasa);
+}
+w0 mchezo_hifadhi_soma_desturi_moja(n8* f, UtawalaDesturi* d) {
+    d->kitambulisho = injini_uhifadhi_soma_mfuatano(f);
+    d->jina = injini_uhifadhi_soma_mfuatano(f);
+    d->maelezo = injini_uhifadhi_soma_mfuatano(f);
+    d->umoja = injini_uhifadhi_soma_d64(f);
+    d->kiwango_cha_demokrasia = injini_uhifadhi_soma_d64(f);
+    d->rushwa = injini_uhifadhi_soma_d64(f);
+    d->uthabiti = injini_uhifadhi_soma_d64(f);
+    d->ufanisi = injini_uhifadhi_soma_d64(f);
+    d->kanuni_ya_hivi_karibuni = injini_uhifadhi_soma_mfuatano(f);
+    d->mfumo_wa_chama = injini_uhifadhi_soma_n32(f);
+    d->mvutano_wa_kisiasa = injini_uhifadhi_soma_d64(f);
+}
+w0 mchezo_hifadhi_andika_desturi(n8* f, UtawalaDesturiMsimamizi* m) {
+    kama (m == 0) { rudisha; }
+    injini_uhifadhi_andika_n32(f, m->idadi);
+    kama (m->idadi > 0) {
+        UtawalaDesturi* d0 = utawala_desturi_msimamizi_pata(m, 0);
+        mchezo_hifadhi_andika_desturi_moja(f, d0);
+    }
+}
+w0 mchezo_hifadhi_soma_desturi(n8* f, UtawalaDesturiMsimamizi* m) {
+    kama (m == 0) { rudisha; }
+    n32 idadi_iliyohifadhiwa = injini_uhifadhi_soma_n32(f);
+    kama (idadi_iliyohifadhiwa > 0 && m->idadi > 0) {
+        UtawalaDesturi* d0 = utawala_desturi_msimamizi_pata(m, 0);
+        mchezo_hifadhi_soma_desturi_moja(f, d0);
+    }
+}
+
+// ---------- mwingiliano (UtawalaMwingilianoMeneja) ----------
+// washiriki (safu NESTED) HAYAHIFADHIWI kimakusudi -- angalia (d) juu
+// ya faili. Entry 0 (mkutano, TU iliyoundwa na mchezo_anzisha na
+// KUSASISHWA kila mzunguko) ndiyo pekee yenye thamani halisi.
+w0 mchezo_hifadhi_andika_mwingiliano_mmoja(n8* f, UtawalaMwingiliano* m) {
+    injini_uhifadhi_andika_mfuatano(f, m->kitambulisho);
+    injini_uhifadhi_andika_n32(f, m->aina);
+    injini_uhifadhi_andika_n32(f, m->hali_ya_mwingiliano);
+    injini_uhifadhi_andika_mfuatano(f, m->hali_ya_tafsiri);
+    injini_uhifadhi_andika_d64(f, m->uelewano_wa_pamoja);
+    injini_uhifadhi_andika_n64(f, m->muda_wa_kuanza);
+    injini_uhifadhi_andika_n64(f, m->muda_wa_mwisho);
+}
+w0 mchezo_hifadhi_soma_mwingiliano_mmoja(n8* f, UtawalaMwingiliano* m) {
+    m->kitambulisho = injini_uhifadhi_soma_mfuatano(f);
+    m->aina = injini_uhifadhi_soma_n32(f);
+    m->hali_ya_mwingiliano = injini_uhifadhi_soma_n32(f);
+    m->hali_ya_tafsiri = injini_uhifadhi_soma_mfuatano(f);
+    m->uelewano_wa_pamoja = injini_uhifadhi_soma_d64(f);
+    m->muda_wa_kuanza = injini_uhifadhi_soma_n64(f);
+    m->muda_wa_mwisho = injini_uhifadhi_soma_n64(f);
+}
+w0 mchezo_hifadhi_andika_mwingiliano(n8* f, UtawalaMwingilianoMeneja* mg) {
+    kama (mg == 0) { rudisha; }
+    injini_uhifadhi_andika_n32(f, mg->idadi);
+    kama (mg->idadi > 0) {
+        UtawalaMwingiliano* m0 = utawala_mwingiliano_meneja_pata(mg, 0);
+        mchezo_hifadhi_andika_mwingiliano_mmoja(f, m0);
+    }
+}
+w0 mchezo_hifadhi_soma_mwingiliano(n8* f, UtawalaMwingilianoMeneja* mg) {
+    kama (mg == 0) { rudisha; }
+    n32 idadi_iliyohifadhiwa = injini_uhifadhi_soma_n32(f);
+    kama (idadi_iliyohifadhiwa > 0 && mg->idadi > 0) {
+        UtawalaMwingiliano* m0 = utawala_mwingiliano_meneja_pata(mg, 0);
+        mchezo_hifadhi_soma_mwingiliano_mmoja(f, m0);
+    }
+}
+
+// ---------- mhusika (Mhusika) ----------
+w0 mchezo_hifadhi_andika_mhusika(n8* f, Mhusika* m) {
+    kama (m == 0) { rudisha; }
+    injini_uhifadhi_andika_mfuatano(f, m->jina);
+    injini_uhifadhi_andika_mfuatano(f, m->mahali_pa_kuzaliwa);
+    injini_uhifadhi_andika_d64(f, m->latitudo_ya_kuzaliwa);
+    injini_uhifadhi_andika_d64(f, m->longitudo_ya_kuzaliwa);
+    injini_uhifadhi_andika_n32(f, m->asili);
+    injini_uhifadhi_andika_mfuatano(f, m->jukumu_la_sasa);
+    injini_uhifadhi_andika_mfuatano(f, m->mahali_pa_sasa);
+    injini_uhifadhi_andika_n32(f, m->ujuzi_0); injini_uhifadhi_andika_n32(f, m->ujuzi_1);
+    injini_uhifadhi_andika_n32(f, m->ujuzi_2); injini_uhifadhi_andika_n32(f, m->ujuzi_3);
+    injini_uhifadhi_andika_n32(f, m->ujuzi_4); injini_uhifadhi_andika_n32(f, m->ujuzi_5);
+    injini_uhifadhi_andika_n32(f, m->ujuzi_6); injini_uhifadhi_andika_n32(f, m->ujuzi_7);
+    injini_uhifadhi_andika_n32(f, m->ujuzi_8); injini_uhifadhi_andika_n32(f, m->ujuzi_9);
+    injini_uhifadhi_andika_d64(f, m->mali_binafsi);
+    injini_uhifadhi_andika_d64(f, m->ardhi_inayomilikiwa);
+    injini_uhifadhi_andika_d64(f, m->sifa);
+    injini_uhifadhi_andika_d64(f, m->ushawishi_wa_kisiasa);
+    injini_uhifadhi_andika_mfuatano(f, m->nafasi_ya_kisiasa);
+    injini_uhifadhi_andika_n32(f, m->kiwango_cha_makazi);
+    injini_uhifadhi_andika_d64(f, m->gharama_ya_makazi);
+    injini_uhifadhi_andika_n32(f, m->kiwango_cha_elimu);
+    injini_uhifadhi_andika_d64(f, m->deni_la_elimu);
+    injini_uhifadhi_andika_d64(f, m->afya);
+    injini_uhifadhi_andika_d64(f, m->gharama_ya_afya);
+    injini_uhifadhi_andika_d64(f, m->akiba_ya_benki);
+    injini_uhifadhi_andika_d64(f, m->salio_la_mkopo);
+    injini_uhifadhi_andika_d64(f, m->kiwango_cha_riba_ya_mkopo);
+    injini_uhifadhi_andika_n32(f, m->cheo_cha_kazi);
+    injini_uhifadhi_andika_d64(f, m->mshahara_wa_kila_mwezi);
+    injini_uhifadhi_andika_d64(f, m->matumizi_ya_kila_mwezi);
+    injini_uhifadhi_andika_n32(f, m->idadi_ya_uhusiano);
+    injini_uhifadhi_andika_mfuatano(f, m->jina_la_mpenzi);
+    injini_uhifadhi_andika_n32(f, m->ana_mpenzi);
+    injini_uhifadhi_andika_mfuatano(f, m->mlinzi_id);
+    injini_uhifadhi_andika_mfuatano(f, m->mpinzani_id);
+}
+w0 mchezo_hifadhi_soma_mhusika(n8* f, Mhusika* m) {
+    kama (m == 0) { rudisha; }
+    m->jina = injini_uhifadhi_soma_mfuatano(f);
+    m->mahali_pa_kuzaliwa = injini_uhifadhi_soma_mfuatano(f);
+    m->latitudo_ya_kuzaliwa = injini_uhifadhi_soma_d64(f);
+    m->longitudo_ya_kuzaliwa = injini_uhifadhi_soma_d64(f);
+    m->asili = injini_uhifadhi_soma_n32(f);
+    m->jukumu_la_sasa = injini_uhifadhi_soma_mfuatano(f);
+    m->mahali_pa_sasa = injini_uhifadhi_soma_mfuatano(f);
+    m->ujuzi_0 = injini_uhifadhi_soma_n32(f); m->ujuzi_1 = injini_uhifadhi_soma_n32(f);
+    m->ujuzi_2 = injini_uhifadhi_soma_n32(f); m->ujuzi_3 = injini_uhifadhi_soma_n32(f);
+    m->ujuzi_4 = injini_uhifadhi_soma_n32(f); m->ujuzi_5 = injini_uhifadhi_soma_n32(f);
+    m->ujuzi_6 = injini_uhifadhi_soma_n32(f); m->ujuzi_7 = injini_uhifadhi_soma_n32(f);
+    m->ujuzi_8 = injini_uhifadhi_soma_n32(f); m->ujuzi_9 = injini_uhifadhi_soma_n32(f);
+    m->mali_binafsi = injini_uhifadhi_soma_d64(f);
+    m->ardhi_inayomilikiwa = injini_uhifadhi_soma_d64(f);
+    m->sifa = injini_uhifadhi_soma_d64(f);
+    m->ushawishi_wa_kisiasa = injini_uhifadhi_soma_d64(f);
+    m->nafasi_ya_kisiasa = injini_uhifadhi_soma_mfuatano(f);
+    m->kiwango_cha_makazi = injini_uhifadhi_soma_n32(f);
+    m->gharama_ya_makazi = injini_uhifadhi_soma_d64(f);
+    m->kiwango_cha_elimu = injini_uhifadhi_soma_n32(f);
+    m->deni_la_elimu = injini_uhifadhi_soma_d64(f);
+    m->afya = injini_uhifadhi_soma_d64(f);
+    m->gharama_ya_afya = injini_uhifadhi_soma_d64(f);
+    m->akiba_ya_benki = injini_uhifadhi_soma_d64(f);
+    m->salio_la_mkopo = injini_uhifadhi_soma_d64(f);
+    m->kiwango_cha_riba_ya_mkopo = injini_uhifadhi_soma_d64(f);
+    m->cheo_cha_kazi = injini_uhifadhi_soma_n32(f);
+    m->mshahara_wa_kila_mwezi = injini_uhifadhi_soma_d64(f);
+    m->matumizi_ya_kila_mwezi = injini_uhifadhi_soma_d64(f);
+    m->idadi_ya_uhusiano = injini_uhifadhi_soma_n32(f);
+    m->jina_la_mpenzi = injini_uhifadhi_soma_mfuatano(f);
+    m->ana_mpenzi = injini_uhifadhi_soma_n32(f);
+    m->mlinzi_id = injini_uhifadhi_soma_mfuatano(f);
+    m->mpinzani_id = injini_uhifadhi_soma_mfuatano(f);
+}
+
+// ---------- upinzani (SiasaMpinzani) ----------
+w0 mchezo_hifadhi_andika_upinzani(n8* f, SiasaMpinzani* m) {
+    kama (m == 0) { rudisha; }
+    injini_uhifadhi_andika_mfuatano(f, m->jina);
+    injini_uhifadhi_andika_d64(f, m->umaarufu);
+    injini_uhifadhi_andika_d64(f, m->ushawishi);
+    injini_uhifadhi_andika_d64(f, m->msimamo_mkali);
+    injini_uhifadhi_andika_n32(f, m->anafanya_kazi);
+}
+w0 mchezo_hifadhi_soma_upinzani(n8* f, SiasaMpinzani* m) {
+    kama (m == 0) { rudisha; }
+    m->jina = injini_uhifadhi_soma_mfuatano(f);
+    m->umaarufu = injini_uhifadhi_soma_d64(f);
+    m->ushawishi = injini_uhifadhi_soma_d64(f);
+    m->msimamo_mkali = injini_uhifadhi_soma_d64(f);
+    m->anafanya_kazi = injini_uhifadhi_soma_n32(f);
+}
+
+// ---------- mashirika (ShirikaMsimamizi) ----------
+// wanachama/maazimio ya kila Shirika (safu NESTED) HAZIHIFADHIWI
+// kimakusudi -- angalia (d) juu ya faili. mashirika hayana "sasisha
+// zote" kwenye mchezo_sasisha (angalia maelezo ya wigo juu ya
+// faili) -- hayabadiliki ndani ya jaribio hili, hivyo metadata +
+// shamba zake za juu za shirika la kwanza (bila orodha za ndani)
+// ni thabiti kwa kusudi la kuthibitisha muundo.
+w0 mchezo_hifadhi_andika_shirika_juu(n8* f, Shirika* s) {
+    injini_uhifadhi_andika_mfuatano(f, s->kitambulisho);
+    injini_uhifadhi_andika_mfuatano(f, s->jina);
+    injini_uhifadhi_andika_n32(f, s->aina);
+    injini_uhifadhi_andika_mfuatano(f, s->kiongozi_id);
+    injini_uhifadhi_andika_d64(f, s->mshikamano);
+    injini_uhifadhi_andika_n64(f, s->tarehe_ya_kuundwa);
+}
+w0 mchezo_hifadhi_soma_shirika_juu(n8* f, Shirika* s) {
+    s->kitambulisho = injini_uhifadhi_soma_mfuatano(f);
+    s->jina = injini_uhifadhi_soma_mfuatano(f);
+    s->aina = injini_uhifadhi_soma_n32(f);
+    s->kiongozi_id = injini_uhifadhi_soma_mfuatano(f);
+    s->mshikamano = injini_uhifadhi_soma_d64(f);
+    s->tarehe_ya_kuundwa = injini_uhifadhi_soma_n64(f);
+}
+w0 mchezo_hifadhi_andika_mashirika(n8* f, ShirikaMsimamizi* m) {
+    kama (m == 0) { rudisha; }
+    injini_uhifadhi_andika_n32(f, m->idadi);
+    kama (m->idadi > 0) {
+        Shirika* s0 = shirika_msimamizi_pata(m, 0);
+        mchezo_hifadhi_andika_shirika_juu(f, s0);
+    }
+}
+w0 mchezo_hifadhi_soma_mashirika(n8* f, ShirikaMsimamizi* m) {
+    kama (m == 0) { rudisha; }
+    n32 idadi_iliyohifadhiwa = injini_uhifadhi_soma_n32(f);
+    kama (idadi_iliyohifadhiwa > 0 && m->idadi > 0) {
+        Shirika* s0 = shirika_msimamizi_pata(m, 0);
+        mchezo_hifadhi_soma_shirika_juu(f, s0);
+    }
+}
+
+// ---------- vipimo_laini (VipimoLainiMsimamizi) ----------
+w0 mchezo_hifadhi_andika_vipimo_laini(n8* f, VipimoLainiMsimamizi* m) {
+    kama (m == 0) { rudisha; }
+    injini_uhifadhi_andika_d64(f, m->furaha.furaha_msingi);
+    injini_uhifadhi_andika_d64(f, m->furaha.uthabiti);
+    injini_uhifadhi_andika_d64(f, m->furaha.uaminifu);
+    injini_uhifadhi_andika_d64(f, m->furaha.badiliko_0); injini_uhifadhi_andika_d64(f, m->furaha.badiliko_1);
+    injini_uhifadhi_andika_d64(f, m->furaha.badiliko_2); injini_uhifadhi_andika_d64(f, m->furaha.badiliko_3);
+    injini_uhifadhi_andika_d64(f, m->furaha.badiliko_4); injini_uhifadhi_andika_d64(f, m->furaha.badiliko_5);
+    injini_uhifadhi_andika_d64(f, m->furaha.badiliko_6); injini_uhifadhi_andika_d64(f, m->furaha.badiliko_7);
+    injini_uhifadhi_andika_d64(f, m->furaha.badiliko_8); injini_uhifadhi_andika_d64(f, m->furaha.badiliko_9);
+    injini_uhifadhi_andika_n32(f, m->furaha.idadi_ya_mabadiliko);
+    injini_uhifadhi_andika_d64(f, m->uhalali.uhalali);
+    injini_uhifadhi_andika_d64(f, m->uhalali.uthabiti_wa_kisiasa);
+    injini_uhifadhi_andika_d64(f, m->uhalali.kiwango_cha_rushwa);
+    injini_uhifadhi_andika_d64(f, m->uhalali.idhini_ya_serikali);
+    injini_uhifadhi_andika_d64(f, m->fahari.fahari);
+    injini_uhifadhi_andika_d64(f, m->fahari.ushawishi_wa_kitamaduni);
+    injini_uhifadhi_andika_d64(f, m->fahari.mafanikio_ya_kiteknolojia);
+    injini_uhifadhi_andika_d64(f, m->fahari.ujasiri_wa_kijeshi);
+}
+w0 mchezo_hifadhi_soma_vipimo_laini(n8* f, VipimoLainiMsimamizi* m) {
+    kama (m == 0) { rudisha; }
+    m->furaha.furaha_msingi = injini_uhifadhi_soma_d64(f);
+    m->furaha.uthabiti = injini_uhifadhi_soma_d64(f);
+    m->furaha.uaminifu = injini_uhifadhi_soma_d64(f);
+    m->furaha.badiliko_0 = injini_uhifadhi_soma_d64(f); m->furaha.badiliko_1 = injini_uhifadhi_soma_d64(f);
+    m->furaha.badiliko_2 = injini_uhifadhi_soma_d64(f); m->furaha.badiliko_3 = injini_uhifadhi_soma_d64(f);
+    m->furaha.badiliko_4 = injini_uhifadhi_soma_d64(f); m->furaha.badiliko_5 = injini_uhifadhi_soma_d64(f);
+    m->furaha.badiliko_6 = injini_uhifadhi_soma_d64(f); m->furaha.badiliko_7 = injini_uhifadhi_soma_d64(f);
+    m->furaha.badiliko_8 = injini_uhifadhi_soma_d64(f); m->furaha.badiliko_9 = injini_uhifadhi_soma_d64(f);
+    m->furaha.idadi_ya_mabadiliko = injini_uhifadhi_soma_n32(f);
+    m->uhalali.uhalali = injini_uhifadhi_soma_d64(f);
+    m->uhalali.uthabiti_wa_kisiasa = injini_uhifadhi_soma_d64(f);
+    m->uhalali.kiwango_cha_rushwa = injini_uhifadhi_soma_d64(f);
+    m->uhalali.idhini_ya_serikali = injini_uhifadhi_soma_d64(f);
+    m->fahari.fahari = injini_uhifadhi_soma_d64(f);
+    m->fahari.ushawishi_wa_kitamaduni = injini_uhifadhi_soma_d64(f);
+    m->fahari.mafanikio_ya_kiteknolojia = injini_uhifadhi_soma_d64(f);
+    m->fahari.ujasiri_wa_kijeshi = injini_uhifadhi_soma_d64(f);
+}
+
+// ---------- kitengo_chini (KitengoChiniMsimamizi) ----------
+// watoto (safu ya n8* -- majina ya watoto) ya kila KitengoChini
+// HAZIHIFADHIWI kimakusudi (safu NESTED, angalia (d)); mzazi_id
+// (string, si anwani) BADO unahifadhiwa.
+w0 mchezo_hifadhi_andika_kitengo(n8* f, KitengoChini* k) {
+    injini_uhifadhi_andika_mfuatano(f, k->kitambulisho);
+    injini_uhifadhi_andika_mfuatano(f, k->jina);
+    injini_uhifadhi_andika_n32(f, k->aina);
+    injini_uhifadhi_andika_mfuatano(f, k->mzazi_id);
+    injini_uhifadhi_andika_d64(f, k->uhuru);
+    injini_uhifadhi_andika_d64(f, k->uaminifu);
+    injini_uhifadhi_andika_d64(f, k->maendeleo);
+    injini_uhifadhi_andika_n64(f, k->idadi_ya_watu);
+    injini_uhifadhi_andika_d64(f, k->pato);
+    injini_uhifadhi_andika_n64(f, k->muda_wa_kuundwa);
+}
+w0 mchezo_hifadhi_soma_kitengo(n8* f, KitengoChini* k) {
+    k->kitambulisho = injini_uhifadhi_soma_mfuatano(f);
+    k->jina = injini_uhifadhi_soma_mfuatano(f);
+    k->aina = injini_uhifadhi_soma_n32(f);
+    k->mzazi_id = injini_uhifadhi_soma_mfuatano(f);
+    k->uhuru = injini_uhifadhi_soma_d64(f);
+    k->uaminifu = injini_uhifadhi_soma_d64(f);
+    k->maendeleo = injini_uhifadhi_soma_d64(f);
+    k->idadi_ya_watu = injini_uhifadhi_soma_n64(f);
+    k->pato = injini_uhifadhi_soma_d64(f);
+    k->muda_wa_kuundwa = injini_uhifadhi_soma_n64(f);
+}
+w0 mchezo_hifadhi_andika_kitengo_chini(n8* f, KitengoChiniMsimamizi* m) {
+    kama (m == 0) { rudisha; }
+    injini_uhifadhi_andika_n32(f, m->idadi);
+    n32 i = 0;
+    wakati (i < m->idadi) {
+        KitengoChini* k = kitengo_chini_msimamizi_pata(m, i);
+        mchezo_hifadhi_andika_kitengo(f, k);
+        i = i + 1;
+    }
+}
+w0 mchezo_hifadhi_soma_kitengo_chini(n8* f, KitengoChiniMsimamizi* m) {
+    kama (m == 0) { rudisha; }
+    n32 idadi_iliyohifadhiwa = injini_uhifadhi_soma_n32(f);
+    m->idadi = 0;
+    n32 i = 0;
+    wakati (i < idadi_iliyohifadhiwa) {
+        n8* id_tupu = "";
+        n8* jina_tupu = "";
+        KitengoChini* k = kitengo_chini_unda(id_tupu, jina_tupu, 0);
+        mchezo_hifadhi_soma_kitengo(f, k);
+        kitengo_chini_msimamizi_ongeza(m, k);
+        i = i + 1;
+    }
+}
+
+// ---------- uandishi (UtamaduniAndikoMsimamizi) ----------
+w0 mchezo_hifadhi_andika_andiko(n8* f, UtamaduniAndiko* a) {
+    injini_uhifadhi_andika_mfuatano(f, a->kitambulisho);
+    injini_uhifadhi_andika_mfuatano(f, a->jina);
+    injini_uhifadhi_andika_n32(f, a->aina);
+    injini_uhifadhi_andika_mfuatano(f, a->mzazi_andiko_id);
+    injini_uhifadhi_andika_d64(f, a->utata);
+    injini_uhifadhi_andika_d64(f, a->ufanisi);
+    injini_uhifadhi_andika_mfuatano(f, a->konsonanti);
+    injini_uhifadhi_andika_mfuatano(f, a->vokali);
+    injini_uhifadhi_andika_n32(f, a->idadi_ya_konsonanti);
+    injini_uhifadhi_andika_n32(f, a->idadi_ya_vokali);
+    injini_uhifadhi_andika_n64(f, a->muda_wa_kuundwa);
+}
+w0 mchezo_hifadhi_soma_andiko(n8* f, UtamaduniAndiko* a) {
+    a->kitambulisho = injini_uhifadhi_soma_mfuatano(f);
+    a->jina = injini_uhifadhi_soma_mfuatano(f);
+    a->aina = injini_uhifadhi_soma_n32(f);
+    a->mzazi_andiko_id = injini_uhifadhi_soma_mfuatano(f);
+    a->utata = injini_uhifadhi_soma_d64(f);
+    a->ufanisi = injini_uhifadhi_soma_d64(f);
+    a->konsonanti = injini_uhifadhi_soma_mfuatano(f);
+    a->vokali = injini_uhifadhi_soma_mfuatano(f);
+    a->idadi_ya_konsonanti = injini_uhifadhi_soma_n32(f);
+    a->idadi_ya_vokali = injini_uhifadhi_soma_n32(f);
+    a->muda_wa_kuundwa = injini_uhifadhi_soma_n64(f);
+}
+w0 mchezo_hifadhi_andika_uandishi(n8* f, UtamaduniAndikoMsimamizi* m) {
+    kama (m == 0) { rudisha; }
+    injini_uhifadhi_andika_n32(f, m->idadi);
+    n32 i = 0;
+    wakati (i < m->idadi) {
+        UtamaduniAndiko* a = m->maandiko[i];
+        mchezo_hifadhi_andika_andiko(f, a);
+        i = i + 1;
+    }
+}
+w0 mchezo_hifadhi_soma_uandishi(n8* f, UtamaduniAndikoMsimamizi* m) {
+    kama (m == 0) { rudisha; }
+    n32 idadi_iliyohifadhiwa = injini_uhifadhi_soma_n32(f);
+    m->idadi = 0;
+    n32 i = 0;
+    wakati (i < idadi_iliyohifadhiwa) {
+        n8* id_tupu = "";
+        n8* jina_tupu = "";
+        UtamaduniAndiko* a = uandishi_unda(id_tupu, jina_tupu, 0);
+        mchezo_hifadhi_soma_andiko(f, a);
+        uandishi_msimamizi_ongeza(m, a);
+        i = i + 1;
+    }
+}
+
+// ---------- soko_fedha (SokoFedhaInjini) ----------
+// makampuni (safu ya anwani za SokoFedhaKampuni*) HAYAHIFADHIWI
+// kimakusudi kwa toleo hili (hayajazwi na soko_fedha_sasisha_uzalishaji
+// ya sasa -- angalia maelezo ya mchezo_sasisha_mifumo_huru). sarafu
+// (SokoFedhaSarafu*) NDIYO hasa inayosasishwa kwa kila mzunguko
+// (angalia jaribio_mchezo_kamili.swa -- USD kiwango_cha_sasa
+// kinabadilika) -- imehifadhiwa KIKAMILIFU.
+w0 mchezo_hifadhi_andika_soko_sarafu(n8* f, SokoFedhaSarafu* s) {
+    injini_uhifadhi_andika_mfuatano(f, s->iso);
+    injini_uhifadhi_andika_mfuatano(f, s->jina);
+    injini_uhifadhi_andika_mfuatano(f, s->alama);
+    injini_uhifadhi_andika_d64(f, s->kiwango_cha_msingi);
+    injini_uhifadhi_andika_d64(f, s->kiwango_cha_sasa);
+    injini_uhifadhi_andika_d64(f, s->mzunguko);
+    injini_uhifadhi_andika_n32(f, s->idadi_ya_mataifa);
+    injini_uhifadhi_andika_d64(f, s->mfumuko);
+}
+w0 mchezo_hifadhi_soma_soko_sarafu(n8* f, SokoFedhaSarafu* s) {
+    s->iso = injini_uhifadhi_soma_mfuatano(f);
+    s->jina = injini_uhifadhi_soma_mfuatano(f);
+    s->alama = injini_uhifadhi_soma_mfuatano(f);
+    s->kiwango_cha_msingi = injini_uhifadhi_soma_d64(f);
+    s->kiwango_cha_sasa = injini_uhifadhi_soma_d64(f);
+    s->mzunguko = injini_uhifadhi_soma_d64(f);
+    s->idadi_ya_mataifa = injini_uhifadhi_soma_n32(f);
+    s->mfumuko = injini_uhifadhi_soma_d64(f);
+}
+w0 mchezo_hifadhi_andika_soko_bidhaa(n8* f, SokoFedhaBidhaa* b) {
+    injini_uhifadhi_andika_mfuatano(f, b->jina);
+    injini_uhifadhi_andika_mfuatano(f, b->kipimo);
+    injini_uhifadhi_andika_d64(f, b->bei_kwa_kipimo);
+    injini_uhifadhi_andika_d64(f, b->mzunguko);
+    injini_uhifadhi_andika_d64(f, b->ugavi);
+    injini_uhifadhi_andika_d64(f, b->mahitaji);
+}
+w0 mchezo_hifadhi_soma_soko_bidhaa(n8* f, SokoFedhaBidhaa* b) {
+    b->jina = injini_uhifadhi_soma_mfuatano(f);
+    b->kipimo = injini_uhifadhi_soma_mfuatano(f);
+    b->bei_kwa_kipimo = injini_uhifadhi_soma_d64(f);
+    b->mzunguko = injini_uhifadhi_soma_d64(f);
+    b->ugavi = injini_uhifadhi_soma_d64(f);
+    b->mahitaji = injini_uhifadhi_soma_d64(f);
+}
+w0 mchezo_hifadhi_andika_soko_fedha(n8* f, SokoFedhaInjini* m) {
+    kama (m == 0) { rudisha; }
+    injini_uhifadhi_andika_n32(f, m->idadi_ya_sarafu);
+    n32 i = 0;
+    wakati (i < m->idadi_ya_sarafu) {
+        SokoFedhaSarafu* s = m->sarafu[i];
+        mchezo_hifadhi_andika_soko_sarafu(f, s);
+        i = i + 1;
+    }
+    mchezo_hifadhi_andika_soko_bidhaa(f, &m->bidhaa_0);
+    mchezo_hifadhi_andika_soko_bidhaa(f, &m->bidhaa_1);
+    mchezo_hifadhi_andika_soko_bidhaa(f, &m->bidhaa_2);
+    mchezo_hifadhi_andika_soko_bidhaa(f, &m->bidhaa_3);
+    mchezo_hifadhi_andika_soko_bidhaa(f, &m->bidhaa_4);
+    mchezo_hifadhi_andika_soko_bidhaa(f, &m->bidhaa_5);
+    mchezo_hifadhi_andika_soko_bidhaa(f, &m->bidhaa_6);
+    mchezo_hifadhi_andika_soko_bidhaa(f, &m->bidhaa_7);
+    mchezo_hifadhi_andika_soko_bidhaa(f, &m->bidhaa_8);
+    mchezo_hifadhi_andika_soko_bidhaa(f, &m->bidhaa_9);
+    mchezo_hifadhi_andika_soko_bidhaa(f, &m->bidhaa_10);
+    mchezo_hifadhi_andika_soko_bidhaa(f, &m->bidhaa_11);
+    injini_uhifadhi_andika_n32(f, m->idadi_ya_bidhaa);
+    injini_uhifadhi_andika_n32(f, m->idadi_ya_makampuni);
+}
+w0 mchezo_hifadhi_soma_soko_fedha(n8* f, SokoFedhaInjini* m) {
+    kama (m == 0) { rudisha; }
+    n32 idadi_sarafu_iliyohifadhiwa = injini_uhifadhi_soma_n32(f);
+    // SokoFedhaSarafu zote zinaundwa na soko_fedha_injini_unda wakati
+    // wa mchezo_anzisha (hazina "ongeza" ya nje -- angalia maelezo ya
+    // soko_fedha.swa) -- tunasoma HIFADHI YA SASA kwenye nafasi
+    // ZILIZOPO TAYARI badala ya kujenga mpya, kwa sababu idadi
+    // haibadiliki kati ya kuhifadhi na kupakia (sarafu sawa kila
+    // wakati -- angalia soko_fedha_injini_unda).
+    n32 i = 0;
+    wakati (i < idadi_sarafu_iliyohifadhiwa && i < m->idadi_ya_sarafu) {
+        SokoFedhaSarafu* s = m->sarafu[i];
+        mchezo_hifadhi_soma_soko_sarafu(f, s);
+        i = i + 1;
+    }
+    mchezo_hifadhi_soma_soko_bidhaa(f, &m->bidhaa_0);
+    mchezo_hifadhi_soma_soko_bidhaa(f, &m->bidhaa_1);
+    mchezo_hifadhi_soma_soko_bidhaa(f, &m->bidhaa_2);
+    mchezo_hifadhi_soma_soko_bidhaa(f, &m->bidhaa_3);
+    mchezo_hifadhi_soma_soko_bidhaa(f, &m->bidhaa_4);
+    mchezo_hifadhi_soma_soko_bidhaa(f, &m->bidhaa_5);
+    mchezo_hifadhi_soma_soko_bidhaa(f, &m->bidhaa_6);
+    mchezo_hifadhi_soma_soko_bidhaa(f, &m->bidhaa_7);
+    mchezo_hifadhi_soma_soko_bidhaa(f, &m->bidhaa_8);
+    mchezo_hifadhi_soma_soko_bidhaa(f, &m->bidhaa_9);
+    mchezo_hifadhi_soma_soko_bidhaa(f, &m->bidhaa_10);
+    mchezo_hifadhi_soma_soko_bidhaa(f, &m->bidhaa_11);
+    m->idadi_ya_bidhaa = injini_uhifadhi_soma_n32(f);
+    m->idadi_ya_makampuni = injini_uhifadhi_soma_n32(f);
+}
+
+// ---------- mageuko_lugha (UtamaduniMageukoMfumo) ----------
+// msamiati/mikopo (safu NESTED za kila lugha) HAZIHIFADHIWI
+// kimakusudi -- angalia (d) juu ya faili.
+w0 mchezo_hifadhi_andika_lugha(n8* f, UtamaduniMageukoLugha* l) {
+    injini_uhifadhi_andika_mfuatano(f, l->kitambulisho);
+    injini_uhifadhi_andika_mfuatano(f, l->jina);
+    injini_uhifadhi_andika_mfuatano(f, l->mzazi_id);
+    injini_uhifadhi_andika_mfuatano(f, l->mfumo_uandishi_id);
+    injini_uhifadhi_andika_mfuatano(f, l->fonolojia.konsonanti);
+    injini_uhifadhi_andika_mfuatano(f, l->fonolojia.vokali);
+    injini_uhifadhi_andika_d64(f, l->fonolojia.uwiano_wa_pua);
+    injini_uhifadhi_andika_d64(f, l->fonolojia.uwiano_wa_kuzomea);
+    injini_uhifadhi_andika_n32(f, l->sarufi.mofolojia);
+    injini_uhifadhi_andika_n32(f, l->sarufi.mpangilio_wa_maneno);
+    injini_uhifadhi_andika_n32(f, l->sarufi.ina_jinsia);
+    injini_uhifadhi_andika_n32(f, l->sarufi.ina_hali);
+    injini_uhifadhi_andika_n32(f, l->sarufi.idadi_ya_hali);
+    injini_uhifadhi_andika_d64(f, l->utata);
+    injini_uhifadhi_andika_d64(f, l->fahari);
+    injini_uhifadhi_andika_d64(f, l->wazungumzaji);
+}
+w0 mchezo_hifadhi_soma_lugha(n8* f, UtamaduniMageukoLugha* l) {
+    l->kitambulisho = injini_uhifadhi_soma_mfuatano(f);
+    l->jina = injini_uhifadhi_soma_mfuatano(f);
+    l->mzazi_id = injini_uhifadhi_soma_mfuatano(f);
+    l->mfumo_uandishi_id = injini_uhifadhi_soma_mfuatano(f);
+    l->fonolojia.konsonanti = injini_uhifadhi_soma_mfuatano(f);
+    l->fonolojia.vokali = injini_uhifadhi_soma_mfuatano(f);
+    l->fonolojia.uwiano_wa_pua = injini_uhifadhi_soma_d64(f);
+    l->fonolojia.uwiano_wa_kuzomea = injini_uhifadhi_soma_d64(f);
+    l->sarufi.mofolojia = injini_uhifadhi_soma_n32(f);
+    l->sarufi.mpangilio_wa_maneno = injini_uhifadhi_soma_n32(f);
+    l->sarufi.ina_jinsia = injini_uhifadhi_soma_n32(f);
+    l->sarufi.ina_hali = injini_uhifadhi_soma_n32(f);
+    l->sarufi.idadi_ya_hali = injini_uhifadhi_soma_n32(f);
+    l->utata = injini_uhifadhi_soma_d64(f);
+    l->fahari = injini_uhifadhi_soma_d64(f);
+    l->wazungumzaji = injini_uhifadhi_soma_d64(f);
+}
+w0 mchezo_hifadhi_andika_mageuko_lugha(n8* f, UtamaduniMageukoMfumo* m) {
+    kama (m == 0) { rudisha; }
+    injini_uhifadhi_andika_n32(f, m->idadi);
+    injini_uhifadhi_andika_d64(f, m->kiwango_cha_mageuko);
+    injini_uhifadhi_andika_d64(f, m->kizingiti_cha_mgawanyiko);
+    n32 i = 0;
+    wakati (i < m->idadi) {
+        UtamaduniMageukoLugha* l = utamaduni_mageuko_mfumo_pata(m, i);
+        mchezo_hifadhi_andika_lugha(f, l);
+        i = i + 1;
+    }
+}
+w0 mchezo_hifadhi_soma_mageuko_lugha(n8* f, UtamaduniMageukoMfumo* m) {
+    kama (m == 0) { rudisha; }
+    n32 idadi_iliyohifadhiwa = injini_uhifadhi_soma_n32(f);
+    m->kiwango_cha_mageuko = injini_uhifadhi_soma_d64(f);
+    m->kizingiti_cha_mgawanyiko = injini_uhifadhi_soma_d64(f);
+    m->idadi = 0;
+    n32 i = 0;
+    wakati (i < idadi_iliyohifadhiwa) {
+        n8* id_tupu = "";
+        n8* jina_tupu = "";
+        n8* mzazi_tupu = 0;
+        UtamaduniMageukoLugha* l = utamaduni_mageuko_unda(id_tupu, jina_tupu, mzazi_tupu);
+        mchezo_hifadhi_soma_lugha(f, l);
+        utamaduni_mageuko_mfumo_ongeza(m, l);
+        i = i + 1;
+    }
+}
+
+// ---------- siasa (SiasaMfumo) ----------
+w0 mchezo_hifadhi_andika_siasa(n8* f, SiasaMfumo* m) {
+    kama (m == 0) { rudisha; }
+    injini_uhifadhi_andika_d64(f, m->uhalali);
+    injini_uhifadhi_andika_d64(f, m->utulivu);
+}
+w0 mchezo_hifadhi_soma_siasa(n8* f, SiasaMfumo* m) {
+    kama (m == 0) { rudisha; }
+    m->uhalali = injini_uhifadhi_soma_d64(f);
+    m->utulivu = injini_uhifadhi_soma_d64(f);
+}
+
+// ---------- Viendeshi vya juu: mchezo_hifadhi / mchezo_pakia ----------
+
+// Huhifadhi hali KAMILI ya g kwenye jina_la_faili (ndani ya saraka ya
+// injini_uhifadhi ya g, mfano "saves/jina_la_faili"). Mifumo YOTE 47
+// (angalia maelezo ya wigo juu ya faili kwa ubaguzi ulioandikwa wazi)
+// huandikwa kwa mpangilio UDUMUFU mmoja.
 CivMatokeo mchezo_hifadhi(Mchezo* g, n8* jina_la_faili) {
     CivMatokeo r;
     r.hitilafu = CIV_SAWA;
@@ -1675,17 +4539,94 @@ CivMatokeo mchezo_hifadhi(Mchezo* g, n8* jina_la_faili) {
         r.ujumbe = "Injini ya uhifadhi haijaanzishwa";
         rudisha r;
     }
+    n8* njia = injini_uhifadhi_njia_kamili(sp, jina_la_faili);
+    n8* f = faili_fungua(njia, "w");
+    kama (f == 0) {
+        r.hitilafu = CIV_HITILAFU_IO;
+        r.ujumbe = "Imeshindwa kufungua faili kwa kuandika";
+        rudisha r;
+    }
 
-    MchezoHifadhiData* d = tenga(ukubwa(MchezoHifadhiData));
-    mchezo_hifadhi_data_jaza(g, d);
-    n8* baiti = mchezo_hifadhi_data_kama_baiti(d);
-    r = injini_uhifadhi_hifadhi(sp, jina_la_faili, baiti, ukubwa(MchezoHifadhiData));
-    achilia d;
+    injini_uhifadhi_andika_n32(f, MCHEZO_HIFADHI_ALAMA);
+    injini_uhifadhi_andika_n32(f, MCHEZO_HIFADHI_TOLEO);
+    injini_uhifadhi_andika_n32(f, g->hali_ya_mchezo);
+    injini_uhifadhi_andika_n32(f, g->zamu_ya_sasa);
+    injini_uhifadhi_andika_n32(f, g->inafanya_kazi);
+    injini_uhifadhi_andika_n32(f, g->imesimamishwa);
+    mchezo_hifadhi_andika_usanidi(f, &g->usanidi);
+    mchezo_hifadhi_andika_muda(f, mchezo_pata_muda(g));
+    mchezo_hifadhi_andika_saa_kuu(f, mchezo_pata_saa_kuu(g));
+    mchezo_hifadhi_andika_idadi_ya_watu(f, mchezo_pata_idadi_ya_watu(g));
+    mchezo_hifadhi_andika_serikali(f, mchezo_pata_serikali(g));
+    mchezo_hifadhi_andika_ramani(f, mchezo_pata_ramani(g));
+    mchezo_hifadhi_andika_makazi(f, mchezo_pata_makazi(g));
+    mchezo_hifadhi_andika_akili(f, mchezo_pata_akili(g));
+    mchezo_hifadhi_andika_diplomasia(f, mchezo_pata_diplomasia(g));
+    mchezo_hifadhi_andika_taifa(f, mchezo_pata_taifa(g));
+    mchezo_hifadhi_andika_uchumi_mkuu(f, mchezo_pata_uchumi_mkuu(g));
+    mchezo_hifadhi_andika_nguvukazi(f, mchezo_pata_nguvukazi(g));
+    mchezo_hifadhi_andika_sera(f, mchezo_pata_sera(g));
+    mchezo_hifadhi_andika_kodi(f, mchezo_pata_kodi(g));
+    mchezo_hifadhi_andika_bajeti(f, mchezo_pata_bajeti(g));
+    mchezo_hifadhi_andika_bidhaa(f, mchezo_pata_bidhaa(g));
+    mchezo_hifadhi_andika_benki(f, mchezo_pata_benki(g));
+    mchezo_hifadhi_andika_kilimo(f, mchezo_pata_kilimo(g));
+    mchezo_hifadhi_andika_uchimbaji(f, mchezo_pata_uchimbaji(g));
+    mchezo_hifadhi_andika_miundombinu(f, mchezo_pata_miundombinu(g));
+    mchezo_hifadhi_andika_viwanda(f, mchezo_pata_viwanda(g));
+    mchezo_hifadhi_andika_nishati(f, mchezo_pata_nishati(g));
+    mchezo_hifadhi_andika_uchumi_makazi(f, mchezo_pata_uchumi_makazi(g));
+    mchezo_hifadhi_andika_ardhi(f, mchezo_pata_ardhi(g));
+    mchezo_hifadhi_andika_mtaji(f, mchezo_pata_mtaji(g));
+    mchezo_hifadhi_andika_biashara_ndani(f, mchezo_pata_biashara_ndani(g));
+    mchezo_hifadhi_andika_biashara_nje(f, mchezo_pata_biashara_nje(g));
+    mchezo_hifadhi_andika_uvumbuzi(f, mchezo_pata_uvumbuzi(g));
+    mchezo_hifadhi_andika_soko_haramu(f, mchezo_pata_soko_haramu(g));
+    mchezo_hifadhi_andika_vita(f, mchezo_pata_vita(g));
+    mchezo_hifadhi_andika_utamaduni_metadata(f, g);
+    mchezo_hifadhi_andika_matukio(f, mchezo_pata_matukio(g));
+    mchezo_hifadhi_andika_wakala(f, mchezo_pata_wakala(g));
+    mchezo_hifadhi_andika_okestra_utendaji(f, mchezo_pata_okestra(g), mchezo_pata_utendaji(g));
+    mchezo_hifadhi_andika_jeshi_metadata(f, g);
+    mchezo_hifadhi_andika_kikundi(f, mchezo_pata_kikundi(g));
+    mchezo_hifadhi_andika_teknolojia(f, mchezo_pata_teknolojia(g));
+    mchezo_hifadhi_andika_maarifa(f, mchezo_pata_maarifa(g));
+    mchezo_hifadhi_andika_mipaka_hai(f, mchezo_pata_mipaka_hai(g));
+    mchezo_hifadhi_andika_majanga(f, mchezo_pata_majanga(g));
+    mchezo_hifadhi_andika_eneo(f, mchezo_pata_eneo(g));
+    mchezo_hifadhi_andika_uhai(f, mchezo_pata_uhai(g));
+    mchezo_hifadhi_andika_sarafu(f, mchezo_pata_sarafu(g));
+    mchezo_hifadhi_andika_maajabu(f, mchezo_pata_maajabu(g));
+    mchezo_hifadhi_andika_jamii(f, mchezo_pata_jamii(g));
+    mchezo_hifadhi_andika_desturi(f, mchezo_pata_desturi(g));
+    mchezo_hifadhi_andika_mwingiliano(f, mchezo_pata_mwingiliano(g));
+    mchezo_hifadhi_andika_mhusika(f, mchezo_pata_mhusika(g));
+    mchezo_hifadhi_andika_upinzani(f, mchezo_pata_upinzani(g));
+    mchezo_hifadhi_andika_mashirika(f, mchezo_pata_mashirika(g));
+    mchezo_hifadhi_andika_vipimo_laini(f, mchezo_pata_vipimo_laini(g));
+    mchezo_hifadhi_andika_kitengo_chini(f, mchezo_pata_kitengo_chini(g));
+    mchezo_hifadhi_andika_uandishi(f, mchezo_pata_uandishi(g));
+    mchezo_hifadhi_andika_soko_fedha(f, mchezo_pata_soko_fedha(g));
+    mchezo_hifadhi_andika_mageuko_lugha(f, mchezo_pata_mageuko_lugha(g));
+    mchezo_hifadhi_andika_siasa(f, mchezo_pata_siasa(g));
+
+    faili_funga(f);
+
+    // historia_db ina uhifadhi wake KAMILI uliopo tayari (historia_db.swa,
+    // umbizo lake la pekee lenye alama/toleo yake) -- tunauita moja kwa
+    // moja (faili TOFAUTI, njia_ya_db yake yenyewe) badala ya
+    // kuuandika upya hapa.
+    HistoriaDB* jarida = mchezo_pata_historia_db(g);
+    kama (jarida != 0) {
+        historia_db_safisha(jarida);
+    }
+
     rudisha r;
 }
 
-// Hupakia hali kutoka jina_la_faili na kuiweka moja kwa moja kwenye
-// g (shamba na shamba, kupitia mchezo_hifadhi_data_tumia).
+// Hupakia hali kutoka jina_la_faili kuiweka moja kwa moja kwenye g
+// (ambayo LAZIMA iwe tayari imepita mchezo_anzisha -- mifumo yote
+// midogo lazima iwepo tayari ili shamba zake ziweze kuandikwa).
 CivMatokeo mchezo_pakia(Mchezo* g, n8* jina_la_faili) {
     CivMatokeo r;
     r.hitilafu = CIV_SAWA;
@@ -1701,23 +4642,101 @@ CivMatokeo mchezo_pakia(Mchezo* g, n8* jina_la_faili) {
         r.ujumbe = "Injini ya uhifadhi haijaanzishwa";
         rudisha r;
     }
-
-    // MUHIMU: faili_soma_yote (msingi/maktaba/faili.swa) inahifadhi
-    // baiti moja ya mwisho ya "uwezo" kwa ajili ya NUL (imeundwa kwa
-    // ajili ya mfuatano wa maandishi) -- hivyo ikitolewa uwezo sawa
-    // na ukubwa halisi wa data, itasoma baiti MOJA PUNGUFU kimya kimya
-    // (imethibitishwa kwa jaribio: shamba la mwisho la d64 lilipotea
-    // baiti yake ya mwisho). Tunatoa nafasi ya ziada ya baiti 1 ili
-    // data yote ya MchezoHifadhiData isomwe kikamilifu.
-    n64 uwezo_wa_kupakia = ukubwa(MchezoHifadhiData) + 1;
-    n8* baiti = tenga(uwezo_wa_kupakia);
-    r = injini_uhifadhi_pakia(sp, jina_la_faili, baiti, uwezo_wa_kupakia);
-    kama (r.hitilafu != CIV_SAWA) {
-        achilia baiti;
+    n8* njia = injini_uhifadhi_njia_kamili(sp, jina_la_faili);
+    kama (faili_ipo(njia) == 0) {
+        r.hitilafu = CIV_HITILAFU_HAIJAPATIKANA;
+        r.ujumbe = "Faili la uhifadhi halijapatikana";
         rudisha r;
     }
-    MchezoHifadhiData* d = mchezo_hifadhi_data_kutoka_baiti(baiti);
-    mchezo_hifadhi_data_tumia(g, d);
-    achilia baiti;
+    n8* f = faili_fungua(njia, "r");
+    kama (f == 0) {
+        r.hitilafu = CIV_HITILAFU_IO;
+        r.ujumbe = "Imeshindwa kufungua faili kwa kusoma";
+        rudisha r;
+    }
+
+    n32 alama = injini_uhifadhi_soma_n32(f);
+    n32 toleo = injini_uhifadhi_soma_n32(f);
+    kama (alama != MCHEZO_HIFADHI_ALAMA) {
+        faili_funga(f);
+        r.hitilafu = CIV_HITILAFU_DATA_MBAYA;
+        r.ujumbe = "Umbizo la faili la uhifadhi halitambuliki";
+        rudisha r;
+    }
+    kama (toleo > MCHEZO_HIFADHI_TOLEO) {
+        faili_funga(f);
+        r.hitilafu = CIV_HITILAFU_DATA_MBAYA;
+        r.ujumbe = "Toleo la faili la uhifadhi ni jipya kuliko linalotambulika";
+        rudisha r;
+    }
+
+    g->hali_ya_mchezo = injini_uhifadhi_soma_n32(f);
+    g->zamu_ya_sasa = injini_uhifadhi_soma_n32(f);
+    g->inafanya_kazi = injini_uhifadhi_soma_n32(f);
+    g->imesimamishwa = injini_uhifadhi_soma_n32(f);
+    mchezo_hifadhi_soma_usanidi(f, &g->usanidi);
+    mchezo_hifadhi_soma_muda(f, mchezo_pata_muda(g));
+    mchezo_hifadhi_soma_saa_kuu(f, mchezo_pata_saa_kuu(g));
+    mchezo_hifadhi_soma_idadi_ya_watu(f, mchezo_pata_idadi_ya_watu(g));
+    mchezo_hifadhi_soma_serikali(f, mchezo_pata_serikali(g));
+    mchezo_hifadhi_soma_ramani(f, mchezo_pata_ramani(g));
+    mchezo_hifadhi_soma_makazi(f, mchezo_pata_makazi(g));
+    mchezo_hifadhi_soma_akili(f, mchezo_pata_akili(g));
+    mchezo_hifadhi_soma_diplomasia(f, mchezo_pata_diplomasia(g));
+    mchezo_hifadhi_soma_taifa(f, mchezo_pata_taifa(g));
+    mchezo_hifadhi_soma_uchumi_mkuu(f, mchezo_pata_uchumi_mkuu(g));
+    mchezo_hifadhi_soma_nguvukazi(f, mchezo_pata_nguvukazi(g));
+    mchezo_hifadhi_soma_sera(f, mchezo_pata_sera(g));
+    mchezo_hifadhi_soma_kodi(f, mchezo_pata_kodi(g));
+    mchezo_hifadhi_soma_bajeti(f, mchezo_pata_bajeti(g));
+    mchezo_hifadhi_soma_bidhaa(f, mchezo_pata_bidhaa(g));
+    mchezo_hifadhi_soma_benki(f, mchezo_pata_benki(g));
+    mchezo_hifadhi_soma_kilimo(f, mchezo_pata_kilimo(g));
+    mchezo_hifadhi_soma_uchimbaji(f, mchezo_pata_uchimbaji(g));
+    mchezo_hifadhi_soma_miundombinu(f, mchezo_pata_miundombinu(g));
+    mchezo_hifadhi_soma_viwanda(f, mchezo_pata_viwanda(g));
+    mchezo_hifadhi_soma_nishati(f, mchezo_pata_nishati(g));
+    mchezo_hifadhi_soma_uchumi_makazi(f, mchezo_pata_uchumi_makazi(g));
+    mchezo_hifadhi_soma_ardhi(f, mchezo_pata_ardhi(g));
+    mchezo_hifadhi_soma_mtaji(f, mchezo_pata_mtaji(g));
+    mchezo_hifadhi_soma_biashara_ndani(f, mchezo_pata_biashara_ndani(g));
+    mchezo_hifadhi_soma_biashara_nje(f, mchezo_pata_biashara_nje(g));
+    mchezo_hifadhi_soma_uvumbuzi(f, mchezo_pata_uvumbuzi(g));
+    mchezo_hifadhi_soma_soko_haramu(f, mchezo_pata_soko_haramu(g));
+    mchezo_hifadhi_soma_vita(f, mchezo_pata_vita(g));
+    mchezo_hifadhi_soma_utamaduni_metadata(f, g);
+    mchezo_hifadhi_soma_matukio(f, mchezo_pata_matukio(g));
+    mchezo_hifadhi_soma_wakala(f, mchezo_pata_wakala(g));
+    mchezo_hifadhi_soma_okestra_utendaji(f, mchezo_pata_utendaji(g));
+    mchezo_hifadhi_soma_jeshi_metadata(f, g);
+    mchezo_hifadhi_soma_kikundi(f, mchezo_pata_kikundi(g));
+    mchezo_hifadhi_soma_teknolojia(f, mchezo_pata_teknolojia(g));
+    mchezo_hifadhi_soma_maarifa(f, mchezo_pata_maarifa(g));
+    mchezo_hifadhi_soma_mipaka_hai(f, mchezo_pata_mipaka_hai(g));
+    mchezo_hifadhi_soma_majanga(f, mchezo_pata_majanga(g));
+    mchezo_hifadhi_soma_eneo(f, mchezo_pata_eneo(g));
+    mchezo_hifadhi_soma_uhai(f, mchezo_pata_uhai(g));
+    mchezo_hifadhi_soma_sarafu(f, mchezo_pata_sarafu(g));
+    mchezo_hifadhi_soma_maajabu(f, mchezo_pata_maajabu(g));
+    mchezo_hifadhi_soma_jamii(f, mchezo_pata_jamii(g));
+    mchezo_hifadhi_soma_desturi(f, mchezo_pata_desturi(g));
+    mchezo_hifadhi_soma_mwingiliano(f, mchezo_pata_mwingiliano(g));
+    mchezo_hifadhi_soma_mhusika(f, mchezo_pata_mhusika(g));
+    mchezo_hifadhi_soma_upinzani(f, mchezo_pata_upinzani(g));
+    mchezo_hifadhi_soma_mashirika(f, mchezo_pata_mashirika(g));
+    mchezo_hifadhi_soma_vipimo_laini(f, mchezo_pata_vipimo_laini(g));
+    mchezo_hifadhi_soma_kitengo_chini(f, mchezo_pata_kitengo_chini(g));
+    mchezo_hifadhi_soma_uandishi(f, mchezo_pata_uandishi(g));
+    mchezo_hifadhi_soma_soko_fedha(f, mchezo_pata_soko_fedha(g));
+    mchezo_hifadhi_soma_mageuko_lugha(f, mchezo_pata_mageuko_lugha(g));
+    mchezo_hifadhi_soma_siasa(f, mchezo_pata_siasa(g));
+
+    faili_funga(f);
+
+    HistoriaDB* jarida = mchezo_pata_historia_db(g);
+    kama (jarida != 0 && jarida->njia_ya_db != 0) {
+        historia_db_pakia(jarida, jarida->njia_ya_db);
+    }
+
     rudisha r;
 }
