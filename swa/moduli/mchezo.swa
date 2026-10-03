@@ -253,6 +253,22 @@ husisha { moduli/utamaduni/uandishi.swa }
 husisha { moduli/data/historia_db.swa }
 husisha { moduli/uchumi/soko_fedha.swa }
 
+// NYONGEZA (wimbi la kumi na moja, 2026-10-03): mageuko_lugha
+// (culture/language_evolution.c -- TAFSIRI MPYA, angalia maelezo
+// ya field husika juu ya muundo Mchezo) na siasa (politics/politics.c
+// -- mratibu wa uhalali/utulivu, angalia siasa.swa kwa maelezo
+// kamili ya kwa nini HAIMILIKI nakala yake ya SiasaKikundiMfumo).
+// utamaduni.swa (culture/culture.c) pia imehusishwa hapa -- kitanzi
+// chake cha utamaduni_mfumo_sasisha_watambulisho_wote ndicho
+// kinachoitwa (pengo halisi lililopatikana, angalia maelezo yake),
+// si kazi yake ya "mfumo_sasisha" ya mfuatano kamili (ambayo
+// ingeita tena kuenea/uigaji ambazo TAYARI zinaitwa moja kwa moja
+// hapa chini kwenye mchezo_sasisha -- kuiita tena kungesababisha
+// sasisho mara mbili kwa mzunguko mmoja).
+husisha { moduli/utamaduni/mageuko_lugha.swa }
+husisha { moduli/utamaduni/utamaduni.swa }
+husisha { moduli/siasa/siasa.swa }
+
 n32 MCHEZO_HALI_KUANDAA = 0;
 n32 MCHEZO_HALI_INAENDESHA = 1;
 n32 MCHEZO_HALI_IMESIMAMA = 2;
@@ -389,6 +405,20 @@ muundo Mchezo {
     n64 uandishi_addr;
     n64 historia_db_addr;
     n64 soko_fedha_addr;
+
+    // Nyongeza (wimbi la kumi na moja, 2026-10-03): mageuko_lugha
+    // (culture/language_evolution.c -- TAFSIRI MPYA, si uunganishaji
+    // wa moduli iliyokuwepo tayari) na siasa (politics/politics.c --
+    // mratibu wa uhalali/utulivu juu ya siasa_kikundi iliyopo TAYARI,
+    // angalia maelezo ya siasa.swa kwa nini HAIMILIKI nakala yake
+    // mwenyewe ya SiasaKikundiMfumo). utamaduni.swa (culture/culture.c)
+    // HAIONGEZI field hapa -- ni kazi za upangiliaji tu juu ya mifumo
+    // iliyopo, si mfumo wenye hali yake (angalia maelezo ya
+    // utamaduni.swa); kitanzi chake cha "sasisha vitambulisho vyote"
+    // kinaitwa moja kwa moja hapa chini kwa kutumia
+    // utamaduni_kitambulisho_addr iliyopo TAYARI.
+    n64 mageuko_lugha_addr;
+    n64 siasa_addr;
 };
 
 InjiniMudaMfumo* mchezo_pata_muda(Mchezo* g) { rudisha g->muda_addr; }
@@ -576,6 +606,12 @@ w0 mchezo_weka_historia_db(Mchezo* g, HistoriaDB* v) { g->historia_db_addr = v; 
 
 SokoFedhaInjini* mchezo_pata_soko_fedha(Mchezo* g) { rudisha g->soko_fedha_addr; }
 w0 mchezo_weka_soko_fedha(Mchezo* g, SokoFedhaInjini* v) { g->soko_fedha_addr = v; }
+
+UtamaduniMageukoMfumo* mchezo_pata_mageuko_lugha(Mchezo* g) { rudisha g->mageuko_lugha_addr; }
+w0 mchezo_weka_mageuko_lugha(Mchezo* g, UtamaduniMageukoMfumo* v) { g->mageuko_lugha_addr = v; }
+
+SiasaMfumo* mchezo_pata_siasa(Mchezo* g) { rudisha g->siasa_addr; }
+w0 mchezo_weka_siasa(Mchezo* g, SiasaMfumo* v) { g->siasa_addr = v; }
 
 w0 mchezo_usanidi_chaguomsingi(MchezoUsanidi* u) {
     kama (u == 0) { rudisha; }
@@ -878,6 +914,11 @@ CivMatokeo mchezo_anzisha(Mchezo* g, MchezoUsanidi* usanidi) {
     mchezo_weka_uandishi(g, uandishi_msimamizi_unda());
     mchezo_weka_historia_db(g, historia_db_unda("saves/historia.db"));
     mchezo_weka_soko_fedha(g, soko_fedha_injini_unda());
+
+    // Nyongeza (wimbi la kumi na moja): mageuko_lugha, siasa --
+    // angalia maelezo ya wigo juu ya faili na siasa.swa.
+    mchezo_weka_mageuko_lugha(g, utamaduni_mageuko_mfumo_unda());
+    mchezo_weka_siasa(g, siasa_mfumo_unda());
 
     g->hali_ya_mchezo = MCHEZO_HALI_INAENDESHA;
     g->inafanya_kazi = 1;
@@ -1275,6 +1316,34 @@ w0 mchezo_sasisha_mifumo_huru(Mchezo* g, d64 dt) {
             nishati_v,
             mkuu_kwa_sarafu->ripoti_ya_mwisho.pato_la_viwanda);
     }
+
+    // Nyongeza (wimbi la kumi na moja): mageuko_lugha ni mfumo huru
+    // (dt tu, kama mipaka_hai/majanga/eneo juu).
+    UtamaduniMageukoMfumo* mageuko = mchezo_pata_mageuko_lugha(g);
+    kama (mageuko != 0) {
+        utamaduni_mageuko_mfumo_badilika(mageuko, dt);
+    }
+
+    // siasa inasoma utulivu wa kikundi BAADA ya kikundi kuwa
+    // limeshasasishwa (kikundi_addr inasasishwa kwenye mchezo_sasisha
+    // KABLA ya kazi hii kuitwa) -- angalia maelezo ya siasa.swa kwa
+    // nini HAIITI siasa_kikundi_mfumo_sasisha tena hapa.
+    SiasaMfumo* siasa = mchezo_pata_siasa(g);
+    SiasaKikundiMfumo* kikundi_kwa_siasa = mchezo_pata_kikundi(g);
+    kama (siasa != 0) {
+        siasa_mfumo_sasisha(siasa, kikundi_kwa_siasa, dt);
+    }
+
+    // utamaduni.swa: pengo halisi lililopatikana wakati wa kutafsiri
+    // culture.c -- kitanzi cha kusasisha KILA kitambulisho (angalia
+    // maelezo ya utamaduni.swa) hakikuwa kimeunganishwa popote kabla
+    // ya hii. kuenea/uigaji TAYARI zinaitwa moja kwa moja kwenye
+    // mchezo_sasisha, kwa hiyo HAZIITWI tena hapa (zingesasishwa mara
+    // mbili kwa mzunguko mmoja).
+    UtamaduniKitambulishoMfumo* kitambulisho_kwa_utamaduni = mchezo_pata_utamaduni_kitambulisho(g);
+    kama (kitambulisho_kwa_utamaduni != 0) {
+        utamaduni_mfumo_sasisha_watambulisho_wote(kitambulisho_kwa_utamaduni, dt);
+    }
 }
 
 // mchezo_zima_mifumo_huru: uharibifu wa mifumo ya wimbi la saba
@@ -1346,6 +1415,13 @@ w0 mchezo_zima_mifumo_huru(Mchezo* g) {
 
     SokoFedhaInjini* soko_fedha_zima = mchezo_pata_soko_fedha(g);
     kama (soko_fedha_zima != 0) { soko_fedha_injini_uharibu(soko_fedha_zima); }
+
+    // Nyongeza (wimbi la kumi na moja): mageuko_lugha, siasa.
+    UtamaduniMageukoMfumo* mageuko_zima = mchezo_pata_mageuko_lugha(g);
+    kama (mageuko_zima != 0) { utamaduni_mageuko_mfumo_uharibu(mageuko_zima); }
+
+    SiasaMfumo* siasa_zima = mchezo_pata_siasa(g);
+    kama (siasa_zima != 0) { siasa_mfumo_uharibu(siasa_zima); }
 }
 
 CivMatokeo mchezo_maliza_zamu(Mchezo* g) {
