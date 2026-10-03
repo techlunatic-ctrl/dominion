@@ -228,6 +228,31 @@ husisha { moduli/mhusika/mhusika.swa }
 husisha { moduli/siasa/upinzani.swa }
 husisha { moduli/diplomasia/mashirika.swa }
 
+// NYONGEZA (wimbi la kumi, 2026-10-03): moduli tano zilizotafsiriwa
+// lakini ZISIZOUNGANISHWA kwenye vikao vilivyopita -- zilishikiliwa
+// kimakusudi kwa sababu ya lugha-swa/swa#295 (ulinganishi kwenye hoja
+// za wito ulikuwa ukichafua usajili wa hoja zilizofuata), si kwa
+// uzembe. #295 sasa imerekebishwa (PR #297) -- zinaunganishwa hapa:
+// vipimo_laini (abstracts/soft_metrics.c -- furaha/uhalali/fahari ya
+// taifa, inalishwa na pato_kwa_mtu/ukosefu_wa_kazi HALISI kutoka
+// uchumi_mkuu), kitengo_chini (subunits/subunit.c -- vitengo vidogo
+// vya kiutawala, ina "sasisha zote"/dt halisi), uandishi
+// (culture/writing_system.c -- mifumo ya uandishi, msimamizi
+// anaundwa TUPU kama itikadi/dini -- hauna "sasisha zote" kwenye
+// chanzo asili), historia_db (data/history_db.c -- journal ya
+// matukio ya kihistoria, inaundwa na njia ya faili lakini
+// HAIANDIKIWI tukio lolote kiotomatiki na mchezo_sasisha kwa sasa --
+// miundombinu tayari kupokea matukio halisi baadaye, sawa na
+// vilivyoandikwa kwa uandishi/kitambulisho), na soko_fedha
+// (economy/financial_markets.c -- ubadilishanaji wa sarafu/bidhaa/
+// makampuni, inalishwa na pato/chakula/nishati/viwanda HALISI kutoka
+// nguzo ya uchumi kupitia soko_fedha_sasisha_uzalishaji).
+husisha { moduli/abstracts/vipimo_laini.swa }
+husisha { moduli/subunits/kitengo_chini.swa }
+husisha { moduli/utamaduni/uandishi.swa }
+husisha { moduli/data/historia_db.swa }
+husisha { moduli/uchumi/soko_fedha.swa }
+
 n32 MCHEZO_HALI_KUANDAA = 0;
 n32 MCHEZO_HALI_INAENDESHA = 1;
 n32 MCHEZO_HALI_IMESIMAMA = 2;
@@ -354,6 +379,16 @@ muundo Mchezo {
     // moduli iliyokuwepo tayari (tofauti na mawimbi 7/8) -- angalia
     // maelezo ya wigo juu ya faili.
     n64 mashirika_addr;
+
+    // Nyongeza (wimbi la kumi): vipimo_laini (soft metrics), kitengo_chini
+    // (subunits), uandishi (writing systems), historia_db (event journal),
+    // soko_fedha (financial markets) -- angalia maelezo ya wigo juu ya
+    // faili kuhusu kwa nini hizi tano zilishikiliwa hadi sasa (#295).
+    n64 vipimo_laini_addr;
+    n64 kitengo_chini_addr;
+    n64 uandishi_addr;
+    n64 historia_db_addr;
+    n64 soko_fedha_addr;
 };
 
 InjiniMudaMfumo* mchezo_pata_muda(Mchezo* g) { rudisha g->muda_addr; }
@@ -527,6 +562,21 @@ w0 mchezo_weka_upinzani(Mchezo* g, SiasaMpinzani* v) { g->upinzani_addr = v; }
 ShirikaMsimamizi* mchezo_pata_mashirika(Mchezo* g) { rudisha g->mashirika_addr; }
 w0 mchezo_weka_mashirika(Mchezo* g, ShirikaMsimamizi* v) { g->mashirika_addr = v; }
 
+VipimoLainiMsimamizi* mchezo_pata_vipimo_laini(Mchezo* g) { rudisha g->vipimo_laini_addr; }
+w0 mchezo_weka_vipimo_laini(Mchezo* g, VipimoLainiMsimamizi* v) { g->vipimo_laini_addr = v; }
+
+KitengoChiniMsimamizi* mchezo_pata_kitengo_chini(Mchezo* g) { rudisha g->kitengo_chini_addr; }
+w0 mchezo_weka_kitengo_chini(Mchezo* g, KitengoChiniMsimamizi* v) { g->kitengo_chini_addr = v; }
+
+UtamaduniAndikoMsimamizi* mchezo_pata_uandishi(Mchezo* g) { rudisha g->uandishi_addr; }
+w0 mchezo_weka_uandishi(Mchezo* g, UtamaduniAndikoMsimamizi* v) { g->uandishi_addr = v; }
+
+HistoriaDB* mchezo_pata_historia_db(Mchezo* g) { rudisha g->historia_db_addr; }
+w0 mchezo_weka_historia_db(Mchezo* g, HistoriaDB* v) { g->historia_db_addr = v; }
+
+SokoFedhaInjini* mchezo_pata_soko_fedha(Mchezo* g) { rudisha g->soko_fedha_addr; }
+w0 mchezo_weka_soko_fedha(Mchezo* g, SokoFedhaInjini* v) { g->soko_fedha_addr = v; }
+
 w0 mchezo_usanidi_chaguomsingi(MchezoUsanidi* u) {
     kama (u == 0) { rudisha; }
     u->jina = "Ustaarabu Mpya";
@@ -602,6 +652,11 @@ Mchezo* mchezo_unda() {
     g->mhusika_addr = 0;
     g->upinzani_addr = 0;
     g->mashirika_addr = 0;
+    g->vipimo_laini_addr = 0;
+    g->kitengo_chini_addr = 0;
+    g->uandishi_addr = 0;
+    g->historia_db_addr = 0;
+    g->soko_fedha_addr = 0;
     g->utendaji.idadi_ya_sasisho = 0;
     g->utendaji.muda_wa_wastani_wa_sasisho = 0.0;
     g->utendaji.muda_wa_mwisho_wa_sasisho = 0.0;
@@ -812,6 +867,17 @@ CivMatokeo mchezo_anzisha(Mchezo* g, MchezoUsanidi* usanidi) {
     shirika_ongeza_mwanachama(jukwaa_la_dunia, usanidi->jina);
     shirika_msimamizi_ongeza(mashirika_m, jukwaa_la_dunia);
     mchezo_weka_mashirika(g, mashirika_m);
+
+    // Nyongeza (wimbi la kumi): vipimo_laini, kitengo_chini, uandishi,
+    // historia_db, soko_fedha -- angalia maelezo ya wigo juu ya faili.
+    // uandishi inaundwa TUPU (hakuna mfumo wa uandishi wa awali
+    // uliowekwa) -- sawa na itikadi/dini/kitambulisho, ni miundombinu
+    // tayari kupokea data halisi baadaye.
+    mchezo_weka_vipimo_laini(g, vipimo_laini_msimamizi_unda());
+    mchezo_weka_kitengo_chini(g, kitengo_chini_msimamizi_unda());
+    mchezo_weka_uandishi(g, uandishi_msimamizi_unda());
+    mchezo_weka_historia_db(g, historia_db_unda("saves/historia.db"));
+    mchezo_weka_soko_fedha(g, soko_fedha_injini_unda());
 
     g->hali_ya_mchezo = MCHEZO_HALI_INAENDESHA;
     g->inafanya_kazi = 1;
@@ -1172,6 +1238,43 @@ w0 mchezo_sasisha_mifumo_huru(Mchezo* g, d64 dt) {
         UtawalaMwingiliano* mkutano2 = utawala_mwingiliano_meneja_pata(mwingiliano_m2, 0);
         utawala_mwingiliano_sasisha(mkutano2, dt);
     }
+
+    // Nyongeza (wimbi la kumi): kitengo_chini -- mfumo huru wenye
+    // "sasisha zote"/dt halisi (kama mipaka_hai/majanga/eneo juu).
+    KitengoChiniMsimamizi* kitengo_chini_m = mchezo_pata_kitengo_chini(g);
+    kama (kitengo_chini_m != 0) {
+        kitengo_chini_msimamizi_sasisha(kitengo_chini_m, dt);
+    }
+
+    // vipimo_laini inalishwa na pato_kwa_kila_mtu/ukosefu_wa_kazi
+    // HALISI kutoka ripoti_ya_mwisho ya uchumi_mkuu -- mnyororo
+    // uleule wa thamani uliotumika kwa sarafu hapo juu.
+    VipimoLainiMsimamizi* vipimo = mchezo_pata_vipimo_laini(g);
+    kama (vipimo != 0 && mkuu_kwa_sarafu != 0) {
+        vipimo_laini_sasisha_kutoka_uchumi(
+            vipimo,
+            mkuu_kwa_sarafu->ripoti_ya_mwisho.pato_kwa_kila_mtu,
+            mkuu_kwa_sarafu->ripoti_ya_mwisho.kiwango_cha_ukosefu_wa_kazi);
+    }
+
+    // soko_fedha (masoko ya fedha) inalishwa na pato/chakula/nishati/
+    // viwanda HALISI kutoka nguzo ya uchumi -- angalia maelezo ya
+    // wigo juu ya faili.
+    SokoFedhaInjini* soko = mchezo_pata_soko_fedha(g);
+    kama (soko != 0 && mkuu_kwa_sarafu != 0) {
+        KilimoMfumo* kilimo_kwa_soko = mchezo_pata_kilimo(g);
+        d64 chakula_v = 0.0;
+        kama (kilimo_kwa_soko != 0) { chakula_v = kilimo_kwa_soko->uzalishaji_wa_chakula; }
+        NishatiMfumo* nishati_kwa_soko = mchezo_pata_nishati(g);
+        d64 nishati_v = 0.0;
+        kama (nishati_kwa_soko != 0) { nishati_v = nishati_kwa_soko->uwezo_jumla_mw; }
+        soko_fedha_sasisha_uzalishaji(
+            soko,
+            mkuu_kwa_sarafu->ripoti_ya_mwisho.pato_la_taifa,
+            chakula_v,
+            nishati_v,
+            mkuu_kwa_sarafu->ripoti_ya_mwisho.pato_la_viwanda);
+    }
 }
 
 // mchezo_zima_mifumo_huru: uharibifu wa mifumo ya wimbi la saba
@@ -1226,6 +1329,23 @@ w0 mchezo_zima_mifumo_huru(Mchezo* g) {
     // Nyongeza (wimbi la tisa): mashirika.
     ShirikaMsimamizi* mashirika_zima = mchezo_pata_mashirika(g);
     kama (mashirika_zima != 0) { shirika_msimamizi_uharibu(mashirika_zima); }
+
+    // Nyongeza (wimbi la kumi): vipimo_laini, kitengo_chini, uandishi,
+    // historia_db, soko_fedha.
+    VipimoLainiMsimamizi* vipimo_zima = mchezo_pata_vipimo_laini(g);
+    kama (vipimo_zima != 0) { vipimo_laini_msimamizi_uharibu(vipimo_zima); }
+
+    KitengoChiniMsimamizi* kitengo_chini_zima = mchezo_pata_kitengo_chini(g);
+    kama (kitengo_chini_zima != 0) { kitengo_chini_msimamizi_uharibu(kitengo_chini_zima); }
+
+    UtamaduniAndikoMsimamizi* uandishi_zima = mchezo_pata_uandishi(g);
+    kama (uandishi_zima != 0) { uandishi_msimamizi_uharibu(uandishi_zima); }
+
+    HistoriaDB* historia_db_zima = mchezo_pata_historia_db(g);
+    kama (historia_db_zima != 0) { historia_db_uharibu(historia_db_zima); }
+
+    SokoFedhaInjini* soko_fedha_zima = mchezo_pata_soko_fedha(g);
+    kama (soko_fedha_zima != 0) { soko_fedha_injini_uharibu(soko_fedha_zima); }
 }
 
 CivMatokeo mchezo_maliza_zamu(Mchezo* g) {
