@@ -1,4 +1,5 @@
 husisha { moduli/onyesho/baiti_ghafi.swa }
+husisha { msingi/lugha_dominion.swa }
 
 // drm.swa -- Kuzungumza moja kwa moja na kernel ya Linux kupitia DRM
 // (Direct Rendering Manager) / KMS (Kernel Mode Setting) kwa
@@ -138,7 +139,7 @@ n8* onyesho_drm_pata_kiunganishi(n64 fd, n64 conn_id) {
     weka_u32(c, 48, conn_id);
     n64 rc1 = sys_ioctl(fd, DRM_IOCTL_MODE_GETCONNECTOR, c);
     kama (rc1 < 0) {
-        andika_stderr("    (tatizo) GETCONNECTOR pass1 rc=%d kwa conn_id=%d\n", rc1, conn_id, 0, 0, 0, 0);
+        andika_stderr(d_tafsiri("m36"), rc1, conn_id, 0, 0, 0, 0);
         rudisha 0;
     }
 
@@ -173,7 +174,7 @@ n8* onyesho_drm_pata_kiunganishi(n64 fd, n64 conn_id) {
     }
     n64 rc2 = sys_ioctl(fd, DRM_IOCTL_MODE_GETCONNECTOR, c);
     kama (rc2 < 0) {
-        andika_stderr("    (tatizo) GETCONNECTOR pass2 rc=%d kwa conn_id=%d n_modes=%d\n", rc2, conn_id, n_modes, 0, 0, 0);
+        andika_stderr(d_tafsiri("m37"), rc2, conn_id, n_modes, 0, 0, 0);
         rudisha 0;
     }
     rudisha c;

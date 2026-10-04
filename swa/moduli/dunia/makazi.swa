@@ -397,7 +397,7 @@ w0 dunia_makazi_sasisha_moja(DuniaMakazi* s, DuniaRamani* ramani, d64 muda) {
                                 kama (ushawishi > kizingiti) {
                                     kipande->mmiliki_id = s->kitambulisho;
                                     kipande->ushawishi_wa_kiutamaduni = ushawishi;
-                                    andika("[HEGEMONY] Kipande (%d,%d) kimebadilika kwenda %s\n",
+                                    andika(d_tafsiri("m31"),
                                         tx, ty, 0,0,0,0);
                                 }
                             } }

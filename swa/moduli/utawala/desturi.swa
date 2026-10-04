@@ -28,6 +28,7 @@
 
 husisha { msingi/msingi_civ.swa }
 husisha { msingi/maktaba/mfuatano.swa }
+husisha { msingi/lugha_dominion.swa }
 husisha { moduli/utawala/legal/katiba.swa }
 
 n32 UTAWALA_DESTURI_CHAMA_HAKUNA = 0;
@@ -357,7 +358,7 @@ CivMatokeo utawala_desturi_ramanisha_cheo(UtawalaDesturi* g, n8* cheo, n8* jukum
         r.ujumbe = "Kielekezi tupu";
         rudisha r;
     }
-    andika("Cheo '%s' kimeunganishwa na jukumu la kazi '%s' kwenye serikali %s\n",
+    andika(d_tafsiri("m18"),
         cheo, jukumu_la_kazi, g->kitambulisho, 0, 0, 0);
     CivMatokeo r2;
     r2.hitilafu = CIV_SAWA;

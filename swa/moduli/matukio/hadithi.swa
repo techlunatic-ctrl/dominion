@@ -19,6 +19,7 @@
 
 husisha { msingi/msingi_civ.swa }
 husisha { msingi/maktaba/mfuatano.swa }
+husisha { msingi/lugha_dominion.swa }
 
 n32 MATUKIO_HALI_MWANACHAMA_WA_JAMII = 0;
 n32 MATUKIO_HALI_MCHAKATO_WA_UCHAGUZI = 1;
@@ -43,12 +44,12 @@ w0 hadithi_zalisha_jamii(MatukioJamiiYaMchezaji* jamii, n8* eneo_id) {
     jamii->kiongozi_wa_akili_bandia_id = 0;
     jamii->hali_ya_jamii = MATUKIO_HALI_MWANACHAMA_WA_JAMII;
 
-    andika("Jamii imezaliwa katika %s ikiwa na wakazi.\n", eneo_id, 0,0,0,0,0);
+    andika(d_tafsiri("m25"), eneo_id, 0,0,0,0,0);
 }
 
 n32 hadithi_anzisha_mkutano_mkuu(MatukioJamiiYaMchezaji* jamii) {
-    andika("\n--- MKUTANO MKUU ---\n", 0,0,0,0,0,0);
-    andika("Jamii inakusanyika chini ya bendera yako. Maisha yao yanategemea uongozi.\n", 0,0,0,0,0,0);
+    andika(d_tafsiri("m26"), 0,0,0,0,0,0);
+    andika(d_tafsiri("m27"), 0,0,0,0,0,0);
 
     jamii->hali_ya_jamii = MATUKIO_HALI_MCHAKATO_WA_UCHAGUZI;
     rudisha 1;
@@ -58,10 +59,10 @@ CivMatokeo hadithi_matokeo_ya_uchaguzi(MatukioJamiiYaMchezaji* jamii, n32 alishi
     kama (alishinda != 0) {
         jamii->hali_ya_jamii = MATUKIO_HALI_MBUNIFU_WA_KIONGOZI;
         jamii->ari = jamii->ari + 0.2;
-        andika("Umechaguliwa kuwa KIONGOZI!\n", 0,0,0,0,0,0);
+        andika(d_tafsiri("m28"), 0,0,0,0,0,0);
     } sivyo {
         jamii->ari = jamii->ari - 0.1;
-        andika("Jamii imemchagua mwingine. Maisha yanaendelea kama mwanachama.\n", 0,0,0,0,0,0);
+        andika(d_tafsiri("m29"), 0,0,0,0,0,0);
     }
 
     CivMatokeo r;

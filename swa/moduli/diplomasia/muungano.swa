@@ -54,7 +54,7 @@ MuunganoMatokeo muungano_pendekeza(n8* taifa_a, n8* taifa_b, n32 lengo) {
 }
 
 CivMatokeo muungano_unganisha_uchumi(n8* taifa_a, n8* taifa_b) {
-    andika("Kuunganisha masoko ya %s na %s kuwa kundi moja la biashara.\n", taifa_a, taifa_b, 0,0,0,0);
+    andika(d_tafsiri("m32"), taifa_a, taifa_b, 0,0,0,0);
     CivMatokeo r;
     r.hitilafu = CIV_SAWA;
     r.ujumbe = 0;
@@ -62,7 +62,7 @@ CivMatokeo muungano_unganisha_uchumi(n8* taifa_a, n8* taifa_b) {
 }
 
 CivMatokeo muungano_unda_sarafu_ya_pamoja(n8* jina, n8* taifa_a, n8* taifa_b) {
-    andika("Sarafu mpya ya pamoja '%s' imeanzishwa kati ya %s na %s.\n", jina, taifa_a, taifa_b, 0,0,0);
+    andika(d_tafsiri("m33"), jina, taifa_a, taifa_b, 0,0,0);
     CivMatokeo r;
     r.hitilafu = CIV_SAWA;
     r.ujumbe = 0;

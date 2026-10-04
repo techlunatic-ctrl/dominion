@@ -134,7 +134,7 @@ Jamii* jamii_changanya(JamiiMsimamizi* m, Jamii* mzazi_a, Jamii* mzazi_b, n8* ji
     }
 
     mtoto->uthabiti_wa_kijenetiki = (mzazi_a->uthabiti_wa_kijenetiki + mzazi_b->uthabiti_wa_kijenetiki) * 0.45;
-    andika("Jamii mpya imeibuka kwa kuchanganya: %s\n", jina_jipya, 0,0,0,0,0);
+    andika(d_tafsiri("m30"), jina_jipya, 0,0,0,0,0);
 
     rudisha mtoto;
 }

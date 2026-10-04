@@ -21,6 +21,7 @@
 //     lugha-swa/swa#182 (ambayo ni mahususi kwa safu za miundo).
 
 husisha { msingi/msingi_civ.swa }
+husisha { msingi/lugha_dominion.swa }
 
 // ---------- Kitendo cha upinzani (badala ya civ_opposition_action_t) ----------
 n32 SIASA_UPINZANI_HISANI = 0;
@@ -59,19 +60,19 @@ CivMatokeo siasa_upinzani_fanya_kitendo(SiasaMpinzani* mchezaji, n32 kitendo) {
     kama (kitendo == SIASA_UPINZANI_HISANI) {
         mchezaji->umaarufu = mchezaji->umaarufu + 0.05;
         mchezaji->ushawishi = mchezaji->ushawishi - 20.0;
-        civ_log(CIV_LOG_TAARIFA, "Amefanya kazi za hisani. Umaarufu umeongezeka.\n", 0, 0, 0, 0, 0, 0);
+        civ_log(CIV_LOG_TAARIFA, d_tafsiri("m21"), 0, 0, 0, 0, 0, 0);
     } sivyo { kama (kitendo == SIASA_UPINZANI_PROPAGANDA) {
         mchezaji->umaarufu = mchezaji->umaarufu + 0.02;
         mchezaji->msimamo_mkali = mchezaji->msimamo_mkali + 0.05;
-        civ_log(CIV_LOG_TAARIFA, "Amesambaza propaganda. Msimamo mkali unapanda.\n", 0, 0, 0, 0, 0, 0);
+        civ_log(CIV_LOG_TAARIFA, d_tafsiri("m22"), 0, 0, 0, 0, 0, 0);
     } sivyo { kama (kitendo == SIASA_UPINZANI_JARIBIO_LA_MAPINDUZI) {
         kama (mchezaji->umaarufu > 0.7 && mchezaji->ushawishi > 500.0) {
-            civ_log(CIV_LOG_ONYO, "MAPINDUZI YAMEANZA!\n", 0, 0, 0, 0, 0, 0);
+            civ_log(CIV_LOG_ONYO, d_tafsiri("m23"), 0, 0, 0, 0, 0, 0);
             r.hitilafu = CIV_SAWA;
             r.ujumbe = "MAPINDUZI_YAMEFANIKIWA";
             rudisha r;
         } sivyo {
-            civ_log(CIV_LOG_HITILAFU, "Mapinduzi yameshindwa kwa uungwaji mkono mdogo.\n", 0, 0, 0, 0, 0, 0);
+            civ_log(CIV_LOG_HITILAFU, d_tafsiri("m24"), 0, 0, 0, 0, 0, 0);
             mchezaji->umaarufu = 0.0;
             r.hitilafu = CIV_HITILAFU_HALI_MBAYA;
             r.ujumbe = "MAPINDUZI_YAMESHINDWA";
@@ -91,7 +92,7 @@ CivMatokeo siasa_upinzani_weka_ukandamizaji(n32 kiwango, SiasaMpinzani* lengwa) 
     // civ_log haikubaliki hapa: hoja zake za n64 haziruhusu kielekezi
     // (jina ni n8*) — mkaguzi hukataa. andika() inakubali kwa uhuru
     // zaidi (ni externi), hivyo tumia moja kwa moja.
-    andika("Kiongozi ameweka ukandamizaji wa kiwango %d kwa %s\n",
+    andika(d_tafsiri("m19"),
            kiwango, lengwa->jina, 0, 0, 0, 0);
 
     kama (kiwango == SIASA_UKANDAMIZAJI_UPELELEZI) {
@@ -102,7 +103,7 @@ CivMatokeo siasa_upinzani_weka_ukandamizaji(n32 kiwango, SiasaMpinzani* lengwa) 
         kama (nasibu > 30) { lengwa->anafanya_kazi = 1; } sivyo { lengwa->anafanya_kazi = 0; }
     } sivyo { kama (kiwango == SIASA_UKANDAMIZAJI_KUONDOLEWA) {
         lengwa->anafanya_kazi = 0;
-        andika("%s ameondolewa kwenye maisha ya kisiasa.\n", lengwa->jina, 0, 0, 0, 0, 0);
+        andika(d_tafsiri("m20"), lengwa->jina, 0, 0, 0, 0, 0);
     } } }
 
     rudisha r;

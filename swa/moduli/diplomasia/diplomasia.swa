@@ -13,6 +13,7 @@
 
 husisha { msingi/msingi_civ.swa }
 husisha { msingi/maktaba/mfuatano.swa }
+husisha { msingi/lugha_dominion.swa }
 
 n32 DIPLOMASIA_KIWANGO_VITA = -2;
 n32 DIPLOMASIA_KIWANGO_UADUI = -1;
@@ -199,7 +200,7 @@ CivMatokeo diplomasia_pendekeza_mkataba(DiplomasiaMfumo* ds, n8* mpendekezaji, n
 w0 diplomasia_ongeza_malalamiko(DiplomasiaUhusiano* r, d64 kiasi, n8* sababu) {
     r->malalamiko = r->malalamiko + kiasi;
     kama (kiasi > 0.5) { r->sababu_kuu_ya_vita = sababu; }
-    andika("Malalamiko yameongezwa: %s\n", sababu, 0,0,0,0,0);
+    andika(d_tafsiri("m35"), sababu, 0,0,0,0,0);
 }
 
 n32 diplomasia_ina_sababu_halali_ya_vita(DiplomasiaUhusiano* r) {

@@ -16,6 +16,7 @@
 // kinachokosekana ili muundo huu uweze kujaribiwa/kutumika kabisa.
 
 husisha { msingi/msingi_civ.swa }
+husisha { msingi/lugha_dominion.swa }
 husisha { moduli/utawala/interaction/mwingiliano.swa }
 
 n32 UTAWALA_MAZUNGUMZO_CHAGUO_UWEZO_AWALI = 4;
@@ -122,7 +123,7 @@ CivMatokeo utawala_mazungumzo_chagua_chaguo(UtawalaMazungumzo* m, n32 faharisi_y
         rudisha r;
     }
     UtawalaMazungumzoChaguo* c = utawala_mazungumzo_nodi_pata_chaguo(nodi_ya_sasa, faharisi_ya_chaguo);
-    andika("Chaguo limechaguliwa: %s\n", c->maandishi, 0,0,0,0,0);
+    andika(d_tafsiri("m17"), c->maandishi, 0,0,0,0,0);
     rudisha r;
 }
 
