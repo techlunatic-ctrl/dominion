@@ -170,6 +170,7 @@
 // mzunguko wa Mchezo/sasisha.
 
 husisha { msingi/msingi_civ.swa }
+husisha { msingi/lugha_dominion.swa }
 husisha { moduli/utamaduni/kitambulisho.swa }
 husisha { moduli/utamaduni/kuenea.swa }
 husisha { moduli/utamaduni/itikadi.swa }
@@ -419,6 +420,9 @@ muundo Mchezo {
     // utamaduni_kitambulisho_addr iliyopo TAYARI.
     n64 mageuko_lugha_addr;
     n64 siasa_addr;
+
+    // i18n (lugha_dominion.swa) -- TOFAUTI na mageuko_lugha_addr.
+    n64 lugha_addr;
 };
 
 InjiniMudaMfumo* mchezo_pata_muda(Mchezo* g) { rudisha g->muda_addr; }
@@ -613,6 +617,18 @@ w0 mchezo_weka_mageuko_lugha(Mchezo* g, UtamaduniMageukoMfumo* v) { g->mageuko_l
 SiasaMfumo* mchezo_pata_siasa(Mchezo* g) { rudisha g->siasa_addr; }
 w0 mchezo_weka_siasa(Mchezo* g, SiasaMfumo* v) { g->siasa_addr = v; }
 
+LughaMfumo* mchezo_pata_lugha_mfumo(Mchezo* g) { rudisha g->lugha_addr; }
+w0 mchezo_weka_lugha_mfumo(Mchezo* g, LughaMfumo* v) { g->lugha_addr = v; }
+
+// hubadilisha lugha hai: mchezo_weka_lugha(g, "en")
+w0 mchezo_weka_lugha(Mchezo* g, n8* kodi) {
+    kama (g == 0) { rudisha; }
+    LughaMfumo* l = mchezo_pata_lugha_mfumo(g);
+    kama (l != 0) {
+        lugha_weka_lugha_hai(l, kodi);
+    }
+}
+
 w0 mchezo_usanidi_chaguomsingi(MchezoUsanidi* u) {
     kama (u == 0) { rudisha; }
     u->jina = "Ustaarabu Mpya";
@@ -696,6 +712,11 @@ Mchezo* mchezo_unda() {
     g->utendaji.idadi_ya_sasisho = 0;
     g->utendaji.muda_wa_wastani_wa_sasisho = 0.0;
     g->utendaji.muda_wa_mwisho_wa_sasisho = 0.0;
+
+    // i18n: iundwe HAPA, kabla ya dunia_taifa_kwanza_*.
+    LughaMfumo* lugha = d_lugha_unda();
+    mchezo_weka_lugha_mfumo(g, lugha);
+
     rudisha g;
 }
 
@@ -925,7 +946,7 @@ CivMatokeo mchezo_anzisha(Mchezo* g, MchezoUsanidi* usanidi) {
     g->imesimamishwa = 0;
     g->zamu_ya_sasa = 1;
 
-    andika("[MCHEZO] Umeanzishwa kwenye zamu %d\n", g->zamu_ya_sasa, 0,0,0,0,0);
+    andika(d_tafsiri("m1"), g->zamu_ya_sasa, 0,0,0,0,0);
 
     r.hitilafu = CIV_SAWA;
     r.ujumbe = 0;
@@ -1422,6 +1443,9 @@ w0 mchezo_zima_mifumo_huru(Mchezo* g) {
 
     SiasaMfumo* siasa_zima = mchezo_pata_siasa(g);
     kama (siasa_zima != 0) { siasa_mfumo_uharibu(siasa_zima); }
+
+    LughaMfumo* lugha_zima = mchezo_pata_lugha_mfumo(g);
+    kama (lugha_zima != 0) { d_lugha_funga(lugha_zima); }
 }
 
 CivMatokeo mchezo_maliza_zamu(Mchezo* g) {
@@ -1444,7 +1468,7 @@ CivMatokeo mchezo_maliza_zamu(Mchezo* g) {
         wakala_injini_sasisha_zamu(wakala, saa->mwaka_wa_ulimwengu, saa->siku_ya_ulimwengu);
     }
 
-    andika("[MCHEZO] Zamu imekamilika, zamu mpya: %d\n", g->zamu_ya_sasa, 0,0,0,0,0);
+    andika(d_tafsiri("m2"), g->zamu_ya_sasa, 0,0,0,0,0);
     r.hitilafu = CIV_SAWA;
     r.ujumbe = 0;
     rudisha r;

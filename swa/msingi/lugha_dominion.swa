@@ -1,0 +1,87 @@
+// i18n ya Dominion juu ya lugha.swa. d_tafsiri(ufunguo): kazi PEKEE
+// ya kuitwa badala ya literal. GLOBAL moja (D_LUGHA_HAI_ADDR); Mchezo
+// ndiye mmiliki (field lugha_addr, mchezo.swa). WIGO: kikomo cha 1MB
+// cha stage1 (98.7% kabla ya faili hili) -- m1..m16 ni sehemu (15/31)
+// ya ujumbe; t1..t8 (mataifa) ni yote. Angalia ripoti ya kazi hii.
+husisha { msingi/msingi_civ.swa }
+husisha { msingi/maktaba/mfuatano.swa }
+husisha { msingi/maktaba/ramani.swa }
+husisha { msingi/maktaba/lugha.swa }
+
+n64 D_LUGHA_HAI_ADDR = 0;
+
+LughaMfumo* d_lugha_hai() {
+    rudisha D_LUGHA_HAI_ADDR;
+}
+
+w0 d_sajili(LughaMfumo* l, n8* ufunguo, n8* sw, n8* en, n8* fr) {
+    lugha_sajili(l, ufunguo, "sw", sw);
+    lugha_sajili(l, ufunguo, "en", en);
+    lugha_sajili(l, ufunguo, "fr", fr);
+}
+
+w0 d_sajili_zote(LughaMfumo* l) {
+    d_sajili(l, "t1", "Utawala wa Kifalme", "Royal Monarchy", "Monarchie Royale");
+    d_sajili(l, "t2", "Muungano wa Kibiashara", "Trade Union", "Union Commerciale");
+    d_sajili(l, "t3", "Dola ya Kidini", "Religious State", "État Religieux");
+    d_sajili(l, "t4", "Shirikisho la Kidemokrasia", "Democratic Federation", "Fédération Démocratique");
+    d_sajili(l, "t5", "Muungano wa Kiteknolojia", "Technological Union", "Union Technologique");
+    d_sajili(l, "t6", "Jeshi la Kihamaji", "Nomadic Army", "Armée Nomade");
+    d_sajili(l, "t7", "Ushirika wa Kilimo", "Agricultural Cooperative", "Coopérative Agricole");
+    d_sajili(l, "t8", "Walinzi wa Pori", "Wilderness Guardians", "Gardiens Sauvages");
+
+    d_sajili(l, "m1", "[MCHEZO] Umeanzishwa kwenye zamu %d\n",
+        "[GAME] Started on turn %d\n", "[JEU] Démarré au tour %d\n");
+    d_sajili(l, "m2", "[MCHEZO] Zamu imekamilika, zamu mpya: %d\n",
+        "[GAME] Turn complete, new turn: %d\n", "[JEU] Tour fini, tour %d\n");
+    d_sajili(l, "m3", "Jamii mpya imeibuka: %s\n",
+        "A new society has emerged: %s\n", "Une société a émergé : %s\n");
+    d_sajili(l, "m5", "MLIPUKO WA UGONJWA umetokea!\n",
+        "A DISEASE OUTBREAK has occurred!\n", "UNE ÉPIDÉMIE s'est déclarée !\n");
+    d_sajili(l, "m6", "Mlipuko wa ugonjwa umeisha.\n",
+        "The disease outbreak has ended.\n", "L'épidémie a pris fin.\n");
+    d_sajili(l, "m7", "[SOVEREIGN] %s AMEASI! Uaminifu: %d\n",
+        "[SOVEREIGN] %s REBELLED! Loyalty: %d\n", "[SOUVERAIN] %s REBELLE ! Loyauté : %d\n");
+    d_sajili(l, "m8", "KITENGO KIMEPANDISHWA CHEO: %s kimefikia Ngazi %d!\n",
+        "UNIT PROMOTED: %s, Level %d!\n", "UNITÉ PROMUE : %s, Niveau %d !\n");
+    d_sajili(l, "m9", "Pendekezo la muungano kati ya %s na %s: LIMEKUBALIWA\n",
+        "Union proposal %s-%s: ACCEPTED\n", "Union %s-%s : ACCEPTÉE\n");
+    d_sajili(l, "m10", "Pendekezo la muungano kati ya %s na %s: LIMEKATALIWA\n",
+        "Union proposal %s-%s: REJECTED\n", "Union %s-%s : REJETÉE\n");
+    d_sajili(l, "m11", "Dini %s imeenea kwenda %s (ufikiaji mpya: %d)\n",
+        "Religion %s spread to %s (reach: %d)\n", "Religion %s étendue à %s (portée : %d)\n");
+    d_sajili(l, "m12", "Ukaguzi umegundua rushwa kwenye nodi %s\n",
+        "Audit found corruption at node %s\n", "Corruption détectée au nœud %s\n");
+    d_sajili(l, "m13", "[AI] %s alianzisha makazi mapya kwenye (%d,%d) (Ufaafu: %d%%)\n",
+        "[AI] %s settled at (%d,%d) (Suitability: %d%%)\n",
+        "[IA] %s s'est installé à (%d,%d) (Aptitude : %d%%)\n");
+    d_sajili(l, "m14", "\n--- RIPOTI YA AFYA YA JAMII ---\n",
+        "\n--- SOCIETAL HEALTH REPORT ---\n", "\n--- RAPPORT DE SANTÉ SOCIÉTALE ---\n");
+    d_sajili(l, "m15", "Utambulisho wa Taifa: %s\n",
+        "Nation Identity: %s\n", "Identité de la Nation : %s\n");
+    d_sajili(l, "m16", "Cheo cha Serikali: %s\n",
+        "Government Position: %s\n", "Poste Gouvernemental : %s\n");
+}
+
+LughaMfumo* d_lugha_unda() {
+    LughaMfumo* l = lugha_unda(512);
+    d_sajili_zote(l);
+    D_LUGHA_HAI_ADDR = l;
+    rudisha l;
+}
+
+w0 d_lugha_funga(LughaMfumo* l) {
+    kama (l != 0) {
+        lugha_huru(l);
+    }
+    D_LUGHA_HAI_ADDR = 0;
+}
+
+// jiunde mwenyewe ikiwa hakuna LughaMfumo bado (jaribio la moduli).
+n8* d_tafsiri(n8* ufunguo) {
+    LughaMfumo* l = d_lugha_hai();
+    kama (l == 0) {
+        l = d_lugha_unda();
+    }
+    rudisha lugha_tafsiri(l, ufunguo);
+}

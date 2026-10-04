@@ -52,6 +52,7 @@
 
 husisha { msingi/msingi_civ.swa }
 husisha { msingi/maktaba/mfuatano.swa }
+husisha { msingi/lugha_dominion.swa }
 husisha { moduli/akili/msingi.swa }
 husisha { moduli/diplomasia/diplomasia.swa }
 husisha { moduli/dunia/makazi.swa }
@@ -450,7 +451,7 @@ CivMatokeo akili_mkakati_shughulikia_upanuzi(AkiliMkakati* ai, DuniaMakaziMsimam
                 n64 tx_n = tx;
                 n64 ty_n = ty;
                 n64 ufaafu_asilimia = ufaafu * 100.0;
-                andika("[AI] %s alianzisha makazi mapya kwenye (%d,%d) (Ufaafu: %d%%)\n",
+                andika(d_tafsiri("m13"),
                        msingi->jina, tx_n, ty_n, ufaafu_asilimia, 0, 0);
 
                 ai->zamu_ya_mwisho_ya_upanuzi = zamu_ya_sasa;

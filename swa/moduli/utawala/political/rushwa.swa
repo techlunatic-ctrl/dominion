@@ -8,6 +8,7 @@
 
 husisha { msingi/msingi_civ.swa }
 husisha { msingi/maktaba/mfuatano.swa }
+husisha { msingi/lugha_dominion.swa }
 
 n32 UTAWALA_RUSHWA_HONGO = 0;
 n32 UTAWALA_RUSHWA_UPENDELEO_WA_UKOO = 1;
@@ -133,7 +134,7 @@ CivMatokeo utawala_rushwa_fanya_ukaguzi(UtawalaRushwaInjini* e, d64 ukubwa) {
         UtawalaRushwaNodi* n = utawala_rushwa_pata_nodi(e, i);
         kama (n->ushiriki > (1.0 - nguvu_ya_kugundua)) {
             n->ushiriki = n->ushiriki * (1.0 - ukubwa);
-            andika("Ukaguzi umegundua rushwa kwenye nodi %s\n", n->kitambulisho_cha_mtu, 0,0,0,0,0);
+            andika(d_tafsiri("m12"), n->kitambulisho_cha_mtu, 0,0,0,0,0);
         }
         i = i + 1;
     }

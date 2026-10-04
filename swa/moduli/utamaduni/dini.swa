@@ -16,6 +16,7 @@
 husisha { msingi/msingi_civ.swa }
 husisha { msingi/maktaba/mfuatano.swa }
 husisha { msingi/maktaba/kumbukumbu.swa }
+husisha { msingi/lugha_dominion.swa }
 
 n32 UTAMADUNI_DINI_MILA = 0;
 n32 UTAMADUNI_DINI_UENEZAJI = 1;
@@ -88,7 +89,7 @@ n32 utamaduni_dini_eneza(UtamaduniDini* dini, n8* mkoa_lengwa_id, d64 kiwango) {
     dini->ufikiaji_wa_dunia = dini->ufikiaji_wa_dunia + kiwango * dini->mori * 0.01;
     dini->ufikiaji_wa_dunia = finya_d64(dini->ufikiaji_wa_dunia, 0.0, 1.0);
 
-    andika("Dini %s imeenea kwenda %s (ufikiaji mpya: %d)\n",
+    andika(d_tafsiri("m11"),
         dini->jina, mkoa_lengwa_id, 0, 0, 0, 0);
 
     rudisha CIV_SAWA;

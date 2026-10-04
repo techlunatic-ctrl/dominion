@@ -28,6 +28,7 @@
 
 husisha { msingi/msingi_civ.swa }
 husisha { msingi/maktaba/mfuatano.swa }
+husisha { msingi/lugha_dominion.swa }
 husisha { moduli/dunia/ramani.swa }
 husisha { moduli/mazingira/jiografia.swa }
 
@@ -338,7 +339,7 @@ w0 dunia_makazi_sasisha_moja(DuniaMakazi* s, DuniaRamani* ramani, d64 muda) {
         n32 ni_mji_mkuu = linganisha_mfuatano(s->kitambulisho, "player_capital");
         kama (ni_mji_mkuu != 0) {
             s->eneo_id = "REBELS";
-            andika("[SOVEREIGN] %s AMEASI! Uaminifu: %d\n", s->jina, 0,0,0,0,0);
+            andika(d_tafsiri("m7"), s->jina, 0,0,0,0,0);
         }
     }
 

@@ -8,6 +8,7 @@
 // (LCG ya msingi_civ.swa) badala ya kutegemea libc.
 
 husisha { msingi/msingi_civ.swa }
+husisha { msingi/lugha_dominion.swa }
 
 muundo UhaiUgonjwa {
     n8 jina_0; n8 jina_1; n8 jina_2; n8 jina_3; n8 jina_4; n8 jina_5;
@@ -47,7 +48,7 @@ w0 uhai_sasisha(UhaiMfumo* v, d64 muda) {
         n32 nasibu = civ_nasibu_chini_ya(100);
         kama (nasibu < 5) {
             v->kuna_mlipuko = 0;
-            andika("Mlipuko wa ugonjwa umeisha.\n", 0,0,0,0,0,0);
+            andika(d_tafsiri("m6"), 0,0,0,0,0,0);
         }
     } sivyo {
         v->afya_ya_jumla = v->afya_ya_jumla + 0.01 * muda;
@@ -62,7 +63,7 @@ CivMatokeo uhai_anzisha_mlipuko(UhaiMfumo* v, d64 uwezo_wa_kuua) {
     v->mlipuko.ukali = uwezo_wa_kuua * 2.0;
     v->mlipuko.unafanya_kazi = 1;
 
-    andika("MLIPUKO WA UGONJWA umetokea!\n", 0,0,0,0,0,0);
+    andika(d_tafsiri("m5"), 0,0,0,0,0,0);
 
     CivMatokeo r;
     r.hitilafu = CIV_SAWA;

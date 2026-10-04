@@ -16,6 +16,7 @@
 
 husisha { msingi/msingi_civ.swa }
 husisha { msingi/maktaba/mfuatano.swa }
+husisha { msingi/lugha_dominion.swa }
 
 n32 JAMII_SIFA_KIWANGO_CHA_JUU = 8;
 n32 JAMII_IDADI_KIWANGO_CHA_JUU = 16;
@@ -103,7 +104,7 @@ Jamii* jamii_ibuka(JamiiMsimamizi* m, n8* jina, n8* eneo_id) {
     j->uthabiti_wa_kijenetiki = 0.9;
     j->wakati_wa_kuibuka = 0;
 
-    andika("Jamii mpya imeibuka: %s\n", jina, 0,0,0,0,0);
+    andika(d_tafsiri("m3"), jina, 0,0,0,0,0);
 
     rudisha j;
 }

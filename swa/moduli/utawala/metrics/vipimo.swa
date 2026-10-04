@@ -10,6 +10,7 @@
 // tayari kwenye maendeleo.swa, inayofanya kazi ileile).
 
 husisha { msingi/msingi_civ.swa }
+husisha { msingi/lugha_dominion.swa }
 husisha { moduli/utawala/maendeleo.swa }
 husisha { moduli/utamaduni/kitambulisho.swa }
 husisha { moduli/utamaduni/itikadi.swa }
@@ -73,9 +74,9 @@ UtawalaVipimoAfya utawala_vipimo_hesabu_afya(UtawaliHali* serikali,
 
 w0 utawala_vipimo_onyesha(UtawalaVipimoAfya* afya) {
     kama (afya == 0) { rudisha; }
-    andika("\n--- RIPOTI YA AFYA YA JAMII ---\n", 0,0,0,0,0,0);
-    andika("Utambulisho wa Taifa: %s\n", afya->kitambulisho_cha_taifa, 0,0,0,0,0);
-    andika("Cheo cha Serikali: %s\n", afya->cheo_kikuu, 0,0,0,0,0);
+    andika(d_tafsiri("m14"), 0,0,0,0,0,0);
+    andika(d_tafsiri("m15"), afya->kitambulisho_cha_taifa, 0,0,0,0,0);
+    andika(d_tafsiri("m16"), afya->cheo_kikuu, 0,0,0,0,0);
     andika("------------------------------\n", 0,0,0,0,0,0);
 }
 

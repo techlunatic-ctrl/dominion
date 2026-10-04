@@ -43,6 +43,7 @@
 
 husisha { msingi/msingi_civ.swa }
 husisha { msingi/maktaba/mfuatano.swa }
+husisha { msingi/lugha_dominion.swa }
 husisha { moduli/utawala/serikali.swa }
 husisha { moduli/taifa/katiba.swa }
 husisha { moduli/dunia/mataifa_data.swa }
@@ -271,7 +272,7 @@ w0 dunia_taifa_anzisha_serikali_chaguo_msingi(TaifaNchi* t) {
 
 w0 dunia_taifa_kwanza_kifalme(TaifaNchi* t) {
     t->kitambulisho = "utawala_wa_kifalme";
-    t->jina = "Utawala wa Kifalme";
+    t->jina = d_tafsiri("t1");
     t->rangi = 13382656; t->rangi_pambizo = 16755780;
     t->kielezo_cha_teknolojia = 280; t->kielezo_cha_uchumi = 320;
     t->kielezo_cha_kijeshi = 340; t->kielezo_cha_utamaduni = 220;
@@ -316,7 +317,7 @@ w0 dunia_taifa_kwanza_kifalme(TaifaNchi* t) {
 
 w0 dunia_taifa_kwanza_kibiashara(TaifaNchi* t) {
     t->kitambulisho = "muungano_wa_kibiashara";
-    t->jina = "Muungano wa Kibiashara";
+    t->jina = d_tafsiri("t2");
     t->rangi = 14329120; t->rangi_pambizo = 16766720;
     t->kielezo_cha_teknolojia = 300; t->kielezo_cha_uchumi = 420;
     t->kielezo_cha_kijeshi = 180; t->kielezo_cha_utamaduni = 280;
@@ -361,7 +362,7 @@ w0 dunia_taifa_kwanza_kibiashara(TaifaNchi* t) {
 
 w0 dunia_taifa_kwanza_kidini(TaifaNchi* t) {
     t->kitambulisho = "dola_ya_kidini";
-    t->jina = "Dola ya Kidini";
+    t->jina = d_tafsiri("t3");
     t->rangi = 9109708; t->rangi_pambizo = 13385471;
     t->kielezo_cha_teknolojia = 180; t->kielezo_cha_uchumi = 220;
     t->kielezo_cha_kijeshi = 240; t->kielezo_cha_utamaduni = 440;
@@ -410,7 +411,7 @@ w0 dunia_taifa_kwanza_kidini(TaifaNchi* t) {
 
 w0 dunia_taifa_kwanza_kidemokrasia(TaifaNchi* t) {
     t->kitambulisho = "shirikisho_la_kidemokrasia";
-    t->jina = "Shirikisho la Kidemokrasia";
+    t->jina = d_tafsiri("t4");
     t->rangi = 2244095; t->rangi_pambizo = 6737151;
     t->kielezo_cha_teknolojia = 360; t->kielezo_cha_uchumi = 340;
     t->kielezo_cha_kijeshi = 160; t->kielezo_cha_utamaduni = 380;
@@ -462,7 +463,7 @@ w0 dunia_taifa_kwanza_kidemokrasia(TaifaNchi* t) {
 
 w0 dunia_taifa_kwanza_kiteknolojia(TaifaNchi* t) {
     t->kitambulisho = "muungano_wa_kiteknolojia";
-    t->jina = "Muungano wa Kiteknolojia";
+    t->jina = d_tafsiri("t5");
     t->rangi = 43724; t->rangi_pambizo = 4587007;
     t->kielezo_cha_teknolojia = 520; t->kielezo_cha_uchumi = 280;
     t->kielezo_cha_kijeshi = 140; t->kielezo_cha_utamaduni = 200;
@@ -507,7 +508,7 @@ w0 dunia_taifa_kwanza_kiteknolojia(TaifaNchi* t) {
 
 w0 dunia_taifa_kwanza_kijeshi(TaifaNchi* t) {
     t->kitambulisho = "jeshi_la_kihamaji";
-    t->jina = "Jeshi la Kihamaji";
+    t->jina = d_tafsiri("t6");
     t->rangi = 13369344; t->rangi_pambizo = 16724531;
     t->kielezo_cha_teknolojia = 140; t->kielezo_cha_uchumi = 160;
     t->kielezo_cha_kijeshi = 480; t->kielezo_cha_utamaduni = 140;
@@ -548,7 +549,7 @@ w0 dunia_taifa_kwanza_kijeshi(TaifaNchi* t) {
 
 w0 dunia_taifa_kwanza_kilimo(TaifaNchi* t) {
     t->kitambulisho = "ushirika_wa_kilimo";
-    t->jina = "Ushirika wa Kilimo";
+    t->jina = d_tafsiri("t7");
     t->rangi = 2261504; t->rangi_pambizo = 4513604;
     t->kielezo_cha_teknolojia = 200; t->kielezo_cha_uchumi = 260;
     t->kielezo_cha_kijeshi = 120; t->kielezo_cha_utamaduni = 260;
@@ -593,7 +594,7 @@ w0 dunia_taifa_kwanza_kilimo(TaifaNchi* t) {
 
 w0 dunia_taifa_kwanza_walinzi(TaifaNchi* t) {
     t->kitambulisho = "walinzi_wa_pori";
-    t->jina = "Walinzi wa Pori";
+    t->jina = d_tafsiri("t8");
     t->rangi = 2263108; t->rangi_pambizo = 2277512;
     t->kielezo_cha_teknolojia = 220; t->kielezo_cha_uchumi = 180;
     t->kielezo_cha_kijeshi = 140; t->kielezo_cha_utamaduni = 400;

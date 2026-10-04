@@ -11,6 +11,7 @@
 
 husisha { msingi/msingi_civ.swa }
 husisha { msingi/maktaba/mfuatano.swa }
+husisha { msingi/lugha_dominion.swa }
 
 n32 JESHI_AINA_ASKARI = 0;
 n32 JESHI_AINA_WAPANDA_FARASI = 1;
@@ -197,7 +198,7 @@ w0 jeshi_kitengo_pandisha_ngazi(JeshiKitengo* kitengo) {
         kitengo->nguvu_ya_vita = kitengo->nguvu_ya_vita * 1.10;
         kitengo->kasi_ya_mwendo = kitengo->kasi_ya_mwendo * 1.05;
 
-        andika("KITENGO KIMEPANDISHWA CHEO: %s kimefikia Ngazi %d!\n",
+        andika(d_tafsiri("m8"),
             kitengo->jina, kitengo->ngazi, 0, 0, 0, 0);
     }
 }

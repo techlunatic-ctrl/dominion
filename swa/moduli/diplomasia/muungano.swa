@@ -13,6 +13,7 @@
 
 husisha { msingi/msingi_civ.swa }
 husisha { msingi/maktaba/mfuatano.swa }
+husisha { msingi/lugha_dominion.swa }
 
 n32 MUUNGANO_HATUA_USHIRIKIANO_WA_SOKO = 0;
 n32 MUUNGANO_HATUA_UMOJA_WA_SARAFU = 1;
@@ -44,9 +45,9 @@ MuunganoMatokeo muungano_pendekeza(n8* taifa_a, n8* taifa_b, n32 lengo) {
     }
 
     kama (matokeo.mafanikio != 0) {
-        andika("Pendekezo la muungano kati ya %s na %s: LIMEKUBALIWA\n", taifa_a, taifa_b, 0,0,0,0);
+        andika(d_tafsiri("m9"), taifa_a, taifa_b, 0,0,0,0);
     } sivyo {
-        andika("Pendekezo la muungano kati ya %s na %s: LIMEKATALIWA\n", taifa_a, taifa_b, 0,0,0,0);
+        andika(d_tafsiri("m10"), taifa_a, taifa_b, 0,0,0,0);
     }
 
     rudisha matokeo;
