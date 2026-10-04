@@ -1,0 +1,148 @@
+husisha { moduli/onyesho/fonti.swa }
+husisha { moduli/idadi_ya_watu/idadi_ya_watu.swa }
+husisha { moduli/dunia/taifa.swa }
+husisha { msingi/maktaba/mfuatano.swa }
+
+// hud.swa -- skrini ya KWANZA ya takwimu za moja kwa moja (HUD) ya
+// mradi huu: huchora maandishi YALIYOTOKANA NA HALI HALISI ya mifumo
+// ya mchezo (idadi ya watu, zamu, orodha ya mataifa na pato lao
+// ghafi) juu ya framebuffer YOYOTE ya XRGB8888, kwa kutumia fonti.swa
+// + mchoro.swa (hazina maktaba ya nje, sawa na onyesho/* nzima).
+//
+// MUHIMU -- KWA NINI faili hili HALIHUSISHI moduli/mchezo.swa
+// moja kwa moja (tofauti na jaribio_mchezo_kamili.swa): mkusanyaji
+// wa Swa una kikomo KISICHOBADILIKA cha baiti 1,048,576 za chanzo
+// (baada ya kutatua husisha ZOTE, hesabu ya RAW ikiwemo maoni) kwa
+// kila PROGRAMU MOJA (angalia ongeza_chanzo, msingi/mkusanyaji/
+// stage1.swa, lugha-swa/swa). Imepimwa moja kwa moja: msururu wa
+// husisha wa moduli/mchezo.swa PEKEE (mifumo 47) tayari unafikia
+// baiti 1,034,722 -- 98.7% ya kikomo -- ukiacha nafasi ya ~baiti
+// 13,854 TU. fonti.swa (fonti ya 8x16, herufi 121) pekee ni ~baiti
+// 52,500 -- zaidi ya mara 3 ya nafasi iliyobaki. Kwa hiyo HAKUNA njia
+// ya kuunganisha moduli/mchezo.swa (Mchezo kamili) na fonti.swa yenye
+// herufi kamili KATIKA PROGRAMU MOJA kwa sasa -- hii SI mdudu
+// (ongeza_chanzo inatekeleza kikomo chake kwa usahihi), ni ukomo wa
+// kiwango ambao mradi huu (Dominion) umefikia kwa mara ya kwanza.
+// Badala ya kudai uongo kuwa Mchezo kamili imeunganishwa, faili hili
+// linasoma SUBMODULI HALISI mbili zinazotoa data ya HUD hii moja kwa
+// moja (idadi_ya_watu.swa + taifa.swa -- hizi ndizo moduli HALISI
+// ambazo mchezo_pata_idadi_ya_watu/mchezo_pata_taifa zingerudisha),
+// bila kuhusisha mfumo mzima wa mchezo.swa. Mwito halisi (jaribio_hud.swa)
+// huunda IdadiYaWatuMsimamizi/TaifaMfumo HALISI kwa kutumia kazi
+// ZILE ZILE ambazo mchezo_anzisha/mchezo_sasisha hutumia ndani
+// (idadi_ya_watu_unda/idadi_ya_watu_sasisha, dunia_taifa_mfumo_unda/
+// dunia_taifa_mfumo_anzisha_chaguo_msingi/dunia_taifa_hesabu_uchumi_wote)
+// -- data ni HALISI na si bandia, tu haijafungwa ndani ya muundo wa
+// juu wa Mchezo.
+//
+// WIGO: HUSOMA TU accessors zilizopo tayari (idadi_ya_watu_pata_jumla,
+// dunia_taifa_mfumo_pata_kwa_faharisi, n.k.) -- halibadilishi
+// mchezo.swa wala maandiko ya wachezaji (kazi nyingine sambamba
+// inaunganisha i18n kwenye mchezo.swa kwa sasa). Maandiko ya HUD hii
+// mwenyewe (vichwa vya safu, n.k.) ni ya ndani ya faili hili pekee.
+//
+// HII BADO SI "UI": hakuna usimamizi wa dirisha, hakuna
+// mwingiliano (hakuna kusoma kibodi/mouse kwenye HUD hii -- hiyo
+// ipo kwenye kifaa/ingizo.swa tayari lakini bado haijaunganishwa
+// hapa), hakuna uchoraji upya wa moja kwa moja (frame loop) --
+// ni muundo WA KWANZA wa "chora skrini moja, mara moja", unaothibitisha
+// kwamba maandishi ya data halisi ya mchezo YANAWEZA kuonyeshwa
+// kwenye pikseli, si zaidi.
+
+n64 ONYESHO_HUD_UPANA = 480;
+n64 ONYESHO_HUD_KIMO = 280;
+n64 ONYESHO_HUD_MSTARI = 20;
+n64 ONYESHO_HUD_X_KINGO = 8;
+n64 ONYESHO_HUD_RANGI_MAANDISHI = 4294967295;  // nyeupe, XRGB8888
+
+// OnyeshoHudHoja -- zaidi ya vigezo 6, fungwa kwenye muundo (kanuni
+// za usanifu za mradi). Hoja hazitegemei Mchezo/mchezo.swa (angalia
+// maelezo juu ya faili kuhusu kikomo cha baiti 1,048,576 cha chanzo) --
+// mwitaji (jaribio_hud.swa) hupitisha vielekezi HALISI vya mifumo
+// midogo moja kwa moja, kama vile mchezo_pata_idadi_ya_watu(g)/
+// mchezo_pata_taifa(g) zingerudisha kama Mchezo kamili ingeweza
+// kuunganishwa hapa.
+muundo OnyeshoHudHoja {
+    n8* fb;
+    n64 pitch;
+    IdadiYaWatuMsimamizi* idadi_ya_watu;
+    TaifaMfumo* taifa;
+    n64 zamu;
+};
+
+// onyesho_hud_mstari_moja: jaza `mstari` (sprintf ya ndani, mfuatano_umbiza)
+// kisha uichore kwenye (x, y) -- kidogo cha ndani kinachotumika mara
+// nyingi hapa chini, kinapewa fb/pitch/canvas kama hoja kwa sababu
+// linahitajika mara nyingi ndani ya kitanzi cha mataifa.
+muundo OnyeshoHudMstariHoja {
+    n8* fb;
+    n64 pitch;
+    n64 x;
+    n64 y;
+    n8* mstari;
+};
+
+w0 onyesho_hud_chora_mstari_tayari(OnyeshoHudMstariHoja* mh) {
+    MchoroMaandishiHoja ch;
+    ch.fb = mh->fb;
+    ch.pitch = mh->pitch;
+    ch.canvas_w = ONYESHO_HUD_UPANA;
+    ch.canvas_h = ONYESHO_HUD_KIMO;
+    ch.x = mh->x;
+    ch.y = mh->y;
+    ch.maandishi = mh->mstari;
+    ch.rangi = ONYESHO_HUD_RANGI_MAANDISHI;
+    mchoro_andika_mstari(&ch);
+}
+
+// onyesho_hud_chora: skrini kuu -- kichwa, zamu ya sasa, idadi ya
+// watu jumla, kisha orodha ya mataifa yote (jina + pato ghafi la
+// uchumi, kila moja mstari wake).
+w0 onyesho_hud_chora(OnyeshoHudHoja* hoja) {
+    n8* fb = hoja->fb;
+    n64 pitch = hoja->pitch;
+
+    n8 mstari[128];
+    n64 y = 8;
+
+    mfuatano_umbiza(mstari, 128, "DOMINION -- HUD YA TAKWIMU", 0, 0, 0, 0, 0, 0);
+    OnyeshoHudMstariHoja m0;
+    m0.fb = fb; m0.pitch = pitch; m0.x = ONYESHO_HUD_X_KINGO; m0.y = y; m0.mstari = mstari;
+    onyesho_hud_chora_mstari_tayari(&m0);
+    y = y + ONYESHO_HUD_MSTARI + 4;
+
+    n64 zamu = hoja->zamu;
+    mfuatano_umbiza(mstari, 128, "ZAMU: %d", zamu, 0, 0, 0, 0, 0);
+    OnyeshoHudMstariHoja m1;
+    m1.fb = fb; m1.pitch = pitch; m1.x = ONYESHO_HUD_X_KINGO; m1.y = y; m1.mstari = mstari;
+    onyesho_hud_chora_mstari_tayari(&m1);
+    y = y + ONYESHO_HUD_MSTARI;
+
+    IdadiYaWatuMsimamizi* pm = hoja->idadi_ya_watu;
+    n64 idadi_ya_watu = idadi_ya_watu_pata_jumla(pm);
+    mfuatano_umbiza(mstari, 128, "IDADI YA WATU (jumla): %d", idadi_ya_watu, 0, 0, 0, 0, 0);
+    OnyeshoHudMstariHoja m2;
+    m2.fb = fb; m2.pitch = pitch; m2.x = ONYESHO_HUD_X_KINGO; m2.y = y; m2.mstari = mstari;
+    onyesho_hud_chora_mstari_tayari(&m2);
+    y = y + ONYESHO_HUD_MSTARI + 4;
+
+    mfuatano_umbiza(mstari, 128, "MATAIFA (jina / pato ghafi, milioni):", 0, 0, 0, 0, 0, 0);
+    OnyeshoHudMstariHoja m3;
+    m3.fb = fb; m3.pitch = pitch; m3.x = ONYESHO_HUD_X_KINGO; m3.y = y; m3.mstari = mstari;
+    onyesho_hud_chora_mstari_tayari(&m3);
+    y = y + ONYESHO_HUD_MSTARI;
+
+    TaifaMfumo* taifa = hoja->taifa;
+    n32 i = 0;
+    wakati (i < taifa->idadi) {
+        TaifaNchi* t = dunia_taifa_mfumo_pata_kwa_faharisi(taifa, i);
+        n64 gdp_ghafi = t->uchumi.pato_ghafi;
+        n8* jina_la_taifa = t->jina;
+        mfuatano_umbiza(mstari, 128, "  %s: %d", anwani(jina_la_taifa), gdp_ghafi, 0, 0, 0, 0);
+        OnyeshoHudMstariHoja mn;
+        mn.fb = fb; mn.pitch = pitch; mn.x = ONYESHO_HUD_X_KINGO; mn.y = y; mn.mstari = mstari;
+        onyesho_hud_chora_mstari_tayari(&mn);
+        y = y + ONYESHO_HUD_MSTARI;
+        i = i + 1;
+    }
+}
