@@ -315,3 +315,130 @@ w0 onyesho_dunia_duara_chora(DuniaRamani* ramani, TaifaMfumo* taifa, n8* fb, n64
     // juu ya kila kitu, kama inavyotakiwa.
     mchoro_duara_mpaka(fb, pitch, canvas_w, canvas_h, cx, cy, radius, ONYESHO_RAMANI_RANGI_UKINGO_DUARA);
 }
+
+// =====================================================================
+// AWAMU G3 -- "territory divided into regions": onyesho_taifa_mgawanyo_chora
+// =====================================================================
+//
+// Mgawanyo wa kiutawala (TaifaMgawanyo, taifa.swa) ulikuwepo TANGU
+// mwanzo (mgawanyo_0..mgawanyo_15 + idadi_ya_mgawanyo, zote zenye data
+// HALISI -- majina, vitambulisho, rangi, eneo) lakini haukuwahi
+// kuchorwa. Kazi hii ni ya KWANZA kuonyesha mgawanyo kama pikseli --
+// rangi ya kila mgawanyo TAYARI ipo kwenye data yenyewe (mg->rangi,
+// n32), SI kazi ya kukokotoa/kuchanganya hapa (TOFAUTI na tabaka la
+// umiliki la onyesho_ramani_chora, ambalo hutumia alpha-blend -- hapa
+// ni rangi NGUMU ya kiutawala, moja kwa moja).
+//
+// BOUNDING BOX KUU: TaifaNchi (taifa.swa) HAINA uwanja mmoja
+// unaoshikilia "eneo kuu" la taifa zima, tofauti na eneo_0..eneo_7 --
+// imethibitishwa kwa kusoma muundo mzima wa TaifaNchi (hakuna "eneo"
+// peke yake, ni eneo_0..eneo_7 TU + idadi_ya_maeneo). Zaidi ya hayo,
+// data iliyopo tayari (mfano dunia_taifa_kwanza_kidemokrasia, taifa.swa)
+// inaonyesha mgawanyo zikivuka zaidi ya mpaka wa eneo_0 pekee (mgawanyo
+// "Utawala wa Kaskazini" ina lon_chini=-135/lat_juu=72, ilhali eneo_0
+// ina lon_chini=-130/lat_juu=60 -- mgawanyo hiyo iko NDANI ya eneo_1,
+// SI eneo_0) -- kwa hiyo "eneo kuu" sahihi zaidi ni MUUNGANO (union)
+// wa eneo_0..eneo_(idadi_ya_maeneo-1), SI eneo_0 peke yake. Hii
+// ndiyo "dunia ndogo" inayotumika hapa chini, kwa fomula ILE ILE
+// (uwiano wa mstari) iliyothibitishwa Awamu G1/G2, lakini dhidi ya
+// mipaka ya eneo hili TU badala ya dunia nzima -360..360/-90..90.
+//
+// MPANGILIO WA TABAKA: (1) mgawanyo ZOTE zinajazwa rangi ngumu kwanza,
+// (2) mipaka myeusi myembamba (unene=1) INACHORWA MWISHO juu ya rangi
+// zote -- kama inavyotakiwa na picha ya rejea (mikoa yenye rangi
+// tofauti NA mipaka inayoonekana).
+//
+// canvas_w/canvas_h (hoja za hiari kwenye signature, SAWA na mtindo wa
+// onyesho_dunia_duara_chora) HAZITUMIKI ndani ya kazi hii -- muundo wa
+// anwani unaotumika hapa ni fb_eneo (KANUNI YA ANWANI, maoni ya juu ya
+// faili hili, sawa na onyesho_ramani_chora) ambao HUHITAJI upana_px/
+// kimo_px PEKEE kama mipaka ya ukataji (clip) -- canvas_w/canvas_h
+// zinabaki kwenye signature kwa uthabiti wa mpangilio wa hoja (kama
+// `taifa` kwenye onyesho_dunia_duara_chora, angalia maoni ya hapo juu).
+n64 ONYESHO_TAIFA_RANGI_MPAKA_MGAWANYO = 0; // 0x000000 -- mpaka mweusi
+
+w0 onyesho_taifa_mgawanyo_chora(TaifaNchi* t, n8* fb, n64 pitch, n64 canvas_w, n64 canvas_h,
+                                   n64 x, n64 y, n64 upana_px, n64 kimo_px) {
+    kama (t == 0 || fb == 0) { rudisha; }
+    kama (t->idadi_ya_maeneo < 1) { rudisha; }
+    kama (t->idadi_ya_mgawanyo < 1) { rudisha; }
+
+    n8* fb_eneo = fb + (y * pitch) + (x * 4);
+
+    // ---------- Bounding box kuu: muungano wa eneo_0..idadi_ya_maeneo-1 ----------
+    TaifaEneo* e0 = dunia_taifa_pata_eneo(t, 0);
+    d64 lon_chini_kuu = e0->lon_chini;
+    d64 lon_juu_kuu = e0->lon_juu;
+    d64 lat_chini_kuu = e0->lat_chini;
+    d64 lat_juu_kuu = e0->lat_juu;
+
+    n32 r = 1;
+    wakati (r < t->idadi_ya_maeneo) {
+        TaifaEneo* er = dunia_taifa_pata_eneo(t, r);
+        kama (er->lon_chini < lon_chini_kuu) { lon_chini_kuu = er->lon_chini; }
+        kama (er->lon_juu > lon_juu_kuu) { lon_juu_kuu = er->lon_juu; }
+        kama (er->lat_chini < lat_chini_kuu) { lat_chini_kuu = er->lat_chini; }
+        kama (er->lat_juu > lat_juu_kuu) { lat_juu_kuu = er->lat_juu; }
+        r = r + 1;
+    }
+
+    d64 upana_shahada = lon_juu_kuu - lon_chini_kuu;
+    kama (upana_shahada <= 0.0) { upana_shahada = 1.0; }
+    d64 kimo_shahada = lat_juu_kuu - lat_chini_kuu;
+    kama (kimo_shahada <= 0.0) { kimo_shahada = 1.0; }
+
+    d64 upana_px_d = upana_px;
+    d64 kimo_px_d = kimo_px;
+
+    // ---------- Tabaka 1: mgawanyo ZOTE, rangi ngumu (TAYARI ipo
+    // kwenye data, SI kukokotolewa hapa) ----------
+    n32 i = 0;
+    wakati (i < t->idadi_ya_mgawanyo) {
+        TaifaMgawanyo* mg = dunia_taifa_pata_mgawanyo(t, i);
+
+        d64 px0_d = (mg->eneo.lon_chini - lon_chini_kuu) / upana_shahada * upana_px_d;
+        d64 px1_d = (mg->eneo.lon_juu - lon_chini_kuu) / upana_shahada * upana_px_d;
+        // y_k=0 juu kabisa (lat_juu_kuu), y_k=kimo_px chini kabisa (lat_chini_kuu)
+        // -- fomula ILE ILE ya mwelekeo iliyothibitishwa Awamu G1 (maoni ya
+        // juu ya faili hili), ikitumika dhidi ya mipaka ya TAIFA hili TU.
+        d64 py0_d = (lat_juu_kuu - mg->eneo.lat_juu) / kimo_shahada * kimo_px_d;
+        d64 py1_d = (lat_juu_kuu - mg->eneo.lat_chini) / kimo_shahada * kimo_px_d;
+
+        n64 px0 = px0_d;
+        n64 px1 = px1_d;
+        n64 py0 = py0_d;
+        n64 py1 = py1_d;
+        n64 w_px = px1 - px0;
+        n64 h_px = py1 - py0;
+
+        n64 rangi_n64 = mg->rangi;
+        mchoro_piga_mstatili(fb_eneo, pitch, upana_px, kimo_px, px0, py0, w_px, h_px, rangi_n64);
+
+        i = i + 1;
+    }
+
+    // ---------- Tabaka 2: mipaka myeusi (unene=1), juu ya rangi zote,
+    // MWISHO kabisa -- hii ndiyo inayotoa mwonekano wa "mipaka
+    // inayoonekana" ya picha ya rejea (Balkan). ----------
+    i = 0;
+    wakati (i < t->idadi_ya_mgawanyo) {
+        TaifaMgawanyo* mg = dunia_taifa_pata_mgawanyo(t, i);
+
+        d64 px0_d = (mg->eneo.lon_chini - lon_chini_kuu) / upana_shahada * upana_px_d;
+        d64 px1_d = (mg->eneo.lon_juu - lon_chini_kuu) / upana_shahada * upana_px_d;
+        d64 py0_d = (lat_juu_kuu - mg->eneo.lat_juu) / kimo_shahada * kimo_px_d;
+        d64 py1_d = (lat_juu_kuu - mg->eneo.lat_chini) / kimo_shahada * kimo_px_d;
+
+        n64 px0 = px0_d;
+        n64 px1 = px1_d;
+        n64 py0 = py0_d;
+        n64 py1 = py1_d;
+        n64 w_px = px1 - px0;
+        n64 h_px = py1 - py0;
+
+        mchoro_piga_mstatili_mpaka(fb_eneo, pitch, upana_px, kimo_px,
+                                      px0, py0, w_px, h_px, ONYESHO_TAIFA_RANGI_MPAKA_MGAWANYO, 1);
+
+        i = i + 1;
+    }
+}
