@@ -298,3 +298,83 @@ w0 mchoro_pembetatu(n8* fb, n64 pitch, n64 canvas_w, n64 canvas_h, n64 x0, n64 y
         y = y + 1;
     }
 }
+
+// Changanya rangi mbili za XRGB8888 (rangi_a, rangi_b) kulingana na
+// kipimo 0-255 (0=rangi_a safi KABISA, 255=rangi_b safi KABISA,
+// katikati=mchanganyiko wa uwiano). Kila kijenzi (R, G, B)
+// kinatenganishwa kwa `>> na & 255`, HASA kama mchoro_pata_pikseli/
+// pata_u32 (baiti_ghafi.swa) zinavyounda rangi -- rangi hapa ni
+// matokeo ya pata_u32 (kila baiti imekwishapitia `& 255`), hivyo ni
+// n64 ISIYO HASI daima, kwa hiyo `>>`/`&` ni salama (hitilafu
+// inayojulikana ya mnyororo wa `&`/`>>` kwenye namba hasi [mbegu.s]
+// haihusiani na matumizi haya -- angalia komenti ya pata_u16/pata_u32
+// hapo juu).
+n64 mchoro_changanya_rangi(n64 rangi_a, n64 rangi_b, n64 kipimo) {
+    n64 ra = (rangi_a >> 16) & 255;
+    n64 ga = (rangi_a >> 8) & 255;
+    n64 ba = rangi_a & 255;
+
+    n64 rb = (rangi_b >> 16) & 255;
+    n64 gb = (rangi_b >> 8) & 255;
+    n64 bb = rangi_b & 255;
+
+    n64 r = ra + (((rb - ra) * kipimo) / 255);
+    n64 g = ga + (((gb - ga) * kipimo) / 255);
+    n64 b = ba + (((bb - ba) * kipimo) / 255);
+
+    rudisha (r << 16) | (g << 8) | b;
+}
+
+// Weka pikseli moja ikichanganywa (alpha blend) na iliyopo tayari
+// kwenye framebuffer -- HAINA ukaguzi wa mipaka ya canvas, kwa sababu
+// mchoro_weka_pikseli/mchoro_pata_pikseli zilizopo (zilizosomwa hapo
+// juu) HAZINA ukaguzi wa mipaka wenyewe ama (zinaandika/kusoma moja
+// kwa moja kwa offset iliyokokotolewa bila kukagua x/y dhidi ya
+// canvas_w/canvas_h -- jukumu hilo ni la mwito, kama ilivyo tayari
+// kwa mchoro_weka_pikseli). Kazi hii inafuata mkataba HUOHUO HASA --
+// haina hata vigezo vya canvas_w/canvas_h kwenye saini yake -- hivyo
+// mwito ndiye anayehakikisha x/y ziko ndani ya mipaka KABLA ya kuita
+// hii, sawa kabisa na jinsi mchoro_piga_mstatili inavyofanya kabla ya
+// kuita mchoro_weka_pikseli ndani ya kitanzi chake.
+w0 mchoro_weka_pikseli_alpha(n8* fb, n64 pitch, n64 x, n64 y, n64 rangi, n64 alpha) {
+    n64 iliyopo = mchoro_pata_pikseli(fb, pitch, x, y);
+    n64 mpya = mchoro_changanya_rangi(iliyopo, rangi, alpha);
+    mchoro_weka_pikseli(fb, pitch, x, y, mpya);
+}
+
+// Mstatili wenye gradient ya MSTARI (linear) WIMA -- kutoka rangi_juu
+// (safu ya kwanza, dy=0) hadi rangi_chini (safu ya mwisho, dy=h-1).
+// Kila safu ya dy inapewa kipimo chake (0-255) kulingana na nafasi
+// yake kati ya juu na chini, kisha rangi ya safu hiyo inakokotolewa
+// kwa mchoro_changanya_rangi, na safu nzima inachorwa kwa
+// mchoro_piga_mstatili (h_safu=1) -- ukataji dhidi ya mipaka ya
+// canvas unarithiwa moja kwa moja na mchoro_piga_mstatili, bila
+// kurudia mantiki hiyo hapa.
+w0 mchoro_piga_mstatili_gradient(n8* fb, n64 pitch, n64 canvas_w, n64 canvas_h, n64 x, n64 y, n64 w, n64 h, n64 rangi_juu, n64 rangi_chini) {
+    kama (h <= 0) { rudisha; }
+
+    n64 dy = 0;
+    wakati (dy < h) {
+        n64 kipimo = (dy * 255) / h;
+        n64 rangi_safu = mchoro_changanya_rangi(rangi_juu, rangi_chini, kipimo);
+        mchoro_piga_mstatili(fb, pitch, canvas_w, canvas_h, x, y + dy, w, 1, rangi_safu);
+        dy = dy + 1;
+    }
+}
+
+// Palette ya KUDUMU yenye rangi 8 tofauti, zinazoonekana vizuri kando
+// kando ya macho (nyekundu/kijani/bluu/njano/zambarau/cyan/machungwa/
+// nyeupe). Faharisi inazungushwa kwa `% 8` ili kuepuka kwenda nje ya
+// 0-7 (hivyo faharisi=8 inarudisha sawa na faharisi=0, n.k.).
+n64 mchoro_rangi_ya_faharisi(n32 faharisi) {
+    n32 f = faharisi % 8;
+
+    kama (f == 0) { rudisha 16711680; }  // nyekundu -- 0xFF0000
+    sivyo { kama (f == 1) { rudisha 65280; }  // kijani -- 0x00FF00
+    sivyo { kama (f == 2) { rudisha 255; }  // bluu -- 0x0000FF
+    sivyo { kama (f == 3) { rudisha 16776960; }  // njano -- 0xFFFF00
+    sivyo { kama (f == 4) { rudisha 16711935; }  // zambarau/magenta -- 0xFF00FF
+    sivyo { kama (f == 5) { rudisha 65535; }  // cyan -- 0x00FFFF
+    sivyo { kama (f == 6) { rudisha 16744448; }  // machungwa -- 0xFF8000
+    sivyo { rudisha 16777215; } } } } } } }  // nyeupe -- 0xFFFFFF (f == 7)
+}
