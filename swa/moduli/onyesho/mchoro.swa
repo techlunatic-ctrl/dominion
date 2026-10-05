@@ -97,3 +97,204 @@ w0 mchoro_bandika(n8* fb, n64 pitch, n64 canvas_w, n64 canvas_h, n64 x, n64 y, n
         j = j + 1;
     }
 }
+
+// Mpaka (outline) WA mstatili -- SI uliojazwa. Badala ya kujenga upya
+// mantiki ya mstari, kila "ukingo" wa unene uliotolewa huchorwa kama
+// mstatili mwembamba wake wenyewe ukitumia mchoro_piga_mstatili
+// iliyopo tayari (hivyo ukataji dhidi ya mipaka ya canvas unarithiwa
+// moja kwa moja, bila kurudia mantiki hiyo hapa).
+w0 mchoro_piga_mstatili_mpaka(n8* fb, n64 pitch, n64 canvas_w, n64 canvas_h, n64 x, n64 y, n64 w, n64 h, n64 rangi, n64 unene) {
+    // ukingo wa juu
+    mchoro_piga_mstatili(fb, pitch, canvas_w, canvas_h, x, y, w, unene, rangi);
+    // ukingo wa chini
+    mchoro_piga_mstatili(fb, pitch, canvas_w, canvas_h, x, (y + h) - unene, w, unene, rangi);
+    // ukingo wa kushoto
+    mchoro_piga_mstatili(fb, pitch, canvas_w, canvas_h, x, y, unene, h, rangi);
+    // ukingo wa kulia
+    mchoro_piga_mstatili(fb, pitch, canvas_w, canvas_h, (x + w) - unene, y, unene, h, rangi);
+}
+
+// Duara LILILOJAZWA -- "midpoint circle algorithm" (integer pekee,
+// hauhitaji trig wala civ_mzizi). Kwa kila hatua ya decision variable
+// (x,y) tunachora MSTARI MLALO (si pikseli moja moja) kwa ulinganifu
+// wa octants nane, hivyo eneo lote la ndani linajazwa; mchoro_piga_
+// mstatili (h=1) inatoa ukataji dhidi ya mipaka ya canvas bila ya
+// kurudia mantiki hiyo hapa.
+w0 mchoro_duara(n8* fb, n64 pitch, n64 canvas_w, n64 canvas_h, n64 cx, n64 cy, n64 radius, n64 rangi) {
+    n64 x = radius;
+    n64 y = 0;
+    n64 err = 1 - radius;
+
+    wakati (x >= y) {
+        n64 upana_x = (x + x) + 1;
+        mchoro_piga_mstatili(fb, pitch, canvas_w, canvas_h, cx - x, cy + y, upana_x, 1, rangi);
+        mchoro_piga_mstatili(fb, pitch, canvas_w, canvas_h, cx - x, cy - y, upana_x, 1, rangi);
+        n64 upana_y = (y + y) + 1;
+        mchoro_piga_mstatili(fb, pitch, canvas_w, canvas_h, cx - y, cy + x, upana_y, 1, rangi);
+        mchoro_piga_mstatili(fb, pitch, canvas_w, canvas_h, cx - y, cy - x, upana_y, 1, rangi);
+
+        y = y + 1;
+        kama (err < 0) {
+            err = err + (2 * y) + 1;
+        } sivyo {
+            x = x - 1;
+            err = err + (2 * (y - x)) + 1;
+        }
+    }
+}
+
+// Mpaka WA duara pekee (SI uliojazwa) -- "midpoint circle algorithm"
+// ya kawaida, ikichapa pikseli NANE za ulinganifu kwa kila hatua
+// (TOFAUTI na mchoro_duara: hapa hatujazi safu mlalo -- pikseli za
+// ukingo pekee, kioo cha ukaguzi wa mipaka wa mchoro_chora_mstari).
+w0 mchoro_duara_mpaka(n8* fb, n64 pitch, n64 canvas_w, n64 canvas_h, n64 cx, n64 cy, n64 radius, n64 rangi) {
+    n64 x = radius;
+    n64 y = 0;
+    n64 err = 1 - radius;
+
+    wakati (x >= y) {
+        n64 p1x = cx + x;
+        n64 p1y = cy + y;
+        kama (p1x >= 0 && p1x < canvas_w && p1y >= 0 && p1y < canvas_h) { mchoro_weka_pikseli(fb, pitch, p1x, p1y, rangi); }
+
+        n64 p2x = cx - x;
+        n64 p2y = cy + y;
+        kama (p2x >= 0 && p2x < canvas_w && p2y >= 0 && p2y < canvas_h) { mchoro_weka_pikseli(fb, pitch, p2x, p2y, rangi); }
+
+        n64 p3x = cx + x;
+        n64 p3y = cy - y;
+        kama (p3x >= 0 && p3x < canvas_w && p3y >= 0 && p3y < canvas_h) { mchoro_weka_pikseli(fb, pitch, p3x, p3y, rangi); }
+
+        n64 p4x = cx - x;
+        n64 p4y = cy - y;
+        kama (p4x >= 0 && p4x < canvas_w && p4y >= 0 && p4y < canvas_h) { mchoro_weka_pikseli(fb, pitch, p4x, p4y, rangi); }
+
+        n64 p5x = cx + y;
+        n64 p5y = cy + x;
+        kama (p5x >= 0 && p5x < canvas_w && p5y >= 0 && p5y < canvas_h) { mchoro_weka_pikseli(fb, pitch, p5x, p5y, rangi); }
+
+        n64 p6x = cx - y;
+        n64 p6y = cy + x;
+        kama (p6x >= 0 && p6x < canvas_w && p6y >= 0 && p6y < canvas_h) { mchoro_weka_pikseli(fb, pitch, p6x, p6y, rangi); }
+
+        n64 p7x = cx + y;
+        n64 p7y = cy - x;
+        kama (p7x >= 0 && p7x < canvas_w && p7y >= 0 && p7y < canvas_h) { mchoro_weka_pikseli(fb, pitch, p7x, p7y, rangi); }
+
+        n64 p8x = cx - y;
+        n64 p8y = cy - x;
+        kama (p8x >= 0 && p8x < canvas_w && p8y >= 0 && p8y < canvas_h) { mchoro_weka_pikseli(fb, pitch, p8x, p8y, rangi); }
+
+        y = y + 1;
+        kama (err < 0) {
+            err = err + (2 * y) + 1;
+        } sivyo {
+            x = x - 1;
+            err = err + (2 * (y - x)) + 1;
+        }
+    }
+}
+
+// Mviringo (ellipse) ULIOJAZWA -- panuzi la mchoro_duara kwa radii
+// MBILI tofauti (rx/ry). Kwa kila safu ya dy: x_max = rx * sqrt(ry^2
+// - dy^2) / ry, ikikokotolewa kwa mzizi wa integer (Newton/Babylonian,
+// haihitaji d64/civ_mzizi -- epuka ubadilishaji wa aina n64<->d64
+// usiothibitishwa kwenye mnyororo huu).
+w0 mchoro_mviringo(n8* fb, n64 pitch, n64 canvas_w, n64 canvas_h, n64 cx, n64 cy, n64 rx, n64 ry, n64 rangi) {
+    kama (ry == 0) {
+        n64 upana0 = (rx + rx) + 1;
+        mchoro_piga_mstatili(fb, pitch, canvas_w, canvas_h, cx - rx, cy, upana0, 1, rangi);
+        rudisha;
+    }
+
+    n64 dy = 0 - ry;
+    wakati (dy <= ry) {
+        n64 ry2_dy2 = (ry * ry) - (dy * dy);
+        n64 num = (rx * rx) * ry2_dy2;
+
+        n64 mzizi = num;
+        kama (num >= 2) {
+            n64 kg = num;
+            n64 kj = (kg + 1) / 2;
+            wakati (kj < kg) {
+                kg = kj;
+                kj = (kg + (num / kg)) / 2;
+            }
+            mzizi = kg;
+        }
+
+        n64 x_max = mzizi / ry;
+        n64 upana = (x_max + x_max) + 1;
+        mchoro_piga_mstatili(fb, pitch, canvas_w, canvas_h, cx - x_max, cy + dy, upana, 1, rangi);
+        dy = dy + 1;
+    }
+}
+
+// Pembetatu ILIYOJAZWA -- scanline fill. Wima (x0,y0)/(x1,y1)/(x2,y2)
+// vinapangwa kwanza kwa y inayopanda (mtandao wa swaps tatu wa
+// kawaida kwa vitu vitatu), kisha kwa kila safu ya y kati ya y0 na y2
+// x_kushoto/x_kulia vinakokotolewa kwa interpolation ya mstari mrefu
+// (y0->y2) dhidi ya mstari mfupi unaofaa (y0->y1 au y1->y2).
+w0 mchoro_pembetatu(n8* fb, n64 pitch, n64 canvas_w, n64 canvas_h, n64 x0, n64 y0, n64 x1, n64 y1, n64 x2, n64 y2, n64 rangi) {
+    kama (y0 > y1) {
+        n64 tx = x0;
+        n64 ty = y0;
+        x0 = x1;
+        y0 = y1;
+        x1 = tx;
+        y1 = ty;
+    }
+    kama (y1 > y2) {
+        n64 tx = x1;
+        n64 ty = y1;
+        x1 = x2;
+        y1 = y2;
+        x2 = tx;
+        y2 = ty;
+    }
+    kama (y0 > y1) {
+        n64 tx = x0;
+        n64 ty = y0;
+        x0 = x1;
+        y0 = y1;
+        x1 = tx;
+        y1 = ty;
+    }
+
+    kama (y2 == y0) {
+        // pembetatu tambarare (eneo = 0) -- mstari mmoja wa mlalo pekee
+        n64 xmin = x0;
+        kama (x1 < xmin) { xmin = x1; }
+        kama (x2 < xmin) { xmin = x2; }
+        n64 xmax = x0;
+        kama (x1 > xmax) { xmax = x1; }
+        kama (x2 > xmax) { xmax = x2; }
+        mchoro_piga_mstatili(fb, pitch, canvas_w, canvas_h, xmin, y0, (xmax - xmin) + 1, 1, rangi);
+        rudisha;
+    }
+
+    n64 y = y0;
+    wakati (y <= y2) {
+        n64 xa = x0 + (((x2 - x0) * (y - y0)) / (y2 - y0));
+        n64 xb = 0;
+        kama (y < y1) {
+            kama (y1 == y0) {
+                xb = x0;
+            } sivyo {
+                xb = x0 + (((x1 - x0) * (y - y0)) / (y1 - y0));
+            }
+        } sivyo {
+            kama (y2 == y1) {
+                xb = x1;
+            } sivyo {
+                xb = x1 + (((x2 - x1) * (y - y1)) / (y2 - y1));
+            }
+        }
+        n64 kushoto = xa;
+        kama (xb < kushoto) { kushoto = xb; }
+        n64 kulia = xa;
+        kama (xb > kulia) { kulia = xb; }
+        mchoro_piga_mstatili(fb, pitch, canvas_w, canvas_h, kushoto, y, (kulia - kushoto) + 1, 1, rangi);
+        y = y + 1;
+    }
+}
