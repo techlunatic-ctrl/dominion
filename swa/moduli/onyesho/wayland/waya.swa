@@ -1,4 +1,5 @@
 husisha { moduli/onyesho/baiti_ghafi.swa }
+husisha { msingi/maktaba/mfuatano.swa }
 
 // waya.swa -- usimbaji/uchanguzi wa umbizo la "waya" (wire format) la
 // itifaki ya Wayland. Mpangilio HASA wa biti umethibitishwa dhidi ya
@@ -22,11 +23,33 @@ husisha { moduli/onyesho/baiti_ghafi.swa }
 //   55-69: <arg type="new_id" interface="wl_registry">) -- hoja yake
 //   ni u32 MOJA TU (object id mpya). (Hii ni tofauti na
 //   wl_registry.bind ambayo new_id yake HAINA interface kwenye XML --
-//   bind huongeza jina+version+id kwenye waya, lakini bind ni ya
-//   Awamu 2.)
+//   bind huongeza jina+version+id kwenye waya -- angalia sehemu ya
+//   Awamu 2 chini.)
 //
 // Kiambishi: wayland_waya_ (eneo JIPYA -- angalia
 // ../../../KANUNI-MAJINA.md).
+//
+// ---------------------------------------------------------------
+// AWAMU 2 -- hoja zote mpya hapa chini zimethibitishwa HASA dhidi ya
+// /usr/share/wayland/wayland.xml na
+// /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml
+// (opcodes zimehesabiwa kwa mkono kutoka mpangilio wa <request>
+// ndani ya kila <interface>, kuanzia 0, ukiruka matukio <event> --
+// HAZIHESABIWI pamoja na requests):
+//   wl_registry:    bind=0 (new_id JUMUISHI -- angalia chini)
+//   wl_compositor:  create_surface=0
+//   wl_shm:         create_pool=0
+//   wl_shm_pool:    create_buffer=0
+//   xdg_wm_base:    destroy=0 create_positioner=1 get_xdg_surface=2
+//                   pong=3 ; event ping=0
+//   xdg_surface:    destroy=0 get_toplevel=1 get_popup=2
+//                   set_window_geometry=3 ack_configure=4 ;
+//                   event configure=0
+//   xdg_toplevel:   destroy=0 set_parent=1 set_title=2 ...
+//   wl_surface:     destroy=0 attach=1 damage=2 frame=3
+//                   set_opaque_region=4 set_input_region=5 commit=6
+//                   ... damage_buffer=9 (since=4)
+//   wl_shm.format:  xrgb8888 = 1 (enum ya wayland.xml, SI kukisiwa)
 
 n64 WAYLAND_WAYA_DISPLAY_ID = 1;        // wl_display -- object_id=1 bila bind
 n64 WAYLAND_WAYA_DISPLAY_OP_SYNC = 0;
@@ -102,4 +125,236 @@ n64 wayland_waya_global_version(n8* buf, n64 off) {
     n64 ulen = wayland_waya_global_interface_urefu_waya(buf, off);
     n64 upakwa = ((ulen + 3) / 4) * 4;
     rudisha pata_u32(buf, off + 16 + upakwa);
+}
+
+// ---------- Jumla -- kusoma serial ya tukio lenye hoja moja ya uint
+// kwenye offset 8 (xdg_wm_base.ping NA xdg_surface.configure zote
+// mbili zina hoja moja TU: `serial` (uint), kwa hiyo mpangilio wa
+// waya ni sawa kabisa kwa zote mbili -- tazama xdg-shell.xml). ----------
+
+n64 wayland_waya_ev_serial(n8* buf, n64 off) {
+    rudisha pata_u32(buf, off + 8);
+}
+
+// ---------- Kuandika hoja ya `string` kwenye waya (u32 urefu
+// ukijumuisha NUL ya mwisho, kisha baiti hizo, kisha upakwaji wa
+// sifuri hadi mzunguko wa baiti 4) ----------
+
+n64 wayland_waya_mfuatano_ukubwa_waya(n8* s) {
+    rudisha urefu_wa_mfuatano(s) + 1;
+}
+
+n64 wayland_waya_mfuatano_ukubwa_waya_upakwa(n8* s) {
+    n64 ulen = wayland_waya_mfuatano_ukubwa_waya(s);
+    rudisha ((ulen + 3) / 4) * 4;
+}
+
+w0 wayland_waya_andika_mfuatano(n8* buf, n64 off, n8* s) {
+    n64 ulen = wayland_waya_mfuatano_ukubwa_waya(s);
+    weka_u32(buf, off, ulen);
+    nakili(buf + off + 4, s, ulen);  // ulen tayari inajumuisha NUL
+    n64 upakwa = ((ulen + 3) / 4) * 4;
+    n64 ziada = upakwa - ulen;
+    kama (ziada > 0) {
+        weka_sifuri(buf + off + 4 + ulen, ziada);
+    }
+}
+
+// ---------- wl_registry.bind (ombi, opcode 0) ----------
+// `id` ni new_id "generic" (angalia wayland.xml mstari 141-148: hoja
+// `id` HAINA sifa ya interface="..." -- TOFAUTI na get_registry).
+// Kwenye waya, new_id ya jumla inajumuisha: jina la interface
+// (string) + toleo (uint) KABLA ya id yenyewe (uint).
+
+n64 WAYLAND_WAYA_REGISTRY_OP_BIND = 0;
+
+n64 wayland_waya_bind_ukubwa(n8* interface_jina) {
+    n64 upakwa = wayland_waya_mfuatano_ukubwa_waya_upakwa(interface_jina);
+    // kichwa(8) + name(4) + [len(4)+baiti_zilizopakwa] + version(4) + id(4)
+    rudisha 8 + 4 + 4 + upakwa + 4 + 4;
+}
+
+n8* wayland_waya_jenga_bind(n64 registry_id, n64 global_name, n8* interface_jina, n64 toleo, n64 new_id) {
+    n64 ukubwa = wayland_waya_bind_ukubwa(interface_jina);
+    n8* m = tenga(ukubwa);
+    weka_sifuri(m, ukubwa);
+    weka_u32(m, 0, registry_id);
+    weka_u32(m, 4, WAYLAND_WAYA_REGISTRY_OP_BIND | (ukubwa << 16));
+    weka_u32(m, 8, global_name);
+    wayland_waya_andika_mfuatano(m, 12, interface_jina);
+    n64 upakwa = wayland_waya_mfuatano_ukubwa_waya_upakwa(interface_jina);
+    weka_u32(m, 12 + 4 + upakwa, toleo);
+    weka_u32(m, 12 + 4 + upakwa + 4, new_id);
+    rudisha m;
+}
+
+// ---------- wl_compositor.create_surface (ombi, opcode 0) ----------
+
+n64 WAYLAND_WAYA_COMPOSITOR_OP_CREATE_SURFACE = 0;
+
+n8* wayland_waya_jenga_create_surface(n64 compositor_id, n64 surface_id) {
+    n64 ukubwa = 12;
+    n8* m = tenga(ukubwa);
+    weka_u32(m, 0, compositor_id);
+    weka_u32(m, 4, WAYLAND_WAYA_COMPOSITOR_OP_CREATE_SURFACE | (ukubwa << 16));
+    weka_u32(m, 8, surface_id);
+    rudisha m;
+}
+
+// ---------- wl_shm.create_pool (ombi, opcode 0) ----------
+// Hoja ya `fd` HAIANDIKWI kwenye mwili wa ujumbe HUU KABISA -- inapita
+// pekee kupitia SCM_RIGHTS (ancillary data ya sendmsg, angalia
+// soketi.swa: wayland_soketi_tuma_na_fd). Mwili una id+size tu.
+
+n64 WAYLAND_WAYA_SHM_OP_CREATE_POOL = 0;
+
+n8* wayland_waya_jenga_create_pool(n64 shm_id, n64 pool_id, n64 size) {
+    n64 ukubwa = 16;
+    n8* m = tenga(ukubwa);
+    weka_u32(m, 0, shm_id);
+    weka_u32(m, 4, WAYLAND_WAYA_SHM_OP_CREATE_POOL | (ukubwa << 16));
+    weka_u32(m, 8, pool_id);
+    weka_u32(m, 12, size);
+    rudisha m;
+}
+
+// ---------- wl_shm_pool.create_buffer (ombi, opcode 0) ----------
+
+n64 WAYLAND_WAYA_SHM_POOL_OP_CREATE_BUFFER = 0;
+n64 WAYLAND_WAYA_SHM_FORMAT_XRGB8888 = 1;  // wayland.xml enum wl_shm.format
+
+n8* wayland_waya_jenga_create_buffer(n64 pool_id, n64 buffer_id, n64 offset, n64 width, n64 height, n64 stride, n64 format) {
+    n64 ukubwa = 32;
+    n8* m = tenga(ukubwa);
+    weka_u32(m, 0, pool_id);
+    weka_u32(m, 4, WAYLAND_WAYA_SHM_POOL_OP_CREATE_BUFFER | (ukubwa << 16));
+    weka_u32(m, 8, buffer_id);
+    weka_u32(m, 12, offset);
+    weka_u32(m, 16, width);
+    weka_u32(m, 20, height);
+    weka_u32(m, 24, stride);
+    weka_u32(m, 28, format);
+    rudisha m;
+}
+
+// ---------- xdg_wm_base.get_xdg_surface (ombi, opcode 2) ----------
+
+n64 WAYLAND_WAYA_XDG_WM_BASE_OP_GET_XDG_SURFACE = 2;
+n64 WAYLAND_WAYA_XDG_WM_BASE_OP_PONG = 3;
+n64 WAYLAND_WAYA_XDG_WM_BASE_EV_PING = 0;
+
+n8* wayland_waya_jenga_get_xdg_surface(n64 wm_base_id, n64 xdg_surface_id, n64 surface_id) {
+    n64 ukubwa = 16;
+    n8* m = tenga(ukubwa);
+    weka_u32(m, 0, wm_base_id);
+    weka_u32(m, 4, WAYLAND_WAYA_XDG_WM_BASE_OP_GET_XDG_SURFACE | (ukubwa << 16));
+    weka_u32(m, 8, xdg_surface_id);
+    weka_u32(m, 12, surface_id);
+    rudisha m;
+}
+
+// ---------- xdg_wm_base.pong (ombi, opcode 3) ----------
+// LAZIMA itumwe HARAKA kila wakati xdg_wm_base.ping inapopokelewa --
+// angalia xdg-shell.xml: compositors nyingi huzima client isiyojibu.
+
+n8* wayland_waya_jenga_pong(n64 wm_base_id, n64 serial) {
+    n64 ukubwa = 12;
+    n8* m = tenga(ukubwa);
+    weka_u32(m, 0, wm_base_id);
+    weka_u32(m, 4, WAYLAND_WAYA_XDG_WM_BASE_OP_PONG | (ukubwa << 16));
+    weka_u32(m, 8, serial);
+    rudisha m;
+}
+
+// ---------- xdg_surface.get_toplevel (ombi, opcode 1) ----------
+
+n64 WAYLAND_WAYA_XDG_SURFACE_OP_GET_TOPLEVEL = 1;
+n64 WAYLAND_WAYA_XDG_SURFACE_OP_ACK_CONFIGURE = 4;
+n64 WAYLAND_WAYA_XDG_SURFACE_EV_CONFIGURE = 0;
+
+n8* wayland_waya_jenga_get_toplevel(n64 xdg_surface_id, n64 toplevel_id) {
+    n64 ukubwa = 12;
+    n8* m = tenga(ukubwa);
+    weka_u32(m, 0, xdg_surface_id);
+    weka_u32(m, 4, WAYLAND_WAYA_XDG_SURFACE_OP_GET_TOPLEVEL | (ukubwa << 16));
+    weka_u32(m, 8, toplevel_id);
+    rudisha m;
+}
+
+// ---------- xdg_surface.ack_configure (ombi, opcode 4) ----------
+// LAZIMA itumwe KABLA ya commit inayofuata configure -- angalia
+// xdg-shell.xml ("basic model").
+
+n8* wayland_waya_jenga_ack_configure(n64 xdg_surface_id, n64 serial) {
+    n64 ukubwa = 12;
+    n8* m = tenga(ukubwa);
+    weka_u32(m, 0, xdg_surface_id);
+    weka_u32(m, 4, WAYLAND_WAYA_XDG_SURFACE_OP_ACK_CONFIGURE | (ukubwa << 16));
+    weka_u32(m, 8, serial);
+    rudisha m;
+}
+
+// ---------- xdg_toplevel.set_title (ombi, opcode 2) ----------
+
+n64 WAYLAND_WAYA_XDG_TOPLEVEL_OP_SET_TITLE = 2;
+
+n64 wayland_waya_set_title_ukubwa(n8* title) {
+    n64 upakwa = wayland_waya_mfuatano_ukubwa_waya_upakwa(title);
+    rudisha 8 + 4 + upakwa;
+}
+
+n8* wayland_waya_jenga_set_title(n64 toplevel_id, n8* title) {
+    n64 ukubwa = wayland_waya_set_title_ukubwa(title);
+    n8* m = tenga(ukubwa);
+    weka_sifuri(m, ukubwa);
+    weka_u32(m, 0, toplevel_id);
+    weka_u32(m, 4, WAYLAND_WAYA_XDG_TOPLEVEL_OP_SET_TITLE | (ukubwa << 16));
+    wayland_waya_andika_mfuatano(m, 8, title);
+    rudisha m;
+}
+
+// ---------- wl_surface.destroy/attach/damage_buffer/commit ----------
+
+n64 WAYLAND_WAYA_SURFACE_OP_DESTROY = 0;
+n64 WAYLAND_WAYA_SURFACE_OP_ATTACH = 1;
+n64 WAYLAND_WAYA_SURFACE_OP_COMMIT = 6;
+n64 WAYLAND_WAYA_SURFACE_OP_DAMAGE_BUFFER = 9;  // since=4 (angalia wayland.xml)
+
+n8* wayland_waya_jenga_surface_destroy(n64 surface_id) {
+    n64 ukubwa = 8;
+    n8* m = tenga(ukubwa);
+    weka_u32(m, 0, surface_id);
+    weka_u32(m, 4, WAYLAND_WAYA_SURFACE_OP_DESTROY | (ukubwa << 16));
+    rudisha m;
+}
+
+n8* wayland_waya_jenga_attach(n64 surface_id, n64 buffer_id, n64 x, n64 y) {
+    n64 ukubwa = 20;
+    n8* m = tenga(ukubwa);
+    weka_u32(m, 0, surface_id);
+    weka_u32(m, 4, WAYLAND_WAYA_SURFACE_OP_ATTACH | (ukubwa << 16));
+    weka_u32(m, 8, buffer_id);
+    weka_u32(m, 12, x);
+    weka_u32(m, 16, y);
+    rudisha m;
+}
+
+n8* wayland_waya_jenga_damage_buffer(n64 surface_id, n64 x, n64 y, n64 w, n64 h) {
+    n64 ukubwa = 24;
+    n8* m = tenga(ukubwa);
+    weka_u32(m, 0, surface_id);
+    weka_u32(m, 4, WAYLAND_WAYA_SURFACE_OP_DAMAGE_BUFFER | (ukubwa << 16));
+    weka_u32(m, 8, x);
+    weka_u32(m, 12, y);
+    weka_u32(m, 16, w);
+    weka_u32(m, 20, h);
+    rudisha m;
+}
+
+n8* wayland_waya_jenga_commit(n64 surface_id) {
+    n64 ukubwa = 8;
+    n8* m = tenga(ukubwa);
+    weka_u32(m, 0, surface_id);
+    weka_u32(m, 4, WAYLAND_WAYA_SURFACE_OP_COMMIT | (ukubwa << 16));
+    rudisha m;
 }

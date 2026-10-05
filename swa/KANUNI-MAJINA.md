@@ -115,7 +115,7 @@ compositor ya mtu wa kati.
 | `swa/moduli/onyesho/` (mchoro.swa) | `mchoro_` | Vitendo vya uchoraji 2D juu ya framebuffer YOYOTE (fill-rect, mstari, blit) -- havitegemei DRM moja kwa moja, vinafanya kazi juu ya bafa yoyote ya XRGB8888 |
 | `swa/moduli/onyesho/` (baiti_ghafi.swa) | `weka_`/`pata_`/`anwani` | Kusoma/kuandika u16/u32/u64 (little-endian) kwenye bafa ya N8* kwa offset halisi -- msingi wa kuwakilisha miundo ya ioctl ya kernel bila kutegemea mpangilio wa `muundo` ya Swa (angalia maoni ya faili kwa sababu kamili) |
 | `swa/moduli/kifaa/` | `kifaa_` | Kusoma matukio ghafi ya kibodi/kipanya kutoka `/dev/input/eventN` (`struct input_event`) |
-| `swa/moduli/onyesho/wayland/` | `wayland_` (compound: `wayland_mazingira_`, `wayland_soketi_`, `wayland_waya_`) | Mteja wa Wayland ulioandikwa kutoka mwanzo (sifuri utegemezi, hakuna `libwayland`) -- lengo la mwisho ni dirisha HALISI kwenye Hyprland badala ya DRM ghafi. `mazingira.swa`: ufikiaji wa envp kutoka argv (ABI, hakuna wito wa mfumo). `soketi.swa`: socket/connect/sendmsg/recvmsg (syscalls 41/42/46/47) + sockaddr_un/iovec/msghdr kama bafa ghafi. `waya.swa`: usimbaji/uchanguzi wa umbizo la waya la ujumbe (kichwa object_id+opcode+ukubwa, hoja za uint/string/new_id). KIAMBISHI KAMILI `wayland_mazingira_` (SI `mazingira_` peke yake) kuepuka mgongano na `swa/moduli/mazingira/` (tafsiri ya `src/core/environment/`, HAIHUSIANI) |
+| `swa/moduli/onyesho/wayland/` | `wayland_` (compound: `wayland_mazingira_`, `wayland_soketi_`, `wayland_waya_`, `wayland_shm_`) | Mteja wa Wayland ulioandikwa kutoka mwanzo (sifuri utegemezi, hakuna `libwayland`) -- dirisha HALISI kwenye Hyprland limefikiwa (Awamu 2). `mazingira.swa`: ufikiaji wa envp kutoka argv (ABI, hakuna wito wa mfumo). `soketi.swa`: socket/connect/sendmsg/recvmsg (syscalls 41/42/46/47) + sockaddr_un/iovec/msghdr kama bafa ghafi, + SCM_RIGHTS (fd-passing) na vidhibiti vya kutozuia/kulala (Awamu 2). `waya.swa`: usimbaji/uchanguzi wa umbizo la waya la ujumbe (kichwa object_id+opcode+ukubwa, hoja za uint/string/new_id/bind-generic). `shm.swa` (Awamu 2): memfd_create+ftruncate (SIYO mmap -- angalia sehemu ya "Wayland Awamu 2" chini kwa hitilafu ya mkusanyaji iliyogunduliwa). KIAMBISHI KAMILI `wayland_mazingira_` (SI `mazingira_` peke yake) kuepuka mgongano na `swa/moduli/mazingira/` (tafsiri ya `src/core/environment/`, HAIHUSIANI) |
 
 Hali ya sasa (2026-09-11): mfululizo mzima wa DRM/KMS umejaribiwa
 dhidi ya kifaa HALISI (`/dev/dri/card1`, amdgpu) -- kufungua,
@@ -230,3 +230,59 @@ SCM_RIGHTS (upitishaji wa file descriptor, unaohitajika na
 `wl_shm.create_pool`) KWA MAKUSUDI haikutekelezwa -- ni ya Awamu 2.
 `msg_control`/`msg_controllen` za `wayland_soketi_jenga_msghdr` zinabaki
 sifuri Awamu hii.
+
+## Wayland Awamu 2 -- dirisha HALISI la rangi moja (2026-10-05)
+
+`swa/moduli/onyesho/wayland/jaribio_dirisha_halisi.swa` (faili mpya)
++ nyongeza kwenye `soketi.swa` (SCM_RIGHTS, `wayland_soketi_tuma_na_fd`,
+`wayland_soketi_weka_zisizozuia`, `wayland_soketi_lala_ms`) + `waya.swa`
+(bind/create_surface/create_pool/create_buffer/get_xdg_surface/pong/
+get_toplevel/ack_configure/set_title/attach/damage_buffer/commit/
+destroy, opcodes zote zimethibitishwa dhidi ya wayland.xml na
+xdg-shell.xml, angalia maoni ya faili) + `shm.swa` (faili mpya,
+memfd_create/ftruncate, syscalls 319/77).
+
+**Matokeo yaliyothibitishwa dhidi ya Hyprland HALISI** (SI mock):
+dirisha lenye kichwa "Dominion" (640x480, rangi moja imara 0x00222D96)
+lilionekana kwenye `hyprctl clients` (`mapped: 1`, `visible: 1`, `title:
+Dominion`) kwa sekunde 9 kamili, likijibu `xdg_wm_base.ping`/`pong` (mara
+5 wakati wa kusubiri) na `xdg_surface.configure`/`ack_configure` (mara
+2) kwa usahihi, kisha kujifunga kwa heshima (`wl_surface.destroy` +
+kufunga soketi), `exit 0`. Picha ya skrini (`grim`) imethibitisha
+mstatili wa rangi HALISI (SI tu metadata ya hyprctl) ukionekana kwenye
+sehemu ya skrini iliyoripotiwa na hyprctl.
+
+**HITILAFU YA MKUSANYAJI ILIYOGUNDULIWA (lugha-swa/swa, SI Dominion)**:
+`wito_wa_mfumo` ikipewa hoja 6 KAMILI za "a" (jumla hoja 7: num+a1..a6)
+ambapo a4 na a5 ni TOFAUTI kimthamani, a5 HUPOTEA KABISA -- nafasi yake
+halisi ya syscall (r8, hoja ya 5 ya kernel) inabaki na thamani ya a4
+badala yake. Imethibitishwa kwa `strace` ya moja kwa moja:
+`wito_wa_mfumo(9, 100,200,300,400,500,600)` ilizalisha
+`mmap(0x64,200,300,400,**400**,600)` (a5=500 haikufika kabisa).
+Hii iliathiri moja kwa moja `mmap()` ya memfd (wl_shm inahitaji
+MAP_SHARED + fd HALISI -- fd ikawa na thamani ya `flags`(=1=stdout),
+ikitoa EACCES). Haikuonekana awali kwenye `drm.swa`
+(`onyesho_mmap_na_offset`) wala kwenye arena allocator (MAP_ANONYMOUS,
+`sys_mmap` ya kumbukumbu.swa) kwa sababu: (1) `MAP_ANONYMOUS` humfanya
+kernel apuuze thamani ya fd kabisa, (2) maelezo ya awali ya EACCES ya
+DRM dumb buffer (angalia Awamu ya DRM/KMS hapo juu, 2026-09-11)
+yaliihusisha na "DRM master" -- huenda hilo pia ni kweli, LAKINI
+haijathibitishwa kuwa SI hitilafu hii hii iliyofichwa na maelezo
+mengine yanayoonekana sahihi. **SULUHISHO lililotumika (epuko, SI
+urekebishaji wa mkusanyaji -- hilo ni nje ya wigo wa Dominion)**:
+`shm.swa` HAIFANYI KAMWE mmap ya memfd kwenye mchakato wetu wenyewe --
+tunachora kwenye bafa ya KAWAIDA (`tenga()`, MAP_ANONYMOUS, salama kwa
+sababu (1)), kisha `write(2)` (`sys_andika`, hoja 3 TU, a4=a5=a6=0
+hazitofautiani kiasi cha kuathiriwa) kunakili baiti ndani ya memfd --
+compositor anafanya mmap YAKE MWENYEWE (bila hitilafu hii) na kuona
+data ile ile kupitia kurasa za page cache zinazoshirikiwa. **Hii
+inastahili kuripotiwa/kurekebishwa kwenye lugha-swa/swa yenyewe** (nje
+ya wigo wa kazi hii), pengine ikafafanua upya pia uchunguzi wa awali wa
+DRM EACCES.
+
+Uthibitisho: `gharama/jaribu-mnyororo.sh` ya lugha-swa/swa (clone
+FRESH, 2026-10-05): 451/451, hakuna regression. Majaribio yote ya
+awali ya Dominion (`jaribio_mchezo_kamili.swa`, `jaribio_hud.swa`,
+`jaribio_hud_mchezo_halisi.swa`, `jaribio_mzunguko.swa`,
+`jaribio_waya_kushikana.swa` ya Awamu 1) yanaendelea kupita bila
+kubadilika (globals 71 zilezile zimegunduliwa tena na Awamu 1).
