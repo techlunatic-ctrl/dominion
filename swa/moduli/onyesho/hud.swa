@@ -177,3 +177,75 @@ w0 onyesho_hud_chora_kutoka_mchezo(Mchezo* g, n8* fb, n64 pitch) {
     hoja.zamu = g->zamu_ya_sasa;
     onyesho_hud_chora(&hoja);
 }
+
+// onyesho_hud_chora_taifa_kina -- NYONGEZA (baada ya mzunguko.swa
+// kuongeza funguo za TAB/LEFT/RIGHT): inachora ukurasa wa UNDANI wa
+// taifa MOJA (lililochaguliwa kwa `taifa_idx`, 0-7) badala ya orodha
+// fupi ya mataifa yote. Field zote zinazotumika hapa (uchumi.*,
+// idadi_ya_watu, kielezo_cha_*) tayari zipo kwenye TaifaNchi
+// (taifa.swa) lakini HAZIKUWA zikionyeshwa popote kwenye HUD kabla
+// ya hii -- tumika TENA fonti/mantiki ya mstari moja ya
+// onyesho_hud_chora_mstari_tayari iliyopo, HAKUNA uchoraji mpya wa
+// chini (low-level) unaozalishwa hapa.
+w0 onyesho_hud_chora_taifa_kina(Mchezo* g, n32 taifa_idx, n8* fb, n64 pitch) {
+    TaifaMfumo* taifa_mfumo = mchezo_pata_taifa(g);
+    TaifaNchi* t = dunia_taifa_mfumo_pata_kwa_faharisi(taifa_mfumo, taifa_idx);
+
+    n8 mstari[128];
+    n64 y = 8;
+
+    mfuatano_umbiza(mstari, 128, "UNDANI WA TAIFA (%d/8)", taifa_idx + 1, 0, 0, 0, 0, 0);
+    OnyeshoHudMstariHoja h0;
+    h0.fb = fb; h0.pitch = pitch; h0.x = ONYESHO_HUD_X_KINGO; h0.y = y; h0.mstari = mstari;
+    onyesho_hud_chora_mstari_tayari(&h0);
+    y = y + ONYESHO_HUD_MSTARI + 4;
+
+    mfuatano_umbiza(mstari, 128, "JINA: %s", anwani(t->jina), 0, 0, 0, 0, 0);
+    OnyeshoHudMstariHoja h1;
+    h1.fb = fb; h1.pitch = pitch; h1.x = ONYESHO_HUD_X_KINGO; h1.y = y; h1.mstari = mstari;
+    onyesho_hud_chora_mstari_tayari(&h1);
+    y = y + ONYESHO_HUD_MSTARI + 4;
+
+    mfuatano_umbiza(mstari, 128, "GDP (jumla): %d", t->uchumi.pato_ghafi, 0, 0, 0, 0, 0);
+    OnyeshoHudMstariHoja h2;
+    h2.fb = fb; h2.pitch = pitch; h2.x = ONYESHO_HUD_X_KINGO; h2.y = y; h2.mstari = mstari;
+    onyesho_hud_chora_mstari_tayari(&h2);
+    y = y + ONYESHO_HUD_MSTARI;
+
+    mfuatano_umbiza(mstari, 128, "GDP/mtu: %d", t->uchumi.pato_kwa_kila_mtu, 0, 0, 0, 0, 0);
+    OnyeshoHudMstariHoja h3;
+    h3.fb = fb; h3.pitch = pitch; h3.x = ONYESHO_HUD_X_KINGO; h3.y = y; h3.mstari = mstari;
+    onyesho_hud_chora_mstari_tayari(&h3);
+    y = y + ONYESHO_HUD_MSTARI;
+
+    mfuatano_umbiza(mstari, 128, "Ukuaji wa pato: %d", t->uchumi.ukuaji_wa_pato, 0, 0, 0, 0, 0);
+    OnyeshoHudMstariHoja h4;
+    h4.fb = fb; h4.pitch = pitch; h4.x = ONYESHO_HUD_X_KINGO; h4.y = y; h4.mstari = mstari;
+    onyesho_hud_chora_mstari_tayari(&h4);
+    y = y + ONYESHO_HUD_MSTARI;
+
+    mfuatano_umbiza(mstari, 128, "Mfumuko: %d", t->uchumi.mfumuko, 0, 0, 0, 0, 0);
+    OnyeshoHudMstariHoja h5;
+    h5.fb = fb; h5.pitch = pitch; h5.x = ONYESHO_HUD_X_KINGO; h5.y = y; h5.mstari = mstari;
+    onyesho_hud_chora_mstari_tayari(&h5);
+    y = y + ONYESHO_HUD_MSTARI;
+
+    mfuatano_umbiza(mstari, 128, "Ukosefu wa kazi: %d", t->uchumi.ukosefu_wa_kazi, 0, 0, 0, 0, 0);
+    OnyeshoHudMstariHoja h6;
+    h6.fb = fb; h6.pitch = pitch; h6.x = ONYESHO_HUD_X_KINGO; h6.y = y; h6.mstari = mstari;
+    onyesho_hud_chora_mstari_tayari(&h6);
+    y = y + ONYESHO_HUD_MSTARI + 4;
+
+    mfuatano_umbiza(mstari, 128, "Idadi ya watu: %d", t->idadi_ya_watu, 0, 0, 0, 0, 0);
+    OnyeshoHudMstariHoja h7;
+    h7.fb = fb; h7.pitch = pitch; h7.x = ONYESHO_HUD_X_KINGO; h7.y = y; h7.mstari = mstari;
+    onyesho_hud_chora_mstari_tayari(&h7);
+    y = y + ONYESHO_HUD_MSTARI + 4;
+
+    mfuatano_umbiza(mstari, 128, "Teknolojia:%d Uchumi:%d Kijeshi:%d Utamaduni:%d",
+        t->kielezo_cha_teknolojia, t->kielezo_cha_uchumi, t->kielezo_cha_kijeshi,
+        t->kielezo_cha_utamaduni, 0, 0);
+    OnyeshoHudMstariHoja h8;
+    h8.fb = fb; h8.pitch = pitch; h8.x = ONYESHO_HUD_X_KINGO; h8.y = y; h8.mstari = mstari;
+    onyesho_hud_chora_mstari_tayari(&h8);
+}

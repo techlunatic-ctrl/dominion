@@ -50,6 +50,20 @@ husisha { moduli/onyesho/hud.swa }
 n64 MZUNGUKO_EV_KEY = 1;
 n64 MZUNGUKO_KEY_ESC = 1;
 n64 MZUNGUKO_KEY_SPACE = 57;
+n64 MZUNGUKO_KEY_TAB = 15;
+n64 MZUNGUKO_KEY_LEFT = 105;
+n64 MZUNGUKO_KEY_RIGHT = 106;
+
+// Hali ya uonyeshaji -- NYONGEZA: 0="orodha" (HUD ya muhtasari ya
+// zamani, mataifa yote + GDP), 1="undani" (taifa MOJA lililochaguliwa,
+// takwimu zaidi -- onyesho_hud_chora_taifa_kina, hud.swa). Globals
+// (kioo cha D_LUGHA_HAI_ADDR, lugha_dominion.swa) kwa sababu
+// mzunguko_hatua haipokei hoja ya ziada ya "hali" (haibadilishi saini
+// iliyopo -- kanuni ya mradi, ongeza kazi mpya badala ya kubadilisha
+// zilizopo).
+n32 MZUNGUKO_HALI_KINA = 0;
+n32 MZUNGUKO_TAIFA_LILILOCHAGULIWA = 0;
+n32 MZUNGUKO_IDADI_YA_MATAIFA = 8;
 
 // MzungukoChanzo -- chanzo cha tukio kinachobadilishwa: `soma_kazi`
 // ni ANWANI ya kazi (n64, vipimo-vya-lugha.md 4.3) yenye saini
@@ -143,6 +157,85 @@ n64 mzunguko_hatua(Mchezo* g, MzungukoChanzo* chanzo, n8* fb, n64 pitch) {
 // kuzuia, sawa na muundo wa kifaa_soma_tukio chenyewe). Hurudisha
 // idadi HASA ya zamu zilizotekelezwa (tofauti ya g->zamu_ya_sasa
 // kabla/baada), si tu "imekamilika".
+// mzunguko_chora_upya_kulingana_na_hali -- NYONGEZA: chagua kati ya
+// HUD ya orodha (ya zamani) na HUD ya undani (mpya) kulingana na
+// MZUNGUKO_HALI_KINA ya sasa, kisha safisha+chora (mantiki ileile ya
+// kusafisha fb kabla ya kuchora iliyopo tayari kwenye mzunguko_hatua).
+w0 mzunguko_chora_upya_kulingana_na_hali(Mchezo* g, n8* fb, n64 pitch) {
+    weka_sifuri(fb, pitch * ONYESHO_HUD_KIMO);
+    kama (MZUNGUKO_HALI_KINA == 1) {
+        onyesho_hud_chora_taifa_kina(g, MZUNGUKO_TAIFA_LILILOCHAGULIWA, fb, pitch);
+    } sivyo {
+        onyesho_hud_chora_kutoka_mchezo(g, fb, pitch);
+    }
+}
+
+// mzunguko_hatua_kina -- NYONGEZA (SI badiliko la mzunguko_hatua
+// iliyopo, ambayo inabaki vilevile kwa ulinganifu wa nyuma): hatua
+// MOJA ya mzunguko inayojua pia TAB (badilisha kati ya orodha/undani)
+// na LEFT/RIGHT (badilisha taifa lililochaguliwa, likizunguka 0-7,
+// IKIWA TU hali ya sasa ni "undani" -- LEFT/RIGHT kwenye "orodha"
+// hupuuzwa kimya). SPACE/ESC zinafanya KAZI SAWA KABISA na
+// mzunguko_hatua (zinasonga zamu / kusimamisha), tofauti pekee ni
+// kwamba uchoraji-upya unaofuata zamu mpya pia unaheshimu hali ya
+// uonyeshaji ya sasa (TAB/LEFT/RIGHT) badala ya kudhani "orodha"
+// kila mara.
+n64 mzunguko_hatua_kina(Mchezo* g, MzungukoChanzo* chanzo, n8* fb, n64 pitch) {
+    n8 tukio[24];
+    n64 rc = mzunguko_chanzo_soma(chanzo, tukio);
+    kama (rc == 0) { rudisha 0; }
+    kama (rc < 0) { rudisha -1; }
+
+    n64 aina = kifaa_tukio_aina(tukio);
+    n64 kanuni = kifaa_tukio_kanuni(tukio);
+    n64 thamani = kifaa_tukio_thamani(tukio);
+
+    kama (aina != MZUNGUKO_EV_KEY || thamani != 1) {
+        rudisha 1;
+    }
+
+    kama (kanuni == MZUNGUKO_KEY_ESC) {
+        rudisha -1;
+    }
+
+    kama (kanuni == MZUNGUKO_KEY_SPACE) {
+        mchezo_sasisha(g);
+        mchezo_maliza_zamu(g);
+        mzunguko_chora_upya_kulingana_na_hali(g, fb, pitch);
+        rudisha 1;
+    }
+
+    kama (kanuni == MZUNGUKO_KEY_TAB) {
+        kama (MZUNGUKO_HALI_KINA == 0) {
+            MZUNGUKO_HALI_KINA = 1;
+        } sivyo {
+            MZUNGUKO_HALI_KINA = 0;
+        }
+        mzunguko_chora_upya_kulingana_na_hali(g, fb, pitch);
+        rudisha 1;
+    }
+
+    kama (kanuni == MZUNGUKO_KEY_RIGHT && MZUNGUKO_HALI_KINA == 1) {
+        MZUNGUKO_TAIFA_LILILOCHAGULIWA = (MZUNGUKO_TAIFA_LILILOCHAGULIWA + 1) % MZUNGUKO_IDADI_YA_MATAIFA;
+        mzunguko_chora_upya_kulingana_na_hali(g, fb, pitch);
+        rudisha 1;
+    }
+
+    kama (kanuni == MZUNGUKO_KEY_LEFT && MZUNGUKO_HALI_KINA == 1) {
+        kama (MZUNGUKO_TAIFA_LILILOCHAGULIWA == 0) {
+            MZUNGUKO_TAIFA_LILILOCHAGULIWA = MZUNGUKO_IDADI_YA_MATAIFA - 1;
+        } sivyo {
+            MZUNGUKO_TAIFA_LILILOCHAGULIWA = MZUNGUKO_TAIFA_LILILOCHAGULIWA - 1;
+        }
+        mzunguko_chora_upya_kulingana_na_hali(g, fb, pitch);
+        rudisha 1;
+    }
+
+    // Kitufe kingine chochote (ikiwemo LEFT/RIGHT wakati "orodha" iko
+    // hai) -- puuzwa kimya, si hitilafu.
+    rudisha 1;
+}
+
 n64 mzunguko_endesha(Mchezo* g, MzungukoChanzo* chanzo, n8* fb, n64 pitch) {
     n64 zamu_mwanzo = g->zamu_ya_sasa;
     n32 inaendelea = 1;
