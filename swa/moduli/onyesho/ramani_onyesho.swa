@@ -1,0 +1,183 @@
+husisha { moduli/onyesho/mchoro.swa }
+husisha { moduli/dunia/taifa.swa }
+
+// ramani_onyesho.swa -- Awamu G1 ya "Ramani Halisi + Uhuishaji + Dirisha
+// la Kisasa" (A-D na F tayari zimekamilika: maumbo, rangi, chati.swa,
+// TakwimuHistoria, hud.swa ya eneo). Kazi HII inachora DuniaRamani/
+// DuniaRamaniKipande (mwinuko/unyevu/joto/ardhi/matumizi_ya_ardhi/
+// uoto_msongamano/rutuba/rasilimali/mmiliki_id -- data iliyopo TANGU
+// ramani.swa iliandikwa) kama PIKSELI HALISI kwa MARA YA KWANZA. Kabla
+// ya hii, DuniaRamani ilitumika TU kwa hesabu za ndani (uchumi, umiliki
+// wa eneo kupitia dunia_taifa_dai_eneo/dunia_taifa_tafuta_mmiliki) --
+// haikuwahi kuonekana.
+//
+// Kiambishi: onyesho_ramani_ (saraka swa/moduli/onyesho/, angalia
+// KANUNI-MAJINA.md -- mchoro_ ni ya vitendo vya msingi vya uchoraji 2D
+// vya JUMLA, onyesho_ramani_ ni MAHSUSI kwa ramani ya dunia).
+//
+// KANUNI YA ANWANI (sawa HASA na kazi za "_eneo" za hud.swa, Awamu F):
+// fb inasogezwa MARA MOJA kwenye kona ya JUU-KUSHOTO ya eneo lengwa
+// (x,y) kwa hesabu ya kielekezi ya baiti (`fb + (y*pitch) + (x*4)`),
+// kisha kila kitu kinachofuata huchorwa kwa VIRATIBU VYA NDANI (kuanzia
+// 0,0) dhidi ya canvas_w=upana_px/canvas_h=kimo_px (ya ENEO LENYEWE, SI
+// ya bafa nzima) -- hivyo ramani inakatwa (clip) KATIKA MPAKA WAKE
+// pekee, bila kuvuja kwenye paneli jirani.
+//
+// MWELEKEO (muhimu sana, umethibitishwa kwa jaribio_ramani_onyesho.swa,
+// SI dhana): dunia_taifa_dai_eneo (taifa.swa, mstari 763) tayari ina
+// fomula iliyothibitishwa `lat = 90.0 - (y/(urefu-1))*180.0` -- yaani
+// y=0 -> lat=+90 (Ncha ya KASKAZINI), y=urefu-1 -> lat=-90 (Ncha ya
+// KUSINI). Kwa hiyo y_k (faharisi ya safu ya DuniaRamani) LAZIMA
+// ichorwe MOJA KWA MOJA kwenda y ya skrini (y_k=0 juu kabisa ya eneo,
+// y_k=urefu-1 chini kabisa) -- HAKUNA ugeuzaji (flip) unaohitajika
+// hapa; kugeuza kungevunja uhusiano na data iliyopo tayari.
+
+// ---------- Jedwali la rangi za ARDHI (TOFAUTI na mchoro_rangi_ya_
+// faharisi, ambayo ni kwa MATAIFA) -- rangi 8, moja kwa kila
+// MAZINGIRA_MATUMIZI_* (jiografia.swa), zilizochaguliwa kuonekana
+// TOFAUTI kabisa kando kando ya macho. Umbizo XRGB8888 (kama
+// mchoro_rangi_ya_faharisi). ----------
+n64 ONYESHO_RAMANI_RANGI_MSITU = 1789211;      // 0x1B4D1B -- kijani giza (msitu)
+n64 ONYESHO_RAMANI_RANGI_KILIMO = 9414716;     // 0x8FA83C -- kijani-njano (shamba)
+n64 ONYESHO_RAMANI_RANGI_MJINI = 8421504;      // 0x808080 -- kijivu (mji)
+n64 ONYESHO_RAMANI_RANGI_ARDHIOEVU = 3050356;  // 0x2E8B74 -- kijani-bluu (ardhioevu)
+n64 ONYESHO_RAMANI_RANGI_NYASI = 5025616;      // 0x4CAF50 -- kijani (nyasi)
+n64 ONYESHO_RAMANI_RANGI_JANGWA = 14729320;    // 0xE0C068 -- njano/mchanga (jangwa)
+n64 ONYESHO_RAMANI_RANGI_MAJI = 1989262;       // 0x1E5A8E -- bluu (maji)
+n64 ONYESHO_RAMANI_RANGI_TUNDRA = 14476262;    // 0xDCE3E6 -- nyeupe-kijivu (tundra)
+
+// onyesho_ramani_rangi_ya_ardhi: pata rangi ya ardhi kwa faharisi ya
+// MAZINGIRA_MATUMIZI_* (jiografia.swa). Chaguo-msingi (thamani
+// isiyotambulika) ni NYASI -- haipaswi kutokea kwa data halisi (enum
+// ina thamani 0-7 pekee), lakini inaepuka rangi "0" (nyeusi) ya kimya.
+n64 onyesho_ramani_rangi_ya_ardhi(n32 matumizi_ya_ardhi) {
+    kama (matumizi_ya_ardhi == MAZINGIRA_MATUMIZI_MSITU) { rudisha ONYESHO_RAMANI_RANGI_MSITU; }
+    sivyo { kama (matumizi_ya_ardhi == MAZINGIRA_MATUMIZI_KILIMO) { rudisha ONYESHO_RAMANI_RANGI_KILIMO; }
+    sivyo { kama (matumizi_ya_ardhi == MAZINGIRA_MATUMIZI_MJINI) { rudisha ONYESHO_RAMANI_RANGI_MJINI; }
+    sivyo { kama (matumizi_ya_ardhi == MAZINGIRA_MATUMIZI_ARDHIOEVU) { rudisha ONYESHO_RAMANI_RANGI_ARDHIOEVU; }
+    sivyo { kama (matumizi_ya_ardhi == MAZINGIRA_MATUMIZI_NYASI) { rudisha ONYESHO_RAMANI_RANGI_NYASI; }
+    sivyo { kama (matumizi_ya_ardhi == MAZINGIRA_MATUMIZI_JANGWA) { rudisha ONYESHO_RAMANI_RANGI_JANGWA; }
+    sivyo { kama (matumizi_ya_ardhi == MAZINGIRA_MATUMIZI_MAJI) { rudisha ONYESHO_RAMANI_RANGI_MAJI; }
+    sivyo { kama (matumizi_ya_ardhi == MAZINGIRA_MATUMIZI_TUNDRA) { rudisha ONYESHO_RAMANI_RANGI_TUNDRA; }
+    sivyo { rudisha ONYESHO_RAMANI_RANGI_NYASI; } } } } } } } }
+}
+
+// ALPHA ya tabaka la umiliki (0-255, angalia mchoro_weka_pikseli_alpha/
+// mchoro_changanya_rangi) -- ~120/255 kama ilivyoagizwa, mchanganyiko
+// wa karibu nusu-nusu kati ya rangi ya ardhi na rangi ya taifa.
+n64 ONYESHO_RAMANI_ALPHA_UMILIKI = 120;
+
+// RADIUSI ya alama ya mji mkuu (duara).
+n64 ONYESHO_RAMANI_RADIUSI_MJI_MKUU = 4;
+
+// onyesho_ramani_pata_faharisi_ya_taifa: TaifaMfumo (taifa.swa) HAINA
+// njia iliyopo tayari ya kupata faharisi kutoka kwa TaifaNchi*
+// (ilichunguzwa: dunia_taifa_tafuta_kwa_kitambulisho/_kwa_faharisi zote
+// mbili huenda faharisi/id -> TaifaNchi*, SI kinyume chake) -- kazi
+// ndogo hii inafanya kinyume: tembea m->mataifa[] na linganisha
+// KIELEKEZI (anwani, SI mfuatano wa kitambulisho -- haraka zaidi na ya
+// kutosha hapa kwa sababu kielekezi kilichorudishwa na
+// dunia_taifa_tafuta_mmiliki ni MOJA KWA MOJA kutoka safu hii hii).
+// Inarudisha -1 kama hakipatikani.
+n32 onyesho_ramani_pata_faharisi_ya_taifa(TaifaMfumo* m, TaifaNchi* t) {
+    kama (m == 0 || t == 0) { rudisha 0 - 1; }
+    n32 i = 0;
+    wakati (i < m->idadi) {
+        TaifaNchi* ti = dunia_taifa_mfumo_pata_kwa_faharisi(m, i);
+        kama (ti == t) { rudisha i; }
+        i = i + 1;
+    }
+    rudisha 0 - 1;
+}
+
+// onyesho_ramani_chora: chora DuniaRamani NZIMA (vipande 360x180, au
+// vipimo vyovyote vya `ramani` halisi iliyopitishwa) kwenye eneo
+// (x,y,upana_px,kimo_px) la framebuffer `fb`. `taifa` ni hiari kwa
+// maana ya tabaka la umiliki/miji mikuu -- kama ni 0, tabaka hizo mbili
+// zinarukwa kimya (ardhi pekee inachorwa).
+w0 onyesho_ramani_chora(DuniaRamani* ramani, TaifaMfumo* taifa, n8* fb, n64 pitch,
+                           n64 x, n64 y, n64 upana_px, n64 kimo_px) {
+    kama (ramani == 0 || fb == 0) { rudisha; }
+
+    n8* fb_eneo = fb + (y * pitch) + (x * 4);
+
+    n64 upana_wa_kipande = upana_px / ramani->upana;
+    kama (upana_wa_kipande < 1) { upana_wa_kipande = 1; }
+    n64 kimo_wa_kipande = kimo_px / ramani->urefu;
+    kama (kimo_wa_kipande < 1) { kimo_wa_kipande = 1; }
+
+    // ---------- Tabaka 1: ardhi (+ tabaka 2: umiliki, ikiwa ipo) ----------
+    n32 y_k = 0;
+    wakati (y_k < ramani->urefu) {
+        n32 x_k = 0;
+        wakati (x_k < ramani->upana) {
+            DuniaRamaniKipande* kipande = dunia_ramani_pata_kipande(ramani, x_k, y_k);
+            kama (kipande != 0) {
+                n64 rangi_ardhi = onyesho_ramani_rangi_ya_ardhi(kipande->matumizi_ya_ardhi);
+                n64 sx = x_k * upana_wa_kipande;
+                n64 sy = y_k * kimo_wa_kipande;
+
+                mchoro_piga_mstatili(fb_eneo, pitch, upana_px, kimo_px,
+                                      sx, sy, upana_wa_kipande, kimo_wa_kipande, rangi_ardhi);
+
+                kama (taifa != 0 && kipande->mmiliki_id != 0) {
+                    TaifaNchi* mmiliki = dunia_taifa_tafuta_mmiliki(taifa, ramani, x_k, y_k);
+                    kama (mmiliki != 0) {
+                        n32 faharisi = onyesho_ramani_pata_faharisi_ya_taifa(taifa, mmiliki);
+                        kama (faharisi >= 0) {
+                            n64 rangi_taifa = mchoro_rangi_ya_faharisi(faharisi);
+
+                            n64 dy = 0;
+                            wakati (dy < kimo_wa_kipande) {
+                                n64 dx = 0;
+                                wakati (dx < upana_wa_kipande) {
+                                    n64 px = sx + dx;
+                                    n64 py = sy + dy;
+                                    kama (px < upana_px && py < kimo_px) {
+                                        mchoro_weka_pikseli_alpha(fb_eneo, pitch, px, py,
+                                                                   rangi_taifa, ONYESHO_RAMANI_ALPHA_UMILIKI);
+                                    }
+                                    dx = dx + 1;
+                                }
+                                dy = dy + 1;
+                            }
+                        }
+                    }
+                }
+            }
+            x_k = x_k + 1;
+        }
+        y_k = y_k + 1;
+    }
+
+    // ---------- Tabaka 3: alama za miji mikuu ----------
+    kama (taifa == 0) { rudisha; }
+
+    n64 upana_p1 = ramani->upana - 1;
+    kama (upana_p1 < 1) { upana_p1 = 1; }
+    n64 urefu_p1 = ramani->urefu - 1;
+    kama (urefu_p1 < 1) { urefu_p1 = 1; }
+    d64 upana_p1_d = upana_p1;
+    d64 urefu_p1_d = urefu_p1;
+
+    n32 i = 0;
+    wakati (i < taifa->idadi) {
+        TaifaNchi* t = dunia_taifa_mfumo_pata_kwa_faharisi(taifa, i);
+        kama (t != 0) {
+            // Kinyume cha fomula iliyothibitishwa (taifa.swa:763,768):
+            // lon -> x_k, lat -> y_k.
+            d64 mji_x_k_d = (t->mji_mkuu_lon + 180.0) / 360.0 * upana_p1_d;
+            d64 mji_y_k_d = (90.0 - t->mji_mkuu_lat) / 180.0 * urefu_p1_d;
+            n64 mji_x_k = mji_x_k_d;
+            n64 mji_y_k = mji_y_k_d;
+
+            // Nafasi ya pikseli -- VIRATIBU VYA NDANI ya fb_eneo.
+            n64 mji_sx = mji_x_k * upana_wa_kipande;
+            n64 mji_sy = mji_y_k * kimo_wa_kipande;
+
+            mchoro_duara(fb_eneo, pitch, upana_px, kimo_px, mji_sx, mji_sy,
+                          ONYESHO_RAMANI_RADIUSI_MJI_MKUU, mchoro_rangi_ya_faharisi(i));
+        }
+        i = i + 1;
+    }
+}
