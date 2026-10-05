@@ -181,3 +181,137 @@ w0 onyesho_ramani_chora(DuniaRamani* ramani, TaifaMfumo* taifa, n8* fb, n64 pitc
         i = i + 1;
     }
 }
+
+// =====================================================================
+// AWAMU G2 -- "duara la 3D kwa raha": onyesho_dunia_duara_chora
+// =====================================================================
+//
+// SI injini kamili ya 3D: HAKUNA mzunguko wa wakati halisi, HAKUNA
+// z-buffer, HAKUNA mesh/polygon za kawaida. Ni "orthographic azimuthal
+// projection" HALISI ya katografia (fomula ya hisabati iliyoenea sana,
+// SI dhana iliyobuniwa hapa) -- inatumia DATA ILE ILE ya ramani bapa
+// (DuniaRamani, Awamu G1), ikionyesha NUSU MOJA ya dunia ikiwa
+// imezungukwa kama duara, kutoka mtazamo WA KUDUMU (lon0=0, lat0=0 --
+// "kuangalia dunia kutoka katikati ya ikweta na meridiani ya msingi").
+// Hakuna mzunguko unaobadilika kwa sasa (kazi ya baadaye).
+//
+// FOMULA KAMILI ya katografia ya "orthographic projection":
+//   cos_c = sin(lat)*sin(lat0) + cos(lat)*cos(lat0)*cos(lon-lon0)
+// Kwa lat0=lon0=0: sin(lat0)=sin(0)=0.0 (neno la kwanza linatoweka),
+// cos(lat0)=cos(0)=1.0, lon-lon0=lon -- hivyo inarahisika HASA kuwa:
+//   cos_c = cos(lat) * cos(lon)
+// (Imethibitishwa KWA MKONO hapa, na pia kwa hesabu halisi (Python,
+// nje ya mfumo huu) dhidi ya fomula kamili kwa jozi kadhaa za
+// (lat,lon) -- zinalingana kikamilifu hadi makosa ya floating-point
+// yasiyo na maana.)
+//
+// x_k/y_k -> lon/lat: FOMULA ILE ILE iliyothibitishwa Awamu G1 (maoni
+// ya juu ya faili hili) -- lat = 90 - (y_k/(urefu-1))*180, lon =
+// (x_k/(upana-1))*360 - 180.
+//
+// cos_c < 0.0 => kipande kiko NYUMA ya dunia kwa mtazamo huu (upande
+// usioonekana) -- kinarukwa kabisa, hakichorwi. cos_c >= 0.0 =>
+// kinachoonekana, nafasi yake ya skrini:
+//   x_proj = radius * cos(lat) * sin(lon)
+//   y_proj = radius * sin(lat)
+//   skrini = (cx + x_proj, cy - y_proj)  // y inageuzwa: y ya skrini
+//                                        // huongezeka CHINI, lakini
+//                                        // lat chanya (Kaskazini)
+//                                        // lazima ionekane JUU.
+//
+// KUMBUKA KUHUSU SAHIHI YA SIGNATURE: maelezo ya kazi hii yalitaja
+// mwito wa mwisho kama `mchoro_duara_mpaka(fb, pitch, canvas_w,
+// canvas_h, cx, cy, radius, rangi)` -- lakini mchoro_duara_mpaka
+// HASA (mchoro.swa) INAHITAJI canvas_w/canvas_h kwa ukataji (clip)
+// wake wa ndani, na haviwezi kukokotolewa kutoka kwa pitch/cx/cy/
+// radius pekee (pitch inatoa canvas_w=pitch/4 tu, SI canvas_h).
+// Signature ya awali iliyopendekezwa (bila canvas_w/canvas_h)
+// haikuwa thabiti dhidi ya mwito wake wenyewe -- kwa hiyo
+// canvas_w/canvas_h zimeongezwa HAPA kama hoja za WAZI, zikifuata
+// MPANGILIO uleule uliopo tayari kwenye mchoro_duara/mchoro_duara_
+// mpaka (fb, pitch, canvas_w, canvas_h, cx, cy, radius, ...) --
+// hii SIYO uvumbuzi wa kiholela, ni usahihishaji wa pengo la
+// maelezo dhidi ya API iliyopo tayari.
+//
+// `taifa` inabaki kwenye signature (kama ilivyoagizwa) lakini
+// HAITUMIKI ndani ya kazi hii -- Awamu G2 ni ARDHI + UKINGO PEKEE
+// (picha ya rejea ya mtumiaji ya duara la EU inaonyesha mabara yenye
+// rangi, SI mipaka ya kisiasa/tabaka la umiliki); tabaka la umiliki
+// kwenye duara (kama litahitajika) ni kazi ya baadaye.
+n64 ONYESHO_RAMANI_RANGI_UKINGO_DUARA = 858922; // 0x0D1B2A -- bluu nyeusi ya anga (ukingo wa dunia)
+
+w0 onyesho_dunia_duara_chora(DuniaRamani* ramani, TaifaMfumo* taifa, n8* fb, n64 pitch,
+                                n64 canvas_w, n64 canvas_h, n64 cx, n64 cy, n64 radius) {
+    kama (ramani == 0 || fb == 0) { rudisha; }
+
+    d64 pi = civ_pi();
+    d64 shahada_kwenda_radian = pi / 180.0;
+    d64 radius_d = radius;
+
+    n64 upana_p1 = ramani->upana - 1;
+    kama (upana_p1 < 1) { upana_p1 = 1; }
+    n64 urefu_p1 = ramani->urefu - 1;
+    kama (urefu_p1 < 1) { urefu_p1 = 1; }
+    d64 upana_p1_d = upana_p1;
+    d64 urefu_p1_d = urefu_p1;
+
+    // Ukubwa wa eneo dogo kuchorwa kwa kila kipande (1 au 2 pikseli --
+    // CHAGUO LETU la vitendo, SI fomula ya katografia): DuniaRamani ina
+    // vipande 360x180 tu, lakini duara la radius~150 lina eneo la
+    // pikseli NYINGI zaidi ya idadi ya vipande vinavyoonekana (nusu ya
+    // 64800 ~ 32400 dhidi ya eneo la duara ~ pi*radius^2 ~ 70700) --
+    // bila eneo dogo, mapengo (gaps) yangeonekana kati ya vipande vya
+    // karibu na ukingo wa mtazamo (ambapo msongamano wa sampuli ni
+    // mdogo kuliko eneo la pikseli).
+    n64 eneo_px = 1;
+    kama (radius >= 60) { eneo_px = 2; }
+
+    n32 y_k = 0;
+    wakati (y_k < ramani->urefu) {
+        n32 x_k = 0;
+        wakati (x_k < ramani->upana) {
+            DuniaRamaniKipande* kipande = dunia_ramani_pata_kipande(ramani, x_k, y_k);
+            kama (kipande != 0) {
+                d64 x_k_d = x_k;
+                d64 y_k_d = y_k;
+                d64 lat = 90.0 - (y_k_d / urefu_p1_d) * 180.0;
+                d64 lon = (x_k_d / upana_p1_d) * 360.0 - 180.0;
+                d64 lat_rad = lat * shahada_kwenda_radian;
+                d64 lon_rad = lon * shahada_kwenda_radian;
+
+                d64 cos_c = civ_cos(lat_rad) * civ_cos(lon_rad);
+
+                kama (cos_c >= 0.0) {
+                    d64 x_proj = radius_d * civ_cos(lat_rad) * civ_sin(lon_rad);
+                    d64 y_proj = radius_d * civ_sin(lat_rad);
+                    n64 x_proj_i = x_proj;
+                    n64 y_proj_i = y_proj;
+                    n64 sx = cx + x_proj_i;
+                    n64 sy = cy - y_proj_i;
+
+                    n64 rangi_ardhi = onyesho_ramani_rangi_ya_ardhi(kipande->matumizi_ya_ardhi);
+
+                    n64 dy = 0;
+                    wakati (dy < eneo_px) {
+                        n64 dx = 0;
+                        wakati (dx < eneo_px) {
+                            n64 px = sx + dx;
+                            n64 py = sy + dy;
+                            kama (px >= 0 && px < canvas_w && py >= 0 && py < canvas_h) {
+                                mchoro_weka_pikseli(fb, pitch, px, py, rangi_ardhi);
+                            }
+                            dx = dx + 1;
+                        }
+                        dy = dy + 1;
+                    }
+                }
+            }
+            x_k = x_k + 1;
+        }
+        y_k = y_k + 1;
+    }
+
+    // Ukingo wa duara (mpaka pekee, SI uliojazwa) -- huchorwa MWISHO,
+    // juu ya kila kitu, kama inavyotakiwa.
+    mchoro_duara_mpaka(fb, pitch, canvas_w, canvas_h, cx, cy, radius, ONYESHO_RAMANI_RANGI_UKINGO_DUARA);
+}
