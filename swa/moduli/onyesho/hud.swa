@@ -2,6 +2,7 @@ husisha { moduli/onyesho/fonti.swa }
 husisha { moduli/idadi_ya_watu/idadi_ya_watu.swa }
 husisha { moduli/dunia/taifa.swa }
 husisha { msingi/maktaba/mfuatano.swa }
+husisha { moduli/mchezo.swa }
 
 // hud.swa -- skrini ya KWANZA ya takwimu za moja kwa moja (HUD) ya
 // mradi huu: huchora maandishi YALIYOTOKANA NA HALI HALISI ya mifumo
@@ -9,37 +10,48 @@ husisha { msingi/maktaba/mfuatano.swa }
 // ghafi) juu ya framebuffer YOYOTE ya XRGB8888, kwa kutumia fonti.swa
 // + mchoro.swa (hazina maktaba ya nje, sawa na onyesho/* nzima).
 //
-// MUHIMU -- KWA NINI faili hili HALIHUSISHI moduli/mchezo.swa
-// moja kwa moja (tofauti na jaribio_mchezo_kamili.swa): mkusanyaji
-// wa Swa una kikomo KISICHOBADILIKA cha baiti 1,048,576 za chanzo
-// (baada ya kutatua husisha ZOTE, hesabu ya RAW ikiwemo maoni) kwa
-// kila PROGRAMU MOJA (angalia ongeza_chanzo, msingi/mkusanyaji/
-// stage1.swa, lugha-swa/swa). Imepimwa moja kwa moja: msururu wa
-// husisha wa moduli/mchezo.swa PEKEE (mifumo 47) tayari unafikia
-// baiti 1,034,722 -- 98.7% ya kikomo -- ukiacha nafasi ya ~baiti
-// 13,854 TU. fonti.swa (fonti ya 8x16, herufi 121) pekee ni ~baiti
-// 52,500 -- zaidi ya mara 3 ya nafasi iliyobaki. Kwa hiyo HAKUNA njia
-// ya kuunganisha moduli/mchezo.swa (Mchezo kamili) na fonti.swa yenye
-// herufi kamili KATIKA PROGRAMU MOJA kwa sasa -- hii SI mdudu
-// (ongeza_chanzo inatekeleza kikomo chake kwa usahihi), ni ukomo wa
-// kiwango ambao mradi huu (Dominion) umefikia kwa mara ya kwanza.
-// Badala ya kudai uongo kuwa Mchezo kamili imeunganishwa, faili hili
-// linasoma SUBMODULI HALISI mbili zinazotoa data ya HUD hii moja kwa
-// moja (idadi_ya_watu.swa + taifa.swa -- hizi ndizo moduli HALISI
-// ambazo mchezo_pata_idadi_ya_watu/mchezo_pata_taifa zingerudisha),
-// bila kuhusisha mfumo mzima wa mchezo.swa. Mwito halisi (jaribio_hud.swa)
-// huunda IdadiYaWatuMsimamizi/TaifaMfumo HALISI kwa kutumia kazi
-// ZILE ZILE ambazo mchezo_anzisha/mchezo_sasisha hutumia ndani
-// (idadi_ya_watu_unda/idadi_ya_watu_sasisha, dunia_taifa_mfumo_unda/
-// dunia_taifa_mfumo_anzisha_chaguo_msingi/dunia_taifa_hesabu_uchumi_wote)
-// -- data ni HALISI na si bandia, tu haijafungwa ndani ya muundo wa
-// juu wa Mchezo.
+// HISTORIA -- KWA NINI faili hili LILIKUWA halihusishi moduli/mchezo.swa
+// moja kwa moja (hii SI KWELI TENA, soma ifuatavyo): mkusanyaji wa
+// Swa alikuwa na kikomo cha baiti 1,048,576 za chanzo (baada ya
+// kutatua husisha ZOTE, hesabu ya RAW ikiwemo maoni) kwa kila
+// PROGRAMU MOJA. Msururu wa husisha wa moduli/mchezo.swa PEKEE
+// (mifumo 47) ulikuwa tayari unafikia baiti 1,034,722 -- 98.7% ya
+// kikomo hicho cha zamani -- ukiacha nafasi ya ~baiti 13,854 TU,
+// wakati fonti.swa (fonti ya 8x16, herufi 121) pekee ni ~baiti
+// 52,500 -- zaidi ya mara 3 ya nafasi iliyobaki. Kwa hiyo wakati huo
+// HAKUNA njia ya kuunganisha moduli/mchezo.swa (Mchezo kamili) na
+// fonti.swa yenye herufi kamili KATIKA PROGRAMU MOJA.
+//
+// KIKOMO HICHO KIMEONDOLEWA (lugha-swa/swa PR #301, 2026-10-04):
+// kikomo cha baiti za chanzo kimepanuliwa kutoka 1MB (1,048,576)
+// hadi 16MB (16,777,216) -- angalia msingi/mkusanyaji/stage1.swa,
+// lugha-swa/swa. Mchezo.swa + majaribio yake (jaribio_mchezo_kamili.swa)
+// kwa pamoja ni baiti 1,052,450 TU (~6.3% ya kikomo kipya) --
+// kuna nafasi KUBWA sasa. Kwa hiyo faili hili SASA LINAHUSISHA
+// moduli/mchezo.swa moja kwa moja (angalia husisha hapo juu) na
+// linatoa kazi mpya, onyesho_hud_chora_kutoka_mchezo, inayopokea
+// Mchezo* HALISI na kutumia accessors zake (mchezo_pata_idadi_ya_watu,
+// mchezo_pata_taifa, g->zamu_ya_sasa) moja kwa moja -- hakuna
+// kunakili data tena kwa mkono.
+//
+// KAZI YA ZAMANI (onyesho_hud_chora, inayopokea OnyeshoHudHoja yenye
+// vielekezi vya submoduli moja kwa moja -- idadi_ya_watu/taifa, SI
+// Mchezo*) INABAKI vilevile, bila kufutwa: ni ulinganifu wa nyuma
+// kwa programu zinazotumia muundo wa zamani (jaribio_hud.swa, ambayo
+// huunda IdadiYaWatuMsimamizi/TaifaMfumo kwa mkono bila Mchezo kamili),
+// na pia njia nyepesi kwa mtu anayetaka HUD bila kuhusisha mchezo.swa
+// nzima (programu ndogo, zisizohitaji mifumo 47 yote). Kazi mpya
+// onyesho_hud_chora_kutoka_mchezo HAIBADILISHI mantiki ya uchoraji --
+// inaita onyesho_hud_chora iliyopo tayari baada ya kutoa data kutoka
+// Mchezo* halisi, kwa hiyo mantiki ya uchoraji haijazalishwa upya
+// mahali pawili.
 //
 // WIGO: HUSOMA TU accessors zilizopo tayari (idadi_ya_watu_pata_jumla,
-// dunia_taifa_mfumo_pata_kwa_faharisi, n.k.) -- halibadilishi
-// mchezo.swa wala maandiko ya wachezaji (kazi nyingine sambamba
-// inaunganisha i18n kwenye mchezo.swa kwa sasa). Maandiko ya HUD hii
-// mwenyewe (vichwa vya safu, n.k.) ni ya ndani ya faili hili pekee.
+// dunia_taifa_mfumo_pata_kwa_faharisi, mchezo_pata_idadi_ya_watu,
+// mchezo_pata_taifa, n.k.) -- halibadilishi mchezo.swa wala
+// maandiko ya wachezaji (kazi nyingine sambamba inaunganisha i18n
+// kwenye mchezo.swa kwa sasa). Maandiko ya HUD hii mwenyewe (vichwa
+// vya safu, n.k.) ni ya ndani ya faili hili pekee.
 //
 // HII BADO SI "UI": hakuna usimamizi wa dirisha, hakuna
 // mwingiliano (hakuna kusoma kibodi/mouse kwenye HUD hii -- hiyo
@@ -145,4 +157,23 @@ w0 onyesho_hud_chora(OnyeshoHudHoja* hoja) {
         y = y + ONYESHO_HUD_MSTARI;
         i = i + 1;
     }
+}
+
+// onyesho_hud_chora_kutoka_mchezo -- NYONGEZA (baada ya #301, angalia
+// maelezo juu ya faili): hupokea Mchezo* HALISI (mfumo mzima wa
+// mifumo 47) na kutoa idadi_ya_watu/taifa/zamu KUTOKA KWAKE moja kwa
+// moja kwa accessors HALISI zilizopo tayari kwenye mchezo.swa
+// (mchezo_pata_idadi_ya_watu, mchezo_pata_taifa, g->zamu_ya_sasa --
+// SIYO kazi za kudhani, zimesomwa moja kwa moja kwenye mchezo.swa),
+// kisha kujaza OnyeshoHudHoja na kuita onyesho_hud_chora iliyopo
+// tayari -- mantiki ya uchoraji YENYEWE haijazalishwa upya, inatumika
+// mara ya pili bila mabadiliko.
+w0 onyesho_hud_chora_kutoka_mchezo(Mchezo* g, n8* fb, n64 pitch) {
+    OnyeshoHudHoja hoja;
+    hoja.fb = fb;
+    hoja.pitch = pitch;
+    hoja.idadi_ya_watu = mchezo_pata_idadi_ya_watu(g);
+    hoja.taifa = mchezo_pata_taifa(g);
+    hoja.zamu = g->zamu_ya_sasa;
+    onyesho_hud_chora(&hoja);
 }
