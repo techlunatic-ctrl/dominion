@@ -115,6 +115,7 @@ compositor ya mtu wa kati.
 | `swa/moduli/onyesho/` (mchoro.swa) | `mchoro_` | Vitendo vya uchoraji 2D juu ya framebuffer YOYOTE (fill-rect, mstari, blit) -- havitegemei DRM moja kwa moja, vinafanya kazi juu ya bafa yoyote ya XRGB8888 |
 | `swa/moduli/onyesho/` (baiti_ghafi.swa) | `weka_`/`pata_`/`anwani` | Kusoma/kuandika u16/u32/u64 (little-endian) kwenye bafa ya N8* kwa offset halisi -- msingi wa kuwakilisha miundo ya ioctl ya kernel bila kutegemea mpangilio wa `muundo` ya Swa (angalia maoni ya faili kwa sababu kamili) |
 | `swa/moduli/kifaa/` | `kifaa_` | Kusoma matukio ghafi ya kibodi/kipanya kutoka `/dev/input/eventN` (`struct input_event`) |
+| `swa/moduli/onyesho/wayland/` | `wayland_` (compound: `wayland_mazingira_`, `wayland_soketi_`, `wayland_waya_`) | Mteja wa Wayland ulioandikwa kutoka mwanzo (sifuri utegemezi, hakuna `libwayland`) -- lengo la mwisho ni dirisha HALISI kwenye Hyprland badala ya DRM ghafi. `mazingira.swa`: ufikiaji wa envp kutoka argv (ABI, hakuna wito wa mfumo). `soketi.swa`: socket/connect/sendmsg/recvmsg (syscalls 41/42/46/47) + sockaddr_un/iovec/msghdr kama bafa ghafi. `waya.swa`: usimbaji/uchanguzi wa umbizo la waya la ujumbe (kichwa object_id+opcode+ukubwa, hoja za uint/string/new_id). KIAMBISHI KAMILI `wayland_mazingira_` (SI `mazingira_` peke yake) kuepuka mgongano na `swa/moduli/mazingira/` (tafsiri ya `src/core/environment/`, HAIHUSIANI) |
 
 Hali ya sasa (2026-09-11): mfululizo mzima wa DRM/KMS umejaribiwa
 dhidi ya kifaa HALISI (`/dev/dri/card1`, amdgpu) -- kufungua,
@@ -203,3 +204,29 @@ miundo) unaostahili uchunguzi tofauti, WA NJE ya kazi hii. Kwa sasa
 kuendeshwa kikamilifu ikiwa imekusanywa pamoja na graph nzima ya
 mchezo.swa -- programu za majaribio zilizotumika hapo juu ziliepuka
 njia hii kwa makusudi kwa kuunda mifumo moja moja moja kwa moja.
+
+## Wayland Awamu 1 -- "kushikana kwa itifaki" (2026-10-05)
+
+`swa/moduli/onyesho/wayland/jaribio_waya_kushikana.swa` umeendeshwa
+dhidi ya soketi HALISI ya Wayland ya kikao hiki
+(`/run/user/1000/wayland-1`, Hyprland) -- SI mock. Matokeo: globals 71
+zilizogunduliwa, zikiwemo `wl_compositor` (toleo 6), `wl_shm` (toleo
+2), `xdg_wm_base` (toleo 7), `wl_seat` (toleo 9), `wl_output` (toleo
+4). Hakuna wito wa mfumo MPYA kwenye mkusanyaji ulihitajika --
+`wito_wa_mfumo` (builtin iliyopo) ilitosha kwa `socket`/`connect`/
+`sendmsg`/`recvmsg` (41/42/46/47), na ufikiaji wa envp ulitatuliwa
+KABISA kwenye Swa ya kawaida (tembea `argv[i]` hadi NULL, `envp =
+argv + (i+1)` -- ABI ya Linux x86-64, imethibitishwa dhidi ya
+`HOME`/`WAYLAND_DISPLAY`/`XDG_RUNTIME_DIR` halisi za shell KABLA ya
+kuendelea na Wayland yenyewe).
+
+Mkakati wa "mwisho wa burst": `wl_display.sync` hutumwa MARA MOJA
+baada ya `get_registry` -- `wl_callback.done` yake HAIWEZI kufika
+kabla ya globals zote za awali (maombi/matukio ni FIFO), sawa na
+`wl_display_roundtrip()` ya libwayland. Hakuna muda wa kusubiri wa
+bahati nasibu, hakuna `poll`/`select`.
+
+SCM_RIGHTS (upitishaji wa file descriptor, unaohitajika na
+`wl_shm.create_pool`) KWA MAKUSUDI haikutekelezwa -- ni ya Awamu 2.
+`msg_control`/`msg_controllen` za `wayland_soketi_jenga_msghdr` zinabaki
+sifuri Awamu hii.

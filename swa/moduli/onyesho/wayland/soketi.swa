@@ -1,0 +1,107 @@
+husisha { moduli/onyesho/baiti_ghafi.swa }
+husisha { msingi/maktaba/mfuatano.swa }
+
+// soketi.swa -- wrappers za syscalls ghafi za AF_UNIX stream socket
+// (socket=41, connect=42, sendmsg=46, recvmsg=47) + ujenzi wa
+// sockaddr_un/iovec/msghdr kama bafa ghafi za n8* (mtindo uleule wa
+// moduli/onyesho/baiti_ghafi.swa/drm.swa -- miundo ya ABI ya kernel
+// kama bafa ya offset halisi, SI `muundo` ya Swa -- angalia maelezo
+// ya baiti_ghafi.swa kwa sababu).
+//
+// Kiambishi: wayland_soketi_ (eneo JIPYA, si tafsiri ya src/core/ --
+// angalia ../../../KANUNI-MAJINA.md, sehemu ya "Onyesho/kifaa").
+//
+// MUHIMU: sendmsg/recvmsg zinatumika (SI write/read wazi) ili
+// miundombinu iwe tayari kwa SCM_RIGHTS (upitishaji wa file
+// descriptor, unaohitajika kwa wl_shm.create_pool na picha za
+// kuchorwa) -- lakini AWAMU HII haitumii control message (SCM_RIGHTS)
+// KABISA, ni ya Awamu 2. msg_control/msg_controllen zinabaki sifuri
+// hapa kwa makusudi.
+
+n64 WAYLAND_SOKETI_AF_UNIX = 1;
+n64 WAYLAND_SOKETI_SOCK_STREAM = 1;
+
+n64 WAYLAND_SOKETI_SYS_SOCKET = 41;
+n64 WAYLAND_SOKETI_SYS_CONNECT = 42;
+n64 WAYLAND_SOKETI_SYS_SENDMSG = 46;
+n64 WAYLAND_SOKETI_SYS_RECVMSG = 47;
+
+n64 wayland_sys_socket(n64 domain, n64 aina, n64 protokali) {
+    rudisha wito_wa_mfumo(WAYLAND_SOKETI_SYS_SOCKET, domain, aina, protokali, 0, 0, 0);
+}
+
+n64 wayland_sys_connect(n64 fd, n8* anwani_soketi, n64 urefu) {
+    rudisha wito_wa_mfumo(WAYLAND_SOKETI_SYS_CONNECT, fd, anwani_soketi, urefu, 0, 0, 0);
+}
+
+n64 wayland_sys_sendmsg(n64 fd, n8* msg, n64 bendera) {
+    rudisha wito_wa_mfumo(WAYLAND_SOKETI_SYS_SENDMSG, fd, msg, bendera, 0, 0, 0);
+}
+
+n64 wayland_sys_recvmsg(n64 fd, n8* msg, n64 bendera) {
+    rudisha wito_wa_mfumo(WAYLAND_SOKETI_SYS_RECVMSG, fd, msg, bendera, 0, 0, 0);
+}
+
+// struct sockaddr_un (Linux ABI x86-64, baiti 110, HAKUNA upakiaji wa
+// mwisho -- imehakikiwa dhidi ya uzoefu wa kawaida wa ABI hii, ni
+// muundo thabiti wa muda mrefu): 0 sun_family(u16)  2 sun_path[108]
+n8* wayland_soketi_anwani_unix(n8* njia) {
+    n8* a = tenga(110);
+    weka_sifuri(a, 110);
+    weka_u16(a, 0, WAYLAND_SOKETI_AF_UNIX);
+    n64 urefu = urefu_wa_mfuatano(njia);
+    // 107 = 108 (ukubwa wa sun_path) - 1 (nafasi ya NUL ya mwisho,
+    // tayari ipo kutoka weka_sifuri hapo juu).
+    kama (urefu > 107) { urefu = 107; }
+    nakili(a + 2, njia, urefu);
+    rudisha a;
+}
+
+n64 wayland_soketi_fungua() {
+    rudisha wayland_sys_socket(WAYLAND_SOKETI_AF_UNIX, WAYLAND_SOKETI_SOCK_STREAM, 0);
+}
+
+n64 wayland_soketi_unganisha(n64 fd, n8* njia) {
+    n8* anwani = wayland_soketi_anwani_unix(njia);
+    rudisha wayland_sys_connect(fd, anwani, 110);
+}
+
+n64 wayland_soketi_funga(n64 fd) {
+    rudisha sys_funga(fd);
+}
+
+// struct iovec, baiti 16: 0 iov_base(u64 ptr)  8 iov_len(u64)
+n8* wayland_soketi_jenga_iovec(n8* bafa, n64 urefu) {
+    n8* iov = tenga(16);
+    weka_u64(iov, 0, anwani(bafa));
+    weka_u64(iov, 8, urefu);
+    rudisha iov;
+}
+
+// struct msghdr, baiti 56 (ABI x86-64):
+//   0  msg_name(u64 ptr)        8  msg_namelen(u32) [+4 upakwa]
+//   16 msg_iov(u64 ptr)         24 msg_iovlen(u64)
+//   32 msg_control(u64 ptr)     40 msg_controllen(u64)
+//   48 msg_flags(u32) [+4 upakwa]
+// msg_name/msg_control zinabaki sifuri (hatutumii ANCILLARY data --
+// AF_UNIX haihitaji anwani ya mwisho kwenye socket iliyounganishwa
+// tayari, na SCM_RIGHTS ni ya Awamu 2, angalia maoni ya juu).
+n8* wayland_soketi_jenga_msghdr(n8* iov, n64 idadi_iov) {
+    n8* m = tenga(56);
+    weka_sifuri(m, 56);
+    weka_u64(m, 16, anwani(iov));
+    weka_u64(m, 24, idadi_iov);
+    rudisha m;
+}
+
+n64 wayland_soketi_tuma(n64 fd, n8* bafa, n64 urefu) {
+    n8* iov = wayland_soketi_jenga_iovec(bafa, urefu);
+    n8* msg = wayland_soketi_jenga_msghdr(iov, 1);
+    rudisha wayland_sys_sendmsg(fd, msg, 0);
+}
+
+n64 wayland_soketi_pokea(n64 fd, n8* bafa, n64 urefu) {
+    n8* iov = wayland_soketi_jenga_iovec(bafa, urefu);
+    n8* msg = wayland_soketi_jenga_msghdr(iov, 1);
+    rudisha wayland_sys_recvmsg(fd, msg, 0);
+}

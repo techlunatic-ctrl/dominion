@@ -1,0 +1,105 @@
+husisha { moduli/onyesho/baiti_ghafi.swa }
+
+// waya.swa -- usimbaji/uchanguzi wa umbizo la "waya" (wire format) la
+// itifaki ya Wayland. Mpangilio HASA wa biti umethibitishwa dhidi ya
+// /usr/share/wayland/wayland.xml (interface wl_display/wl_registry,
+// mstari 31-178 ya toleo lililosakinishwa hapa) + maarifa ya
+// kudumu/yaliyoandikwa ya itifaki ya waya ya Wayland (haijabadilika
+// tangu kuanzishwa kwake):
+//
+//   Kichwa cha kila ujumbe (8 baiti): 0 object_id(u32)
+//     4 (opcode(u16) | ukubwa_jumla_wa_ujumbe(u16) << 16) kama u32
+//     MOJA (angalia baiti_ghafi.swa kwa maoni kuhusu mpangilio wa
+//     little-endian).
+//   Hoja:
+//     uint/int/new_id/object -> u32 (baiti 4)
+//     string -> u32 urefu (UKIJUMUISHA NUL ya mwisho), kisha baiti
+//       hizo (ikiwemo NUL), kisha upakwaji wa sifuri hadi mzunguko wa
+//       baiti 4 unaofuata.
+//   `new_id` ya wl_display.get_registry HAINA jina la interface wala
+//   version kwenye waya kwa sababu interface yake (wl_registry)
+//   imebainishwa KISTATIKI kwenye XML (angalia wayland.xml mstari
+//   55-69: <arg type="new_id" interface="wl_registry">) -- hoja yake
+//   ni u32 MOJA TU (object id mpya). (Hii ni tofauti na
+//   wl_registry.bind ambayo new_id yake HAINA interface kwenye XML --
+//   bind huongeza jina+version+id kwenye waya, lakini bind ni ya
+//   Awamu 2.)
+//
+// Kiambishi: wayland_waya_ (eneo JIPYA -- angalia
+// ../../../KANUNI-MAJINA.md).
+
+n64 WAYLAND_WAYA_DISPLAY_ID = 1;        // wl_display -- object_id=1 bila bind
+n64 WAYLAND_WAYA_DISPLAY_OP_SYNC = 0;
+n64 WAYLAND_WAYA_DISPLAY_OP_GET_REGISTRY = 1;
+n64 WAYLAND_WAYA_REGISTRY_EV_GLOBAL = 0;
+n64 WAYLAND_WAYA_REGISTRY_EV_GLOBAL_REMOVE = 1;
+n64 WAYLAND_WAYA_CALLBACK_EV_DONE = 0;
+
+// ---------- Kusoma kichwa cha ujumbe (object_id/opcode/ukubwa) ----------
+
+n64 wayland_waya_msg_object_id(n8* buf, n64 off) {
+    rudisha pata_u32(buf, off);
+}
+
+n64 wayland_waya_msg_opcode(n8* buf, n64 off) {
+    n64 neno = pata_u32(buf, off + 4);
+    rudisha neno & 65535;
+}
+
+n64 wayland_waya_msg_ukubwa(n8* buf, n64 off) {
+    n64 neno = pata_u32(buf, off + 4);
+    rudisha (neno >> 16) & 65535;
+}
+
+// ---------- wl_display.get_registry (ombi, opcode 1) ----------
+// Kichwa (8) + hoja moja ya new_id (4) = baiti 12 jumla.
+
+n64 wayland_waya_get_registry_ukubwa() { rudisha 12; }
+
+n8* wayland_waya_jenga_get_registry(n64 registry_id) {
+    n64 ukubwa = 12;
+    n8* m = tenga(ukubwa);
+    weka_u32(m, 0, WAYLAND_WAYA_DISPLAY_ID);
+    weka_u32(m, 4, WAYLAND_WAYA_DISPLAY_OP_GET_REGISTRY | (ukubwa << 16));
+    weka_u32(m, 8, registry_id);
+    rudisha m;
+}
+
+// ---------- wl_display.sync (ombi, opcode 0) ----------
+// Muundo sawa na get_registry (hoja moja ya new_id) -- inatumika
+// kuashiria mwisho wa "burst" ya kwanza ya matukio ya global: kwa
+// kuwa maombi/matukio yanashughulikiwa KWA MPANGILIO, wl_callback.done
+// ya sync hii itafika BAADA ya globals zote za awali (angalia
+// wayland.xml mstari 37-53 na maelezo ya wl_registry mstari 125-133).
+
+n8* wayland_waya_jenga_sync(n64 callback_id) {
+    n64 ukubwa = 12;
+    n8* m = tenga(ukubwa);
+    weka_u32(m, 0, WAYLAND_WAYA_DISPLAY_ID);
+    weka_u32(m, 4, WAYLAND_WAYA_DISPLAY_OP_SYNC | (ukubwa << 16));
+    weka_u32(m, 8, callback_id);
+    rudisha m;
+}
+
+// ---------- wl_registry.global (tukio, opcode 0) ----------
+// Mwili (baada ya kichwa cha 8): uint name; string interface; uint
+// version (angalia wayland.xml mstari 150-161).
+
+n64 wayland_waya_global_name(n8* buf, n64 off) {
+    rudisha pata_u32(buf, off + 8);
+}
+
+// Urefu HALISI uliohifadhiwa kwenye waya (unajumuisha NUL ya mwisho).
+n64 wayland_waya_global_interface_urefu_waya(n8* buf, n64 off) {
+    rudisha pata_u32(buf, off + 12);
+}
+
+n8* wayland_waya_global_interface_ptr(n8* buf, n64 off) {
+    rudisha buf + off + 16;
+}
+
+n64 wayland_waya_global_version(n8* buf, n64 off) {
+    n64 ulen = wayland_waya_global_interface_urefu_waya(buf, off);
+    n64 upakwa = ((ulen + 3) / 4) * 4;
+    rudisha pata_u32(buf, off + 16 + upakwa);
+}
