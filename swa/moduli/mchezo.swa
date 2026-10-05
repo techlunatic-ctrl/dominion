@@ -252,6 +252,7 @@ husisha { moduli/abstracts/vipimo_laini.swa }
 husisha { moduli/subunits/kitengo_chini.swa }
 husisha { moduli/utamaduni/uandishi.swa }
 husisha { moduli/data/historia_db.swa }
+husisha { moduli/data/takwimu_historia.swa }
 husisha { moduli/uchumi/soko_fedha.swa }
 
 // NYONGEZA (wimbi la kumi na moja, 2026-10-03): mageuko_lugha
@@ -269,6 +270,16 @@ husisha { moduli/uchumi/soko_fedha.swa }
 husisha { moduli/utamaduni/mageuko_lugha.swa }
 husisha { moduli/utamaduni/utamaduni.swa }
 husisha { moduli/siasa/siasa.swa }
+
+// AWAMU D (2026-10-05): data/takwimu_historia.swa -- chanzo cha data
+// cha namba-kwa-muda (time-series) cha KWANZA kwenye Mchezo, kilichoundwa
+// ili kulisha chati_mstari (onyesho/chati.swa, Awamu C -- angalia
+// 06dc2d0). gdp_historia_addr (field mpya kwenye muundo Mchezo chini)
+// inarekodi sampuli MOJA ya GDP YA JUMLA YA DUNIA (jumla ya
+// uchumi.pato_ghafi ya mataifa YOTE 8, SI GDP ya taifa moja) kwa KILA
+// zamu iliyomalizika -- angalia mchezo_maliza_zamu na
+// mchezo_hesabu_gdp_jumla chini kwa utekelezaji kamili na kwa nini
+// hii iko kwenye mchezo_maliza_zamu, si mchezo_sasisha.
 
 n32 MCHEZO_HALI_KUANDAA = 0;
 n32 MCHEZO_HALI_INAENDESHA = 1;
@@ -420,6 +431,10 @@ muundo Mchezo {
     // utamaduni_kitambulisho_addr iliyopo TAYARI.
     n64 mageuko_lugha_addr;
     n64 siasa_addr;
+
+    // AWAMU D (2026-10-05): data/takwimu_historia.swa -- angalia
+    // maelezo kamili juu ya faili karibu na husisha husika.
+    n64 gdp_historia_addr;
 
     // i18n (lugha_dominion.swa) -- TOFAUTI na mageuko_lugha_addr.
     n64 lugha_addr;
@@ -617,6 +632,9 @@ w0 mchezo_weka_mageuko_lugha(Mchezo* g, UtamaduniMageukoMfumo* v) { g->mageuko_l
 SiasaMfumo* mchezo_pata_siasa(Mchezo* g) { rudisha g->siasa_addr; }
 w0 mchezo_weka_siasa(Mchezo* g, SiasaMfumo* v) { g->siasa_addr = v; }
 
+TakwimuHistoria* mchezo_pata_gdp_historia(Mchezo* g) { rudisha g->gdp_historia_addr; }
+w0 mchezo_weka_gdp_historia(Mchezo* g, TakwimuHistoria* v) { g->gdp_historia_addr = v; }
+
 LughaMfumo* mchezo_pata_lugha_mfumo(Mchezo* g) { rudisha g->lugha_addr; }
 w0 mchezo_weka_lugha_mfumo(Mchezo* g, LughaMfumo* v) { g->lugha_addr = v; }
 
@@ -709,6 +727,7 @@ Mchezo* mchezo_unda() {
     g->uandishi_addr = 0;
     g->historia_db_addr = 0;
     g->soko_fedha_addr = 0;
+    g->gdp_historia_addr = 0;
     g->utendaji.idadi_ya_sasisho = 0;
     g->utendaji.muda_wa_wastani_wa_sasisho = 0.0;
     g->utendaji.muda_wa_mwisho_wa_sasisho = 0.0;
@@ -940,6 +959,11 @@ CivMatokeo mchezo_anzisha(Mchezo* g, MchezoUsanidi* usanidi) {
     // angalia maelezo ya wigo juu ya faili na siasa.swa.
     mchezo_weka_mageuko_lugha(g, utamaduni_mageuko_mfumo_unda());
     mchezo_weka_siasa(g, siasa_mfumo_unda());
+
+    // AWAMU D: gdp_historia huanza TUPU (idadi=0, uwezo=64) -- sampuli
+    // ya kwanza huongezwa na mchezo_maliza_zamu, si hapa (angalia
+    // maelezo kamili karibu na mchezo_hesabu_gdp_jumla chini).
+    mchezo_weka_gdp_historia(g, takwimu_historia_unda());
 
     g->hali_ya_mchezo = MCHEZO_HALI_INAENDESHA;
     g->inafanya_kazi = 1;
@@ -1444,8 +1468,42 @@ w0 mchezo_zima_mifumo_huru(Mchezo* g) {
     SiasaMfumo* siasa_zima = mchezo_pata_siasa(g);
     kama (siasa_zima != 0) { siasa_mfumo_uharibu(siasa_zima); }
 
+    // AWAMU D: gdp_historia -- achilia KABLA ya Mchezo mwenyewe
+    // kuachiliwa (mchezo_uharibu huita mchezo_zima, ambayo huita kazi
+    // hii, kisha achilia g).
+    TakwimuHistoria* gdp_historia_zima = mchezo_pata_gdp_historia(g);
+    kama (gdp_historia_zima != 0) { takwimu_historia_uharibu(gdp_historia_zima); }
+
     LughaMfumo* lugha_zima = mchezo_pata_lugha_mfumo(g);
     kama (lugha_zima != 0) { d_lugha_funga(lugha_zima); }
+}
+
+// mchezo_hesabu_gdp_jumla: GDP ya JUMLA YA DUNIA (jumla ya
+// uchumi.pato_ghafi ya mataifa YOTE kwenye TaifaMfumo, si GDP ya
+// taifa moja) -- dunia_taifa_hesabu_uchumi_wote (inayoitwa kwenye
+// mchezo_sasisha, angalia juu) TAYARI inakokotoa jumla hii kama
+// kigezo cha ndani (jumla_ya_pato, taifa.swa) lakini inaitupa isipokuwa
+// jumla_nje != 0 ipitishwe -- mchezo_sasisha huipitisha 0 (jumla_tupu)
+// kwa sasa. Badala ya kubadilisha wito huo (kungeongeza kigezo kimoja
+// zaidi cha ndani kwenye mchezo_sasisha, ambayo TAYARI iko karibu
+// sana na kikomo cha mkusanyaji cha vigezo 64 vya ndani -- angalia
+// maoni ya mchezo_sasisha_mifumo_huru juu), tunajumlisha WENYEWE hapa
+// kutoka kwa pato_ghafi ya kila taifa (tayari ZIMESASISHWA na wito wa
+// mwisho wa mchezo_sasisha kabla ya zamu hii kumalizika).
+d64 mchezo_hesabu_gdp_jumla(Mchezo* g) {
+    d64 jumla = 0.0;
+    kama (g == 0) { rudisha jumla; }
+    TaifaMfumo* taifa = mchezo_pata_taifa(g);
+    kama (taifa == 0) { rudisha jumla; }
+    n32 i = 0;
+    wakati (i < taifa->idadi) {
+        TaifaNchi* t = dunia_taifa_mfumo_pata_kwa_faharisi(taifa, i);
+        kama (t != 0) {
+            jumla = jumla + t->uchumi.pato_ghafi;
+        }
+        i = i + 1;
+    }
+    rudisha jumla;
 }
 
 CivMatokeo mchezo_maliza_zamu(Mchezo* g) {
@@ -1466,6 +1524,17 @@ CivMatokeo mchezo_maliza_zamu(Mchezo* g) {
     WakalaInjini* wakala = mchezo_pata_wakala(g);
     kama (wakala != 0 && saa != 0) {
         wakala_injini_sasisha_zamu(wakala, saa->mwaka_wa_ulimwengu, saa->siku_ya_ulimwengu);
+    }
+
+    // AWAMU D: sampuli MOJA ya GDP ya jumla ya dunia kwa kila zamu
+    // iliyomalizika -- hapa (mchezo_maliza_zamu), SIYO mchezo_sasisha
+    // (ambayo huendesha kwa kila dt, si kila zamu) -- kwa hiyo idadi
+    // ya sampuli (gdp_historia->idadi) ni HASA sawa na idadi ya mara
+    // mchezo_maliza_zamu imeitwa (= idadi ya zamu zilizomalizika).
+    TakwimuHistoria* gdp_historia = mchezo_pata_gdp_historia(g);
+    kama (gdp_historia != 0) {
+        d64 gdp_jumla = mchezo_hesabu_gdp_jumla(g);
+        takwimu_historia_ongeza(gdp_historia, gdp_jumla);
     }
 
     andika(d_tafsiri("m2"), g->zamu_ya_sasa, 0,0,0,0,0);
