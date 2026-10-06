@@ -172,3 +172,127 @@ w0 chati_mstari(ChatiMstariHoja* hoja) {
         i = i + 1;
     }
 }
+
+// chati_mstari_eleza -- MAELEZO (label) kwenye pointi MAALUM ya chati
+// ya mstari iliyopo tayari. Hii SI kazi mpya ya uchoraji wa mstari --
+// ni nyongeza ya kuandika `maneno` karibu na pointi moja, baada ya
+// chati_mstari kuwa imeshachora mstari/pointi zote. Nafasi ya pointi
+// (x_i, y_i) HUKOKOTOLEWA KWA MUUNDO HUO HUO HASA uliotumika ndani ya
+// chati_mstari hapo juu (auto-scale wima kati ya juu/chini ya
+// sampuli zote) -- fomula HAIJAVUMBULIWA upya hapa.
+w0 chati_mstari_eleza(ChatiMstariHoja* hoja, n32 faharisi_ya_pointi, n8* maneno) {
+    kama (hoja == 0 || maneno == 0) { rudisha; }
+    kama (hoja->idadi < 2) { rudisha; }
+    kama (faharisi_ya_pointi < 0 || faharisi_ya_pointi >= hoja->idadi) { rudisha; }
+
+    // juu na chini zaidi kati ya sampuli ZOTE -- HASA kama ndani ya
+    // chati_mstari.
+    d64 juu = hoja->sampuli[0];
+    d64 chini = hoja->sampuli[0];
+    n32 i = 1;
+    wakati (i < hoja->idadi) {
+        kama (hoja->sampuli[i] > juu) { juu = hoja->sampuli[i]; }
+        kama (hoja->sampuli[i] < chini) { chini = hoja->sampuli[i]; }
+        i = i + 1;
+    }
+    d64 wigo = juu - chini;
+    kama (wigo <= 0.0) { wigo = 1.0; }
+
+    // nafasi ya pointi `faharisi_ya_pointi` -- HASA kama x_i/y_i
+    // ndani ya chati_mstari.
+    n64 x_i = hoja->x + ((faharisi_ya_pointi * hoja->w) / (hoja->idadi - 1));
+    d64 kipimo = (hoja->sampuli[faharisi_ya_pointi] - chini) / wigo;
+    n64 y_i = (hoja->y + hoja->h) - (kipimo * hoja->h);
+
+    // andika `maneno` juu kidogo ya pointi (nafasi ya pengo 8px ili
+    // kutoonana na duara dogo la alama ya data) -- tumia tena
+    // mchoro_andika_mstari (fonti.swa) moja kwa moja.
+    MchoroMaandishiHoja ch;
+    ch.fb = hoja->fb;
+    ch.pitch = hoja->pitch;
+    ch.canvas_w = hoja->canvas_w;
+    ch.canvas_h = hoja->canvas_h;
+    ch.x = x_i;
+    ch.y = y_i - 8;
+    ch.maandishi = maneno;
+    ch.rangi = CHATI_RANGI_MAANDISHI;
+    mchoro_andika_mstari(&ch);
+}
+
+// ChatiBungeHoja -- chati ya "hemicycle" (bunge): dots zinazopanga
+// nusu-duara MOJA (radius moja -- toleo la KWANZA, si matao mengi ya
+// kweli ya mabunge halisi), kila dot ikiwakilisha KITI kimoja,
+// rangi ikilingana na kundi/chama chake. Zaidi ya vigezo 6, fungwa
+// kwenye muundo (kanuni ya usanifu ya mradi).
+muundo ChatiBungeHoja {
+    n8* fb;
+    n64 pitch;
+    n64 canvas_w;
+    n64 canvas_h;
+    n64 cx;        // kituo cha nusu-duara
+    n64 cy;        // chini ya nusu-duara (dots zinapanda juu kutoka hapa)
+    n64 radius;
+    n64* idadi_kwa_chama;  // safu ya n64, idadi ya "viti" kwa kila kundi
+    n32 idadi_ya_vyama;
+};
+
+// Radius ya kila dot (kiti) kwenye chati ya bunge -- ndogo, 4px.
+n64 CHATI_BUNGE_RADIUS_DOT = 4;
+
+// chati_bunge -- huchora viti vyote kwenye nusu-duara MOJA (pembe
+// kutoka 180 [kushoto] hadi 0 [kulia] digrii, juu ya `cy`), kiti
+// kimoja baada ya kingine kikizunguka kutoka chama cha 0 hadi cha
+// mwisho (mpangilio: vitu vya kwanza `idadi_kwa_chama[0]` ni chama 0,
+// vinavyofuata `idadi_kwa_chama[1]` ni chama 1, n.k.). Rangi ya kila
+// dot hutoka kwenye mchoro_rangi_ya_faharisi (Awamu B) kulingana na
+// chama chake.
+w0 chati_bunge(ChatiBungeHoja* hoja) {
+    kama (hoja == 0 || hoja->idadi_kwa_chama == 0 || hoja->idadi_ya_vyama == 0) { rudisha; }
+
+    // 1. jumla ya viti -- jumlisha idadi_kwa_chama[0..idadi_ya_vyama-1].
+    n64 jumla = 0;
+    n32 c = 0;
+    wakati (c < hoja->idadi_ya_vyama) {
+        jumla = jumla + hoja->idadi_kwa_chama[c];
+        c = c + 1;
+    }
+    kama (jumla == 0) { rudisha; }
+
+    // 2. jumla_m1 -- epuka kugawanya kwa sifuri kama kiti kimoja pekee.
+    n64 jumla_m1 = jumla - 1;
+    kama (jumla_m1 < 1) { jumla_m1 = 1; }
+    d64 jumla_m1_d = jumla_m1;
+    d64 pi = civ_pi();
+    d64 radius_d = hoja->radius;
+
+    // 3. panga dots -- kiti kimoja baada ya kingine, kihesabu `kiti`
+    //    kikiendelea KIMATAIFA (0..jumla-1) likivuka mipaka ya kila
+    //    chama, ili pembe ipande kutoka 180 (kiti=0) hadi 0 (kiti=
+    //    jumla-1) HASA kama ilivyoagizwa.
+    n64 kiti = 0;
+    n32 chama = 0;
+    wakati (chama < hoja->idadi_ya_vyama) {
+        n64 rangi = mchoro_rangi_ya_faharisi(chama);
+        n64 j = 0;
+        wakati (j < hoja->idadi_kwa_chama[chama]) {
+            d64 kiti_d = kiti;
+            d64 pembe = pi - (kiti_d / jumla_m1_d) * pi;
+
+            // nafasi -- kioo HASA cha mtindo wa onyesho_dunia_duara_chora
+            // (ramani_onyesho.swa Awamu G2): kokotoa katika d64 kisha
+            // kata (truncate) kwenda n64 KABLA ya kujumlisha na cx/cy.
+            d64 x_off = radius_d * civ_cos(pembe);
+            d64 y_off = radius_d * civ_sin(pembe);
+            n64 x_off_i = x_off;
+            n64 y_off_i = y_off;
+            n64 px = hoja->cx + x_off_i;
+            n64 py = hoja->cy - y_off_i;
+
+            mchoro_duara(hoja->fb, hoja->pitch, hoja->canvas_w, hoja->canvas_h, px, py, CHATI_BUNGE_RADIUS_DOT, rangi);
+
+            kiti = kiti + 1;
+            j = j + 1;
+        }
+        chama = chama + 1;
+    }
+}
