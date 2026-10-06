@@ -25,6 +25,18 @@ muundo InjiniUhifadhi {
 InjiniUhifadhi* injini_uhifadhi_unda(n8* saraka_ya_kuhifadhi) {
     InjiniUhifadhi* sp = tenga(ukubwa(InjiniUhifadhi));
     sp->saraka_ya_kuhifadhi = saraka_ya_kuhifadhi;
+    // MUHIMU: hakuna kinachoundaga saraka hii popote pengine --
+    // mchezo_hifadhi() ingekuwa ikishindwa KIMYA (faili_fungua(...,
+    // "w") inarudisha 0/ENOENT ikiwa saraka mzazi haipo) kila wakati
+    // saraka hii haijawahi kuundwa kwa mkono KABLA -- hii NDIYO
+    // sababu halisi ya hitilafu 30 za jaribio_uhifadhi_mchezo.swa
+    // (mchezo_hifadhi/mchezo_pakia zenyewe zilikuwa zikishindwa,
+    // SI mantiki ya uchanganuzi wa shamba -- angalia uchunguzi kamili
+    // kwenye ujumbe wa commit). Hitilafu ya "tayari ipo" (-17,
+    // EEXIST) inapuuzwa kwa makusudi, SI kukataliwa.
+    kama (saraka_ya_kuhifadhi != 0) {
+        sys_mkdir(saraka_ya_kuhifadhi, 493);
+    }
     rudisha sp;
 }
 

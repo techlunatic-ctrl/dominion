@@ -76,6 +76,19 @@ n64 sys_ioctl(n64 faili, n64 ombi, n8* hoja) {
     rudisha wito_wa_mfumo(16, faili, ombi, hoja, 0, 0, 0);
 }
 
+// sys_mkdir -- unda saraka (haifanyi kazi kimya ikiwa TAYARI ipo --
+// mwitaji anapaswa kupuuza hitilafu "tayari ipo" [-17/EEXIST] badala
+// ya kuikataa). `ruhusa` ya kawaida: 0755 (493). Imesawazishwa kutoka
+// lugha-swa/swa (msingi/maktaba/kumbukumbu.swa, PR #307) -- angalia
+// injini_uhifadhi_unda (moduli/injini/uhifadhi.swa) kwa SABABU
+// ilivyoongezwa: saraka ya kuhifadhi (mfano "saves") haikuwahi
+// kuundwa na chochote, ikisababisha mchezo_hifadhi kushindwa KIMYA
+// (faili_fungua(..., "w") inashindwa ENOENT ikiwa saraka mzazi
+// haipo -- angalia jaribio_uhifadhi_mchezo.swa).
+n64 sys_mkdir(n8* njia, n64 ruhusa) {
+    rudisha wito_wa_mfumo(83, njia, ruhusa, 0, 0, 0, 0);
+}
+
 
 // ==========================================================
 // Uchapishaji — andika_n64 / andika_mfuatano / andika_baiti
