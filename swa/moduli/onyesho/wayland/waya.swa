@@ -317,6 +317,10 @@ n8* wayland_waya_jenga_set_title(n64 toplevel_id, n8* title) {
 
 n64 WAYLAND_WAYA_SURFACE_OP_DESTROY = 0;
 n64 WAYLAND_WAYA_SURFACE_OP_ATTACH = 1;
+n64 WAYLAND_WAYA_SURFACE_OP_FRAME = 3;  // Awamu I -- frame-pacing HALISI,
+    // imethibitishwa dhidi ya /usr/share/wayland/wayland.xml moja kwa moja
+    // (mpangilio wa request za wl_surface: destroy=0,attach=1,damage=2,
+    // frame=3,set_opaque_region=4,set_input_region=5,commit=6,...)
 n64 WAYLAND_WAYA_SURFACE_OP_COMMIT = 6;
 n64 WAYLAND_WAYA_SURFACE_OP_DAMAGE_BUFFER = 9;  // since=4 (angalia wayland.xml)
 
@@ -356,5 +360,22 @@ n8* wayland_waya_jenga_commit(n64 surface_id) {
     n8* m = tenga(ukubwa);
     weka_u32(m, 0, surface_id);
     weka_u32(m, 4, WAYLAND_WAYA_SURFACE_OP_COMMIT | (ukubwa << 16));
+    rudisha m;
+}
+
+// wayland_waya_jenga_frame -- Awamu I: "request a notification when it
+// is a good time to start drawing a new frame" (wayland.xml, wl_surface
+// frame). Hoja moja TU: new_id ya wl_callback mpya (kioo HASA cha
+// wayland_waya_jenga_sync, isipokuwa object_id ni surface_id, SI
+// WAYLAND_WAYA_DISPLAY_ID -- sync iko kwenye wl_display, frame iko
+// kwenye wl_surface). Tukio linalofuata ni wl_callback.done
+// (WAYLAND_WAYA_CALLBACK_EV_DONE, ILE ILE inayotumika na sync ya
+// mwanzo -- interface moja, kazi mbili tofauti za kutuma ombi).
+n8* wayland_waya_jenga_frame(n64 surface_id, n64 callback_id) {
+    n64 ukubwa = 12;
+    n8* m = tenga(ukubwa);
+    weka_u32(m, 0, surface_id);
+    weka_u32(m, 4, WAYLAND_WAYA_SURFACE_OP_FRAME | (ukubwa << 16));
+    weka_u32(m, 8, callback_id);
     rudisha m;
 }
